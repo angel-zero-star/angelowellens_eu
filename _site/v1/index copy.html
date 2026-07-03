@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<title>ANGELO WELLENS</title>
+<meta name="viewport" content="maximum-scale=2" />
+<meta name="viewport" content="user-scalable=no,width=980" />
+<meta name="description" content="The online portfolio of Angelo Wellens." />
+<meta name="keywords" content="Digital, Media, Design, Art Direction, Art, Motion, Animation, Web, Development, HTML5, CSS3, Mograph, Motion Graphics, Graphics, Experimental, Digital Media, Video, Noise, Processing, Arduino" />
+<link rel="stylesheet" href="../new_beta/style.css" type="text/css" media="screen" />
+<script src="../new_beta/js/jquery-1.7.2.min.js"></script>
+    	
+
+
+<script type="text/javascript">
+
+	$('.aw').live({ 
+        mouseenter: function() {
+            if ( $(this).hasClass('flip') ) {
+                $(this).removeClass('flip');
+            } else {
+                $(this).addClass('flip');   
+            }
+        },
+        mouseleave: function() {
+            if ( $(this).hasClass('flip') ) {
+                $(this).removeClass('flip');
+            } else {
+                $(this).addClass('flip');   
+            }
+        }
+		});
+		
+function add2Class(id,button) {
+
+	var growDiv = document.getElementById(id);	
+	
+	if (growDiv.clientHeight != 0) {
+      growDiv.style.height = 0;
+      $("#"+button+" a").attr("class", "more");    
+     } else {
+      	var wrapper = document.querySelector('.'+id);
+      	$(growDiv).css({'height' : wrapper.clientHeight + "px"});
+      			
+	      		$("#"+button+" a").attr("class", "less");
+	      		//alert($("a", this).attr("class"));
+  			  	
+	           	
+    	}
+    };
+   
+</script>
+
+
+</head>
+
+<body>
+
+
+
+	<div id="header">
+		<div class="aw"><div class="front"></div></div>
+		<a href="#" class="work">Works</a>
+		<a href="#" class="cv">Cv</a>
+	</div> <!-- End Header -->
+	
+	<div id="wrap">
+		<div class="post">
+			<div id="content">
+			</div>
+			<div class="top">
+			</div>
+			
+		</div>	<!--End Post --><div class="rand"></div>  <!-- Rand -->
+		
+		<div class="post">
+			<div id="content">
+			<h1>Jagermeister - Rebirth</h1>
+			<iframe src="http://player.vimeo.com/video/38378877?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="940" height="529" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			<p>
+			JŠgermeister wanted to create a stylised video piece to promote their drinks brand across a range of clubs in Germany. Displayed on large flat screen monitors and digital media throughout various participating venues.
+			</p>
+			</div>
+			<div id="test1" class="extra">
+			 <div class='measuringWrapper test1'>
+				<img src="../new_beta/assets/jager/jager2.jpg" height="260px" width="460px">
+				<img style="float:right" src="../new_beta/assets/jager/jager4.jpg" height="260px" width="460px">
+				<img src="../new_beta/assets/jager/jager3.jpg" height="260px" width="460px">
+				<img style="float:right" src="../new_beta/assets/jager/jager1.jpg" height="260px" width="460px">
+				<img src="../new_beta/assets/jager/jager5.jpg" height="260px" width="460px">
+				<img style="float:right" src="../new_beta/assets/jager/jager6.jpg" height="260px" width="460px">
+				<p>	
+				The content needed to speak about the brand in a refreshing, energetic way.
+Creating something interesting, and quite abstract, whilst simultaneously telling a story was of importance during this project. The finished piece was designed to loop indefinitely, yet it can still be interpreted as a journey through the dimensions of evolution, moments in time and kinetic energy.</p>
+<p>
+Art Direction, concept, amimation,.../<br />
+<a href="#">Antar Walker</a><br />
+late nights animation help/<br />
+<a href="#">Angelo wellens </a><br />
+Soundtrack/<br />
+<a href="#">Henrique Matias</a><br />
+Created at Hi-ReS!/<br />
+<a href="#">hi-res!</a><br />
+<br />
+Software used: Cinema4D, AfterEffects, FinalCut pro
+					
+				</p>
+			 </div>
+			</div>
+			<div id="button1" class="morebutton">
+				<a class="more" onclick="add2Class('test1','button1');">Read More</a>
+			</div>
+			
+		</div>	<!-- End Post --><div class="rand"></div>  <!-- Rand -->
+<!-- - - - - - - - - - - - - - - - - - - - - - New Post -->	
+	<div class="post">
+			<div id="content">
+			<h1>Projection Mapping - Skull</h1>  
+			<iframe src="http://player.vimeo.com/video/28635097?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="940" height="529" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			</div>
+			<div id="test2" class="extra">
+				<div class='measuringWrapper test2'>
+					<img src="../new_beta/assets/skull/skull1.jpg" width="620px" height="413px">
+					<img style="float:right" src="../new_beta/assets/skull/skull2.jpg" width="300px" height="413px">
+					<p>
+					Modelled with Cinema 4D and printed with Pepakura/<br />
+					<a href="http://tamasoft.co.jp/pepakura-en/">tamasoft.co.jp/pepakura-en/</a><br />
+					Graphics are generated in Resolume Avenue/<br />
+					<a href="http://resolume.com">resolume.com</a><br />
+					Colours, effects and mapping witch Quart Composer,
+					Kineme 3D plugin/<br />
+					<a href="kineme.net/Kineme3D">kineme.net/Kineme3D</a><br />
+					also indispensable/<br />
+					<a href="syphon.v002.info">syphon.v002.info</a><br />
+					</p>
+				</div>
+			</div>
+			<div id="button2" class="morebutton">
+				<a onclick="add2Class('test2','button2');" class="more">Read More</a>
+			</div>
+	
+		</div>	<!-- End Post --><div class="rand"></div>  <!-- Rand -->
+		
+		
+<!-- - - - - - - - - - - - - - - - - - - - - - New Post -->		
+	<div class="post">
+			<div id="content">
+			</div>
+			<div id="test3" class="extra">
+				<div class='measuringWrapper test3'>
+			
+				</div>
+			</div>
+			<div id="button3" class="morebutton">
+				<a onclick="add2Class('test3','button3');" class="more">Read More</a>
+			</div>
+			
+		</div>	<div class="rand"></div>  <!-- Rand -->
+	
+		
+<!-- - - - - - - - - - - - - - - - - - - - - - New Post -->	
+	<div class="post">
+			<div id="content">
+			<h1><!-- - - Title --></h1>  
+			<!-- - - content -->
+			</div>
+			<div id="test2" class="extra">
+				<div class='measuringWrapper test2'>
+					<!-- - - MORE -->
+				</div>
+			</div>
+			<div id="button2" class="morebutton">
+				<a onclick="add2Class('test2','button2');" class="more">Read More</a>
+			</div>
+			
+		</div>	<!-- End Post --><div class="rand"></div>  <!-- Rand -->
+		
+
+
+</div>	<!--  - - - - Wrap -->
+		
+		<div id="bg">
+		</div>		
+</body>
+</html>
+  
+
+
+

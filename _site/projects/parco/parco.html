@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Parco</title>
+<style>
+
+#wrap_project {
+  margin-left: auto;
+  margin-right: auto;
+  width: 84%;
+  max-width: 1200px;
+  opacity: 0;
+  -webkit-transform: translate3d(0, 60px, 0);
+          transform: translate3d(0, 60px, 0);
+  -webkit-transition: all 0.85s ease-out;
+          transition: all 0.85s ease-out;
+  padding-bottom: 120px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.project-alt {
+  opacity: 1 !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0) !important;
+}
+
+/* ── Breakout: one class, consistent width + spacing for all media ── */
+.breakout {
+  display: block;
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+/* Inside .project-details (780px column) → expand to fill #wrap_project */
+.project-details .breakout {
+  width: 154%;
+  margin-left: -27%;
+}
+
+.project-hero-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.project-details {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  align-items: center;
+}
+
+.project-details h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-decoration: none;
+  float: none;
+  position: static;
+  color: #191919;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+}
+
+.project-description {
+  font-size: 22px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  color: #191919;
+}
+
+.results-section {
+  margin-bottom: 80px;
+}
+
+.results-note {
+  font-size: 14px;
+  color: #888;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #191919;
+  line-height: 32px;
+}
+
+.project-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.info-block h4 {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.info-content {
+  font-size: 15px;
+  line-height: 26px;
+  color: #191919;
+}
+
+.info-content p { margin: 0; }
+
+.info-content a {
+  color: #191919;
+  text-decoration: none;
+  border-bottom: 1px solid #191919;
+  transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+  margin-bottom: 44px;
+}
+
+.project-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-decoration: none;
+  position: static;
+  color: #191919;
+}
+
+.project-section p {
+  font-size: 15px;
+  line-height: 26px;
+  color: #666;
+  margin-bottom: 14px;
+}
+
+.problem-list, .feature-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.problem-list li, .feature-list li {
+  font-size: 15px;
+  line-height: 26px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 14%;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.page-title h4 {
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #3c3c3c;
+  font-size: 640%;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.1;
+  text-decoration: none;
+  position: static;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0 0 20px;
+}
+
+.page-title .project-meta {
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+.value-item { margin-bottom: 28px; }
+
+.value-item h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #191919;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.value-item p {
+  font-size: 15px;
+  line-height: 26px;
+  color: #666;
+  margin: 0;
+}
+
+.phones-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  align-items: flex-end;
+}
+
+.phones-row img {
+  width: 44%;
+  max-width: 420px;
+  display: block;
+}
+
+.website-row {
+  display: flex;
+  gap: 20px;
+}
+
+.website-row img {
+  width: 50%;
+  display: block;
+}
+
+.overlay-stack {
+  position: relative;
+}
+
+.overlay-stack img.base {
+  width: 100%;
+  display: block;
+}
+
+.overlay-stack img.overlay-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.project-video-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+}
+
+video.project-video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Parallax flow section ── */
+.parallax-section {
+  position: relative;
+  height: 560px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.parallax-bg {
+  position: absolute;
+  top: -25%;
+  left: 0;
+  width: 100%;
+  height: 150%;
+  object-fit: cover;
+  object-position: center top;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.parallax-top {
+  position: absolute;
+  top: -25%;
+  left: 0;
+  width: 100%;
+  height: 150%;
+  object-fit: contain;
+  object-position: center;
+  will-change: transform;
+  pointer-events: none;
+  /* PNG is already transparent — no blend mode needed */
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Close CTA ── */
+.cta-close {
+  display: inline-block;
+  padding: 14px 48px;
+  border-radius: 100px;
+  border: 1.5px solid #191919;
+  background: transparent;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #191919;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cta-close:hover {
+  background: #191919;
+  color: #fff;
+}
+
+/* ── GIF grid ── */
+.gif-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.gif-cell {
+  background: #ddd;
+  border-radius: 12px;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.gif-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media screen and (max-width: 800px) {
+  .gif-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Phones fan (second parallax) ── */
+.phones-fan {
+  position: absolute;
+  top: -25%;
+  left: 0;
+  width: 100%;
+  height: 150%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.phones-fan img {
+  position: absolute;
+  top: 50%;
+}
+
+/* Source PNGs are cropped at different ratios — widths tuned so the
+   phone bodies render at roughly equal size. */
+.phones-fan .phone-left {
+  width: 32%;
+  left: 38%;
+  transform: translate(-50%, -42%) rotate(-7deg);
+  z-index: 3;
+}
+
+.phones-fan .phone-center {
+  width: 38%;
+  left: 52%;
+  transform: translate(-50%, -50%) rotate(-1deg);
+  z-index: 2;
+}
+
+.phones-fan .phone-right {
+  width: 66%;
+  left: 66%;
+  transform: translate(-50%, -42%) rotate(5deg);
+  z-index: 1;
+}
+
+@media screen and (max-width: 800px) {
+  .stats-grid, .project-info-grid { grid-template-columns: repeat(2, 1fr); }
+  .phones-row { flex-direction: column; align-items: center; }
+  .phones-row img { width: 80%; }
+  .website-row { flex-direction: column; }
+  .website-row img { width: 100%; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h4>Parco — Mobile Parking Platform</h4>
+  <div class="project-meta">
+    <span class="project-tag">Mobile</span>
+    <span class="project-tag">Mobility</span>
+    <span class="project-tag">iOS / Android</span>
+    <span class="project-tag">2024</span>
+  </div>
+</div>
+<img id="loader2" src="loading_good.gif" width="auto" height="auto" />
+
+<div id="wrap_project">
+
+
+
+  <div class="project-details">
+
+    <p class="project-description">Parco is a mobile parking platform that enables cashless, ticket-free, pay-per-minute parking across hundreds of cities in Germany and Austria. The product operates within complex municipal regulations while serving users in time-critical, high-stress urban contexts.</p>
+    <p class="project-description">We focused on translating regulatory complexity into a <strong>clear, fast, and trustworthy end-to-end experience.</strong></p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Lead / Founder Designer</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>Brand Identity</p>
+          <p>Marketing Website</p>
+          <p>Custom mobile design system</p>
+          <p>iOS &amp; Android app</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="https://www.parco-app.de" target="_blank">Website ↗</a></p>
+          <p><a href="https://apps.apple.com/de/app/parco-einfach-clever-parken/id1453041749" target="_blank">App Store ↗</a></p>
+          <p><a href="https://play.google.com/store/apps/details?id=eu.parkhere.smartcity" target="_blank">Play Store ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+    <img class="breakout project-hero-img" src="projects/parco/assets/parco_hero.png" alt="Parco" />
+
+    <div class="results-section">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-label">Active Users</div><div class="stat-value">2.3K</div></div>
+        <div class="stat"><div class="stat-label">User Growth</div><div class="stat-value">+145%</div></div>
+        <div class="stat"><div class="stat-label">App Rating</div><div class="stat-value">4.8</div></div>
+        <div class="stat"><div class="stat-label">Daily Engagement</div><div class="stat-value">68%</div></div>
+        <div class="stat"><div class="stat-label">Total Downloads</div><div class="stat-value">15k</div></div>
+        <div class="stat"><div class="stat-label">Category Ranking</div><div class="stat-value">#17</div></div>
+      </div>
+      <p class="results-note">Parco was fully acquired by Swarco AG in 2024.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Problem space</h3>
+      <p>Urban parking is defined by:</p>
+      <ul class="problem-list">
+        <li>Fragmented city rules and pricing models</li>
+        <li>High cognitive load at the moment of use</li>
+        <li>User anxiety around time limits, fines, and overpaying</li>
+      </ul>
+      <p>Most parking systems optimize for enforcement rather than user understanding.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Key product features</h3>
+      <ul class="feature-list">
+        <li>Start &amp; stop parking sessions</li>
+        <li>Minutely billing — users only pay for actual parking time</li>
+        <li>Cashless payments (Apple Pay, Google Pay, PayPal, SEPA)</li>
+        <li>Visibility into parking availability and busyness</li>
+        <li>City-wide coverage across Germany &amp; Austria</li>
+        <li>Smart reminders before parking expires</li>
+        <li>Navigation to parking area and final destination</li>
+      </ul>
+    </div>
+
+    <div class="breakout project-video-wrap">
+      <video class="project-video" playsinline loop muted controls poster="projects/parco/assets/pooster.png">
+        <source src="projects/parco/assets/PARCO_APP_final.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="project-section">
+      <h3>Design approach</h3>
+      <p>We shaped a parking experience that prioritizes speed, clarity, and user confidence — translating complex municipal parking rules into a simple mobile flow for real-world, time-pressured situations.</p>
+      <ul class="feature-list">
+        <li>Simplified user flows for starting and stopping parking sessions</li>
+        <li>Designed for edge cases: overstay anxiety, unclear zones, and payment trust</li>
+        <li>Surfaced real-time parking availability to help users predict where to find a spot</li>
+        <li>Balanced legal and municipal constraints with consumer-grade UX standards</li>
+        <li>Defined a modern, playful visual tone to reduce stress in urban contexts</li>
+      </ul>
+    </div>
+
+    <div class="breakout parallax-section">
+      <img class="parallax-bg" src="projects/parco/assets/flow_bg.png" alt="" />
+      <img class="parallax-top" src="projects/parco/assets/flow_top.png" alt="Parco user flow" />
+    </div>
+
+    <div class="breakout parallax-section">
+      <img class="parallax-bg" src="projects/parco/assets/flow_bg.png" alt="" />
+      <div class="parallax-top phones-fan">
+        <img class="phone-left" src="projects/parco/assets/phones_3.png" alt="Parco parking session" />
+        <img class="phone-center" src="projects/parco/assets/phones_2.png" alt="Parco start parking" />
+        <img class="phone-right" src="projects/parco/assets/phones_1.png" alt="Parco map" />
+      </div>
+    </div>
+
+    <div class="project-section">
+      <h3>User values</h3>
+      <div class="value-item">
+        <h4>Reduced cognitive load</h4>
+        <p>No meters, tickets, or guessing parking duration — users stay in control at all times.</p>
+      </div>
+      <div class="value-item">
+        <h4>Fair pricing &amp; trust</h4>
+        <p>Minutely billing eliminates overpaying and increases confidence in the system.</p>
+      </div>
+      <div class="value-item">
+        <h4>Stress-free urban mobility</h4>
+        <p>Visibility into availability and busyness helps users predict where to find a spot, reducing uncertainty and unnecessary circling.</p>
+      </div>
+      <div class="value-item">
+        <h4>Flexibility in unpredictable situations</h4>
+        <p>One-tap extensions and reminders adapt to real-life delays.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="breakout gif-grid">
+    <div class="gif-cell"><img src="projects/parco/assets/anim_select.gif" alt="Select parking" /></div>
+    <div class="gif-cell"><img src="projects/parco/assets/anim_car.gif" alt="Car animation" /></div>
+    <div class="gif-cell"><img src="projects/parco/assets/anim_search.gif" alt="Search" /></div>
+    <div class="gif-cell"><img src="projects/parco/assets/anim_signin.gif" alt="Sign in" /></div>
+    <div class="gif-cell"><img src="projects/parco/assets/anim_drag.gif" alt="Drag" /></div>
+    <div class="gif-cell"><img src="projects/parco/assets/anim_geo.gif" alt="Geo" /></div>
+  </div>
+
+  <img class="breakout project-hero-img" src="projects/parco/assets/website.png" alt="Parco website" />
+
+</div>
+
+<div id="wrap_project4" style="text-align:center; padding: 60px 0 80px;">
+  <button onclick="close()" class="cta-close">Close</button>
+</div>
+
+</body>
+</html>

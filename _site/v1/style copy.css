@@ -1,0 +1,270 @@
+
+/* -------- FONTS -------- */
+@font-face {
+    font-family: 'LegatoSemiBold';
+    src: url('../new_beta/assets/fonts/legato-semibold-webfont.eot');
+    src: url('../new_beta/assets/fonts/legato-semibold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../new_beta/assets/fonts/legato-semibold-webfont.woff') format('woff'),
+         url('../new_beta/assets/fonts/legato-semibold-webfont.ttf') format('truetype'),
+         url('../new_beta/assets/fonts/legato-semibold-webfont.svg#LegatoSemiBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/* ------- GENERAL -------- */
+
+body {
+	background-color: #ebeff0;
+}
+
+p {
+	font-family: LegatoSemiBold, Arial;
+	color: #343132;
+	font-size: 14px;
+	margin-left: 20px;
+	margin-right: 20px;
+	}
+
+h1 {
+	color: #343132;
+	margin-top: 0px;
+	font-family: LegatoSemiBold, Arial, sans-serif;
+	font-size: 23px;
+	text-transform:uppercase;
+	text-align: center;
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+#bg {
+	top: 0px;
+	left: 0px;
+	position: fixed;
+	background-image: url(../new_beta/assets/bg.jpg);
+	background-position: top;
+	background-repeat: repeat-x;
+	width: 100%;
+	height: 100%;
+	z-index: -1000;
+}
+
+
+.top {
+	margin-top: -190px;
+	background-color: white;
+	height: 200px;
+	width: 980px;
+}
+
+#header {
+	background: url(../new_beta/assets/header.png) no-repeat;
+	z-index: 1000;
+	position: fixed;
+	top: -10px;	
+	left: 50%;
+	width:1034px;
+	height:118px;
+	display: block;
+	margin-left: -517px;
+}
+
+#wrap {
+	position: absolute;
+	margin-top: 20px;	
+	left: 50%;
+	margin-left: -490px;
+}
+
+/* -------- POST -------- */
+
+.post {
+	position: relative;
+	margin-top: 20px;
+	width: 980px;
+	background-color: white;
+}
+
+.rand {
+	height: 18px; 
+	width: 980px;
+	background-image: url(../new_beta/assets/rand.png);
+}
+
+#content {
+	background-color: white;
+	height: auto;
+	width: 940px;
+	padding-left: 20px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.extra {
+	background-color: white;
+	width: 980px;
+	height:0px;
+	-moz-transition: height 1s;
+	-webkit-transition: height 1s;
+	-o-transition: height 1s;
+	overflow: hidden;
+}
+
+.measuringWrapper img {
+	margin-bottom: 20px;
+}
+
+.measuringWrapper {
+	margin-left: 20px;
+	margin-right: 20px;
+	padding-bottom: 20px;
+
+}
+
+/* -------- MENU LINKS -------- */
+/* ---- work ---- */
+a.work {
+	display:block;
+	text-indent: -10000px;
+	width:69px;
+	height:49px;
+	float:right;
+	margin-top:33px;
+	margin-right:148px;
+	background: url(../new_beta/assets/wrk.jpg) no-repeat;
+	background-position-y: -73px;
+}
+
+a.work:hover {
+	background-position-y: -33px;
+}
+
+a.work:active {
+	background-position-y: 8px;
+}
+
+/* ---- cv ---- */
+
+a.cv {
+	display:block;
+	text-indent: -10000px;
+	width:48px;
+	height:49px;
+	float:right;
+	margin-top:33px;
+	margin-right:-145px;
+	background: url(../new_beta/assets/cv.jpg) no-repeat;
+	background-position-y: -100px;
+}
+
+a.cv:hover {
+	background-position-y: -50px;
+}
+
+a.cv:active {
+	background-position-y: 1px;
+}
+
+/* -------- more Less button -------- */
+
+.morebutton{
+	height: 50px;
+	width: 980px;
+	background-color: white;
+	border-bottom: 2px;
+	border-top: 2px;
+	border-left:0px;
+	border-right: 0px; 
+	border-color: white;
+	border-style: solid;
+	
+}
+
+a.more {
+	cursor: pointer;
+	display:block;
+	text-indent: -10000px;
+	width:48px;
+	height:30px;
+	float:left;
+	margin-top:10px;
+	margin-left:40px;
+	background: url(../new_beta/assets/more.jpg) no-repeat;
+	background-position-y: -80px;
+}
+
+a.more:hover {
+	background-position-y: -40px;
+}
+
+a.more:active {
+	background-position-y: 0px;
+}
+
+a.less {
+	cursor: pointer;
+	display:block;
+	text-indent: -10000px;
+	width:48px;
+	height:30px;
+	float:left;
+	margin-top:10px;
+	margin-left:40px;
+	background: url(../new_beta/assets/less.jpg) no-repeat;
+	background-position-y: -80px;
+}
+
+a.less:hover {
+	background-position-y: -40px;
+}
+
+a.less:active {
+	background-position-y: 0px;
+}
+
+/* Logo flip effect */
+
+.aw {
+	margin-top: 32px;
+	margin-left: 80px;
+    float: left;
+    width: 110px;
+    height: 55px;
+    position: relative;
+    
+    -webkit-perspective: 600px;
+    -moz-perspective: 600px;
+}
+.aw .front {
+    float: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 900;
+    width: inherit;
+    height: inherit;
+    text-align: center;
+    background: url(../new_beta/assets/aw_new.jpg) no-repeat;
+    
+    -webkit-transform: rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: visible;
+
+    -moz-transform: rotateY(0deg);
+    -moz-transform-style: preserve-3d;
+    -moz-backface-visibility: hidden;
+
+    -o-transition: all .4s ease-in-out;
+    -ms-transition: all .4s ease-in-out;
+    -moz-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+.aw.flip .front {
+    z-index: 900;
+
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+
+}

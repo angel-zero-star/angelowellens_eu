@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Atlas</title>
+<style>
+
+#wrap_project {
+  margin-left: auto;
+  margin-right: auto;
+  width: 84%;
+  max-width: 1200px;
+  opacity: 0;
+  -webkit-transform: translate3d(0, 60px, 0);
+          transform: translate3d(0, 60px, 0);
+  -webkit-transition: all 0.85s ease-out;
+          transition: all 0.85s ease-out;
+  padding-bottom: 120px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.project-alt {
+  opacity: 1 !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0) !important;
+}
+
+/* ── Breakout: one class, consistent width + spacing for all media ── */
+.breakout {
+  display: block;
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+/* Inside .project-details (780px column) → expand to fill #wrap_project */
+.project-details .breakout {
+  width: 154%;
+  margin-left: -27%;
+}
+
+.project-hero-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.project-details {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  align-items: center;
+}
+
+.project-details h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-decoration: none;
+  float: none;
+  position: static;
+  color: #191919;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+}
+
+.project-description {
+  font-size: 22px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  color: #191919;
+}
+
+.results-section {
+  margin-bottom: 80px;
+}
+
+.results-note {
+  font-size: 14px;
+  color: #191919;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #191919;
+  line-height: 32px;
+}
+
+.project-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.info-block h4 {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.info-content {
+  font-size: 15px;
+  line-height: 26px;
+  color: #191919;
+}
+
+.info-content p { margin: 0; }
+
+.info-content a {
+  color: #191919;
+  text-decoration: none;
+  border-bottom: 1px solid #191919;
+  transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+  margin-bottom: 44px;
+}
+
+.project-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-decoration: none;
+  position: static;
+  color: #191919;
+}
+
+.project-section p {
+  font-size: 15px;
+  line-height: 26px;
+  color: #666;
+  margin-bottom: 14px;
+}
+
+.problem-list, .feature-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.problem-list li, .feature-list li {
+  font-size: 15px;
+  line-height: 26px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.feature-list li strong { color: #191919; }
+
+.page-title {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 14%;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.page-title h4 {
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #3c3c3c;
+  font-size: 640%;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.1;
+  text-decoration: none;
+  position: static;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0 0 20px;
+}
+
+.page-title .project-meta {
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Close CTA ── */
+.cta-close {
+  display: inline-block;
+  padding: 14px 48px;
+  border-radius: 100px;
+  border: 1.5px solid #191919;
+  background: transparent;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #191919;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cta-close:hover {
+  background: #191919;
+  color: #fff;
+}
+
+/* ── Image grid ── */
+.gif-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gif-row {
+  display: flex;
+  gap: 24px;
+}
+
+.gif-cell {
+  border-radius: 16px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.gif-cell.wide   { flex: 1500 1 0; }
+.gif-cell.narrow { flex: 722 1 0; }
+
+.gif-cell img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Process carousel (pinned; a scroll gesture snaps to the next image) ── */
+/* Full-bleed so peeking neighbours extend to the screen edges, but the active
+   image + caption stay sized/aligned to the content column. */
+.process-stack {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 24px;                 /* normal spacing after the intro copy */
+  margin-bottom: 40px;
+  /* height (scroll runway) set by JS */
+}
+
+/* Snap anchors — invisible; one per image, spaced down the runway. */
+.stack-snap {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Native snap is only switched on while the section is pinned. */
+#content.snap-active { scroll-snap-type: y mandatory; }
+
+.stack-pin {
+  position: sticky;
+  top: 40px;
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 22px;
+}
+
+.stack-caption-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 780px;                 /* keep caption inside the text column */
+  margin: 0 auto;
+  min-height: 58px;
+}
+
+.stack-caption-item {
+  position: absolute;
+  inset: 0;
+  font-size: 16px;
+  line-height: 26px;
+  color: #777;
+  opacity: 0;
+  transition: opacity 0.4s ease;    /* opacity only — no vertical movement */
+  pointer-events: none;
+}
+
+.stack-caption-item.active { opacity: 1; }
+.stack-caption-item strong { color: #191919; }
+
+.stack-viewport {
+  overflow: hidden;                 /* clips only at the screen edges */
+  width: 100%;
+}
+
+.stack-track {
+  position: relative;
+  display: flex;
+  gap: 26px;
+  will-change: transform;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stack-card {
+  flex: 0 0 auto;
+  /* width set by JS = 82% of the content column (same size as before) */
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: 0.4;
+  transition: opacity 0.45s ease;
+}
+
+.stack-card.active { opacity: 1; }
+.stack-card img { width: 100%; height: auto; display: block; }
+
+/* ── Design approach scroll (pinned split: left text + right image) ── */
+/* Left edge aligns with the text column; right edge bleeds to viewport edge.
+   Width = 50vw + 390px (half viewport + half of 780px text column). */
+.approach-scroll {
+  position: relative;
+  width: calc(50vw + 390px);
+  margin-left: 0;
+  margin-top: 80px;
+  margin-bottom: 60px;
+}
+
+.approach-snap {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.approach-pin {
+  position: sticky;
+  top: 40px;
+  height: calc(100vh - 80px);
+  display: flex;
+  gap: 52px;
+  align-items: flex-start;
+}
+
+.approach-left {
+  flex: 0 0 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.approach-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.approach-item {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+  font-size: 15px;
+  line-height: 24px;
+  color: #666;
+  opacity: 0.4;
+  transition: opacity 0.5s ease;
+}
+
+.approach-item.active {
+  opacity: 1;
+}
+
+.approach-item strong { color: #191919; }
+
+.approach-right {
+  flex: 1;
+  position: relative;
+  height: calc(100vh - 120px);
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.approach-img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.approach-img.active { opacity: 1; }
+
+.approach-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media screen and (max-width: 800px) {
+  .stats-grid, .project-info-grid { grid-template-columns: repeat(2, 1fr); }
+  .gif-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h4>Atlas Metrics — ESG data infrastructure for private markets.</h4>
+  <div class="project-meta">
+    <span class="project-tag">Web App</span>
+    <span class="project-tag">SaaS · B2B</span>
+    <span class="project-tag">ESG</span>
+    <span class="project-tag">Sustainability</span>
+    <span class="project-tag">Risk management</span>
+  </div>
+</div>
+<img id="loader2" src="loading_good.gif" width="auto" height="auto" />
+
+<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">Atlas Metrics is an ESG data infrastructure platform helping banks, funds, and businesses collect, analyze, and report non-financial data across complex regulatory frameworks like CSRD, SFDR, and the GHG Protocol.</p>
+    <p class="project-description">The platform serves organizations navigating a landscape where compliance requirements evolve faster than most teams can keep up.</p>
+    <p class="project-description"><strong>We turned a technically and regulatorily complex domain into something approachable, structured, and trustworthy</strong> — from the first data input to the final audit-ready report.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content">
+          <p>Lead / Founder Designer</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Scope of work</h4>
+        <div class="info-content">
+          <p>Web application (desktop)</p>
+          <p>Design system</p>
+          <p>Branding &amp; visual language</p>
+          <p>Marketing website (Framer)</p>
+          <p>User research &amp; customer interviews</p>
+          <p>Product roadmapping</p>
+          <p>Design process &amp; team foundations</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="https://www.atlasmetrics.io" target="_blank">atlasmetrics.io ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="breakout gif-grid">
+      <div class="gif-row">
+        <div class="gif-cell wide"><img src="projects/atlas/assets/card_1.png" alt="" /></div>
+        <div class="gif-cell narrow"><img src="projects/atlas/assets/card_2.png" alt="" /></div>
+      </div>
+      <div class="gif-row">
+        <div class="gif-cell narrow"><img src="projects/atlas/assets/card_3.png" alt="" /></div>
+        <div class="gif-cell wide"><img src="projects/atlas/assets/card_4.png" alt="" /></div>
+      </div>
+    </div>
+
+    <div class="results-section">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-label">Banks Served</div><div class="stat-value">200+</div></div>
+        <div class="stat"><div class="stat-label">Funds</div><div class="stat-value">150+</div></div>
+        <div class="stat"><div class="stat-label">Businesses</div><div class="stat-value">3000+</div></div>
+        <div class="stat"><div class="stat-label">Countries</div><div class="stat-value">15+</div></div>
+        <div class="stat"><div class="stat-label">Frameworks Supported</div><div class="stat-value">15+</div></div>
+        <div class="stat"><div class="stat-label">ARR</div><div class="stat-value">2.5M+</div></div>
+      </div>
+      <p class="results-note">Scaled from zero. Atlas was acquired by Novata in 2026 to expand its reach across global private markets.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Problem space</h3>
+      <p>ESG reporting sits at the intersection of regulatory pressure, data fragmentation, and organizational complexity. Most companies deal with:</p>
+      <ul class="problem-list">
+        <li>dozens of overlapping frameworks with conflicting requirements</li>
+        <li>data scattered across subsidiaries, suppliers, and spreadsheets</li>
+        <li>sustainability teams under pressure to produce audit-ready reports with no reliable tooling</li>
+      </ul>
+      <p>Most existing solutions were built for compliance departments — not for the people actually doing the work. The result: tools that were rigid, slow, and disconnected from real workflows.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Design approach</h3>
+      <p>We shaped a platform that turns regulatory complexity into a clear, guided workflow — one that could serve a sustainability manager at a mid-size company and a risk analyst at a major bank within the same system. As the founding designer, the role extended beyond craft — contributing to roadmap decisions, shaping product priorities, and establishing the design processes that would support a growing team.</p>
+    </div>
+
+    <div class="approach-scroll">
+      <div class="approach-pin">
+        <div class="approach-left">
+          <ol class="approach-list">
+            <li class="approach-item active" data-n="0">Full <strong>design system</strong> built from scratch on Tailwind, scaled to support a growing team and product surface.</li>
+            <li class="approach-item" data-n="1"><strong>Design thinking</strong> beyond craft — shaping roadmap decisions, product priorities, and the design processes that would scale with the team.</li>
+            <li class="approach-item" data-n="2"><strong>Enterprise data density</strong> with consumer clarity — complex metrics legible without oversimplifying.</li>
+            <li class="approach-item" data-n="3">A <strong>visual language</strong> of trust and precision, critical for a compliance-adjacent product.</li>
+          </ol>
+        </div>
+        <div class="approach-right">
+          <div class="approach-img active" data-n="0"><img src="projects/atlas/assets/approach_1.png" alt=""></div>
+          <div class="approach-img" data-n="1"><img src="projects/atlas/assets/approach_2.png" alt=""></div>
+          <div class="approach-img" data-n="2"><img src="projects/atlas/assets/approach_3.png" alt=""></div>
+          <div class="approach-img" data-n="3"><img src="projects/atlas/assets/approach_4.png" alt=""></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-section">
+      <h3>Product chapters</h3>
+      <p>Rather than a single feature, Atlas was built as a connected suite — each chapter solving a distinct problem in the ESG data journey.</p>
+      <ul class="feature-list">
+        <li><strong>Data Collection &amp; Network</strong> — value chain data flows, no duplication.</li>
+        <li><strong>Logic Builder &amp; Custom Metrics</strong> — team-defined aggregation rules.</li>
+        <li><strong>Multi-standard Reporting</strong> — one dataset, any framework.</li>
+        <li><strong>Carbon Accounting</strong> — PCAF &amp; GHG Protocol, audit-ready.</li>
+        <li><strong>Risk Engine</strong> — real-time signals, portfolio-level alerts.</li>
+        <li><strong>Performance Monitoring</strong> — benchmarking across portfolios.</li>
+        <li><strong>Materiality Analysis</strong> — automated double-materiality assessments.</li>
+      </ul>
+    </div>
+
+    <div class="project-section">
+      <h3>Design process</h3>
+      <p>A double-diamond process adapted for a complex B2B product — structured enough to move fast, flexible enough to handle regulatory ambiguity at every turn.</p>
+    </div>
+
+    <div class="process-stack">
+      <div class="stack-pin">
+        <div class="stack-caption-wrap">
+          <div class="stack-caption-item active" data-n="0"><strong>User research</strong> — Sustainability officer empathy map grounding the product in real team pressures and workflows.</div>
+          <div class="stack-caption-item" data-n="1"><strong>Problem framing</strong> — Problem statement and jobs-to-be-done defining what the platform needed to solve for different user types.</div>
+          <div class="stack-caption-item" data-n="2"><strong>Service design</strong> — End-to-end blueprint mapping ESG data collection across all roles, phases, and system touchpoints.</div>
+          <div class="stack-caption-item" data-n="3"><strong>Ideation</strong> — User flow and wireframe iterations for the risk assessment feature, informed by user feedback.</div>
+          <div class="stack-caption-item" data-n="4"><strong>Design review</strong> — Live annotation session capturing UX behaviour decisions directly on screen during iteration.</div>
+        </div>
+        <div class="stack-viewport">
+          <div class="stack-track">
+            <div class="stack-card active" data-n="0"><img src="projects/atlas/assets/process_1.png" alt=""></div>
+            <div class="stack-card" data-n="1"><img src="projects/atlas/assets/process_2.png" alt=""></div>
+            <div class="stack-card" data-n="2"><img src="projects/atlas/assets/process_3.png" alt=""></div>
+            <div class="stack-card" data-n="3"><img src="projects/atlas/assets/process_4.png" alt=""></div>
+            <div class="stack-card" data-n="4"><img src="projects/atlas/assets/process_5.png" alt=""></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-section">
+      <h3>Impact</h3>
+      <p>Building Atlas from zero to acquisition meant designing through every stage of a product's life — from rough early concepts with no users to a mature platform trusted by financial institutions across 15+ countries.</p>
+      <p>The challenge was never any single feature. It was maintaining coherence, quality, and user trust across a product that kept expanding in every direction.</p>
+    </div>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>From</h4>
+        <div class="info-content">
+          <p>Zero users</p>
+          <p>No platform</p>
+          <p>Rough concepts</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>To</h4>
+        <div class="info-content">
+          <p>Mature platform</p>
+          <p>15+ countries</p>
+          <p>3000+ businesses</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Outcome</h4>
+        <div class="info-content">
+          <p>Acquired by Novata, 2026</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="wrap_project4" style="text-align:center; padding: 60px 0 80px;">
+  <button onclick="close()" class="cta-close">Close</button>
+</div>
+
+</body>
+</html>
