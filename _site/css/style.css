@@ -51,6 +51,13 @@ h3 {
 html {
 	overflow-y: scroll;
 	scrollbar-gutter: stable;
+	/* Safety net: several .item cards below carry hardcoded pixel widths
+	   (470px, sometimes 230px) via inline style="" attributes, one per
+	   project page. Any one of those wider than the viewport used to drag
+	   the ENTIRE page sideways — not just clip that card — since nothing at
+	   the document level stopped it. This contains that regardless of which
+	   element is the culprit. */
+	overflow-x: hidden;
 }
 
 body {
@@ -60,6 +67,7 @@ body {
 	background-color: white;
 	margin: 0px;
 	color: #191919;
+	overflow-x: hidden;
 
 }
 
@@ -932,6 +940,19 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
     overflow: hidden;
     border-radius: 8px;
 
+}
+
+/* Each .item carries its own hardcoded pixel width via an inline style
+   attribute (230px normally, 470px for wide featured cards) — every
+   project page repeats this markup, so overriding it here beats all of
+   them at once instead of hand-editing dozens of files. !important is
+   required to beat the inline style. Masonry re-measures actual rendered
+   widths on each layout pass, so it adapts to whatever this resolves to. */
+@media screen and (max-width: 500px) {
+	.item {
+		width: 100% !important;
+		max-width: 420px;
+	}
 }
 
 /* The hover blur lives on .overlayitem as a backdrop-filter (see above), not
