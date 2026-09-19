@@ -173,7 +173,11 @@ p {
 	gap: 48px;
 	width: 100%;
 	float: left;
-	margin: 60px 0;
+	/* No margin: this sits between floated elements, which don't collapse
+	   margins with their siblings the way normal-flow blocks do — a margin
+	   here was a literal gap of the page's own dark background showing
+	   through, not breathing room. The 48px padding below does that job
+	   instead, kept inside the card. */
 	padding: 48px;
 	box-sizing: border-box;
 	/* Was baked into kuva2.jpg/kuva3.jpg as a plain white canvas — hardcoded
@@ -215,7 +219,6 @@ p {
 	.kuva-feature, .kuva-feature-reverse {
 		flex-direction: column;
 		gap: 24px;
-		margin: 40px 0;
 	}
 	.kuva-feature-video { flex: none; max-width: 70%; }
 	.kuva-feature-heading { font-size: 26px; }
