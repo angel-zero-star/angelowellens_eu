@@ -1,5 +1,26 @@
 var isMenuOpen = false;
 
+// Belt-and-braces on top of the viewport meta's maximum-scale=1: this is an
+// SPA (folio() swaps #content via AJAX, no real page load), so if a mobile
+// browser ever widens its layout viewport to fit a deliberately-wide page
+// (Kuva's pinned 1400px canvas), that wider viewport can persist across
+// in-app navigation back to a normal page instead of resetting the way it
+// would on a real reload. Toggling the meta tag's content forces most
+// mobile browsers to recompute it from scratch.
+function resetViewportZoom() {
+  var meta = document.querySelector('meta[name="viewport"]');
+  if (!meta) return;
+  var content = meta.getAttribute('content');
+  var parent = meta.parentNode;
+  var next = meta.nextSibling;
+  // Detach and re-insert (not just re-set the same attribute value) — this
+  // is the version of the trick that reliably makes mobile browsers actually
+  // recompute the viewport rather than no-op on an unchanged attribute.
+  parent.removeChild(meta);
+  if (next) parent.insertBefore(meta, next); else parent.appendChild(meta);
+  meta.setAttribute('content', content);
+}
+
 // ── Intro scramble ──
 // Every character cycles random glyphs, then locks into its final letter.
 // Both lines run at once, and each character picks its own random moment to
@@ -1331,6 +1352,7 @@ function loadFolio(url, target) {
 
 // LOAD PROJECT
 function folio(url, target, push = true) {
+  resetViewportZoom();
   loadFolio('/projects/' + url + '/' + url + '.html?v=' + Date.now(), target);
   var title = '@AngeloWellens | ' + url;
   document.title = title;
@@ -1454,6 +1476,7 @@ function close(clear = true) {
     $("body").css({ overflow: "", "overflow-y": "" });
     $("#overlay").fadeOut("slow", function() {
       $("#remove").remove();
+      resetViewportZoom();
     });
   });
 }
