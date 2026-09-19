@@ -952,11 +952,27 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
    attribute (230px normally, 470px for wide featured cards) — every
    project page repeats this markup, so overriding it here beats all of
    them at once instead of hand-editing dozens of files. !important is
-   required to beat the inline style. Masonry re-measures actual rendered
-   widths on each layout pass, so it adapts to whatever this resolves to.
-   Only the wide/featured cards go full-width — standard cards stay at a
-   minimum of 2 per row, never collapsing to a single column. */
+   required to beat the inline style. Only the wide/featured cards go
+   full-width — standard cards stay at a minimum of 2 per row, never
+   collapsing to a single column.
+
+   Masonry.js is configured with a FIXED columnWidth:230, and packs items
+   into a coordinate grid built from that fixed number — it does not read
+   these CSS overrides at all. So on mobile it kept positioning cards (and
+   sizing .work-grid itself, via isFitWidth) as if every item were still
+   230/460px wide, leaving a dead gap on the right of the container where
+   the real, wider viewport went unaccounted for. Forcing .item back to
+   static/float here drops it out of Masonry's absolute-positioned,
+   fixed-column layout entirely and lets the plain CSS float flow (already
+   the base behavior of .item) size the grid to the actual viewport. */
 @media screen and (max-width: 500px) {
+	.work-grid {
+		width: 100% !important;
+		height: auto !important;
+	}
+	.item {
+		position: static !important;
+	}
 	.item[style*="470px"] {
 		width: 100% !important;
 		max-width: 420px;
