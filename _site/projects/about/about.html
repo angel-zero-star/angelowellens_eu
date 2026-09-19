@@ -70,7 +70,12 @@ h4 {
 	line-height: 100%;
 }
 
-h2 {
+/* #wrap_project scoping (not just `h2`) beats the shared stylesheet's own
+   generic h2{font-size:25px} rule on specificity, not injection order — this
+   fragment's <style> is added to the DOM after that shared sheet, but relying
+   on "later wins" for a tie is fragile. Was rendering inconsistently large
+   on some pages because of exactly that ambiguity. */
+#wrap_project h2 {
 	font-family: 'Inter', sans-serif;
 	text-decoration: none;
 	color: #3c3c3c;
@@ -115,13 +120,13 @@ iframe {
 p {
 	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
-	font-size: 28px;
+	font-size: 22px;
 	font-style: normal;
 	font-weight: 400;
-	line-height: 40px;
+	line-height: 32px;
 }
 
-/* The 5% above is ~47px against this container, which on top of the 40px
+/* The 5% above is ~47px against this container, which on top of the 32px
    line-height reads as a double break between the About paragraphs. These
    float, so their margins never collapse into one another either. */
 .about-copy {

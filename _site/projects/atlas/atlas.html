@@ -592,6 +592,90 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
   .gif-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media screen and (max-width: 760px) {
+  /* .breakout's 154%/-27% math assumes .project-details is pinned at its
+     780px desktop max-width, so a breakout child can widen past it toward
+     #wrap_project's edges. Below that, .project-details just fluidly fills
+     #wrap_project — same width as its parent — so the same math massively
+     overflows the viewport instead. Nothing left to break out into, so it's
+     just 100% here. */
+  .project-details .breakout {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* h4's 640% is relative to the 10px base body font-size — 64px on desktop,
+     where the 780px column gives it room to breathe. On a phone-width
+     column the same size wraps into a wall of oversized text. */
+  .page-title h4 {
+    font-size: 320%;
+  }
+
+  .stats-grid, .project-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gif-row {
+    flex-direction: column;
+  }
+
+  /* ── Design approach scroll: the pinned side-by-side split (fixed 380px
+     text column + sticky image panel, calc(50vw+390px) total width) has no
+     equivalent on a phone-width screen — there's no "beside" to pin next
+     to. Falls back to a plain stacked reading order instead: the scroll-
+     driven pin/progress logic in initApproachScroll (angelo.js) still runs
+     harmlessly in the background, but every item and image is forced
+     visible in normal flow so nothing depends on it. */
+  .approach-scroll {
+    height: auto !important;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 40px;
+  }
+  .approach-pin {
+    position: static;
+    height: auto;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .approach-left {
+    flex: none;
+    width: 100%;
+  }
+  .approach-list {
+    transform: none !important;
+  }
+  .approach-item {
+    opacity: 1;
+    cursor: default;
+  }
+  .approach-right {
+    position: static;
+    height: auto;
+    border-radius: 16px;
+  }
+  .approach-img {
+    position: static;
+    opacity: 1 !important;
+    height: auto;
+    margin-bottom: 16px;
+  }
+  .approach-img img,
+  .approach-img video {
+    /* These are composed for a full-height desktop panel (object-fit:cover
+       against calc(100vh - 120px)) — at mobile width, height:auto alone
+       shows them at their native tall proportion, several screens long
+       each. Capping height and switching to contain keeps the whole graphic
+       visible without four of them turning this section into a mile of
+       scroll. */
+    height: auto;
+    max-height: 60vh;
+    width: 100%;
+    object-fit: contain;
+    background: #f0f0f0;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -614,7 +698,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
     <p class="project-description">Atlas Metrics is an ESG data infrastructure platform helping banks, funds, and businesses collect, analyze, and report non-financial data across complex regulatory frameworks like CSRD, SFDR, and the GHG Protocol.</p>
     <p class="project-description">The platform serves organizations navigating a landscape where compliance requirements evolve faster than most teams can keep up.</p>
-    <p class="project-description"><strong>We turned a technically and regulatorily complex domain into something approachable, structured, and trustworthy</strong> — from the first data input to the final audit-ready report.</p>
+    <p class="project-description"><strong>We turned a technically and regulatorily complex domain into something approachable, structured, and trustworthy,</strong> from the first data input to the final audit-ready report.</p>
 
     <div class="project-info-grid">
       <div class="info-block">
@@ -675,12 +759,12 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
         <li>data scattered across subsidiaries, suppliers, and spreadsheets</li>
         <li>sustainability teams under pressure to produce audit-ready reports with no reliable tooling</li>
       </ul>
-      <p>Most existing solutions were built for compliance departments — not for the people actually doing the work. The result: tools that were rigid, slow, and disconnected from real workflows.</p>
+      <p>Most existing solutions were built for compliance departments, not for the people actually doing the work. The result: tools that were rigid, slow, and disconnected from real workflows.</p>
     </div>
 
     <div class="project-section">
       <h3>Design approach</h3>
-      <p>We shaped a platform that turns regulatory complexity into a clear, guided workflow — one that could serve a sustainability manager at a mid-size company and a risk analyst at a major bank within the same system. As the founding designer, the role extended beyond craft — contributing to roadmap decisions, shaping product priorities, and establishing the design processes that would support a growing team.</p>
+      <p>We shaped a platform that turns regulatory complexity into a clear, guided workflow, one that could serve a sustainability manager at a mid-size company and a risk analyst at a major bank within the same system. As the founding designer, the role extended beyond craft: contributing to roadmap decisions, shaping product priorities, and establishing the design processes that would support a growing team.</p>
     </div>
 
     <div class="approach-scroll">
@@ -688,8 +772,8 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
         <div class="approach-left">
           <ol class="approach-list">
             <li class="approach-item active" data-n="0">Full <strong>design system</strong> built from 187 components, with variants, dropdown states and toggles for flexible builds. Tokens for color, text style, radius and spacing.</li>
-            <li class="approach-item" data-n="1"><strong>Design thinking</strong> beyond craft — shaping roadmap decisions, product priorities, and the design processes that would scale with the team.</li>
-            <li class="approach-item" data-n="2"><strong>Enterprise data density</strong> with consumer clarity — complex metrics legible without oversimplifying.</li>
+            <li class="approach-item" data-n="1"><strong>Design thinking</strong> beyond craft: shaping roadmap decisions, product priorities, and the design processes that would scale with the team.</li>
+            <li class="approach-item" data-n="2"><strong>Enterprise data density</strong> with consumer clarity: complex metrics legible without oversimplifying.</li>
             <li class="approach-item" data-n="3">A <strong>visual language</strong> of trust and precision, critical for a compliance-adjacent product.</li>
           </ol>
         </div>
@@ -706,13 +790,13 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
       <h3>Product chapters</h3>
       <p>Rather than a single feature, Atlas was built as a connected suite. Each chapter solves a distinct problem in the ESG data journey.</p>
       <ul class="feature-list">
-        <li><strong>Data Collection &amp; Network</strong> — Connecting organizations and their value chains so data flows in without duplication or manual chasing. Suppliers, subsidiaries, and third parties can submit directly into the platform, with validation built into the collection layer.</li>
-        <li><strong>Logic Builder &amp; Custom Metrics</strong> — Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li>
-        <li><strong>Multi-standard Reporting</strong> — One dataset, any framework. Designed to eliminate the recurring rebuild that compliance reporting usually requires. CSRD, GRI, SFDR, and custom templates all draw from the same source, reducing both effort and inconsistency risk.</li>
-        <li><strong>Carbon Accounting</strong> — Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review.</li>
-        <li><strong>Risk Engine</strong> — Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li>
-        <li><strong>Performance Monitoring &amp; Dashboards</strong> — Customizable analytics for benchmarking and strategic decisions across portfolios and sectors. Designed for both the sustainability manager tracking progress and the executive who needs a clear signal at a glance.</li>
-        <li><strong>Materiality Analysis</strong> — Automated double materiality assessments with survey flows, scoring, and clear prioritization views. Turns what is typically a months-long consulting engagement into a repeatable internal process.</li>
+        <li><strong>Data Collection &amp; Network.</strong> Connecting organizations and their value chains so data flows in without duplication or manual chasing. Suppliers, subsidiaries, and third parties can submit directly into the platform, with validation built into the collection layer.</li>
+        <li><strong>Logic Builder &amp; Custom Metrics.</strong> Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li>
+        <li><strong>Multi-standard Reporting.</strong> One dataset, any framework. Designed to eliminate the recurring rebuild that compliance reporting usually requires. CSRD, GRI, SFDR, and custom templates all draw from the same source, reducing both effort and inconsistency risk.</li>
+        <li><strong>Carbon Accounting.</strong> Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review.</li>
+        <li><strong>Risk Engine.</strong> Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li>
+        <li><strong>Performance Monitoring &amp; Dashboards.</strong> Customizable analytics for benchmarking and strategic decisions across portfolios and sectors. Designed for both the sustainability manager tracking progress and the executive who needs a clear signal at a glance.</li>
+        <li><strong>Materiality Analysis.</strong> Automated double materiality assessments with survey flows, scoring, and clear prioritization views. Turns what is typically a months-long consulting engagement into a repeatable internal process.</li>
       </ul>
     </div>
 
@@ -751,8 +835,8 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
       <div class="compare-item">
         <div class="twentytwenty-container">
-          <img src="projects/atlas/assets/compare_home_after.png" alt="Home — after" />
-          <img src="projects/atlas/assets/compare_home_before.png" alt="Home — before" />
+          <img src="projects/atlas/assets/compare_home_after.png" alt="Home, after" />
+          <img src="projects/atlas/assets/compare_home_before.png" alt="Home, before" />
         </div>
         <p class="compare-caption">Home, replacing the Reporting Summary with a What's next list</p>
       </div>
@@ -764,8 +848,8 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
       <div class="compare-item">
         <div class="twentytwenty-container">
-          <img src="projects/atlas/assets/compare_datacollection_after.png" alt="Data collection — after" />
-          <img src="projects/atlas/assets/compare_datacollection_before.png" alt="Data collection — before" />
+          <img src="projects/atlas/assets/compare_datacollection_after.png" alt="Data collection, after" />
+          <img src="projects/atlas/assets/compare_datacollection_before.png" alt="Data collection, before" />
         </div>
         <p class="compare-caption">Data collection, one continuous flow instead of a field at a time</p>
       </div>
@@ -776,8 +860,8 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
       <div class="compare-item">
         <div class="twentytwenty-container">
-          <img src="projects/atlas/assets/compare_sfdr_after.png" alt="SFDR — after" />
-          <img src="projects/atlas/assets/compare_sfdr_before.png" alt="SFDR — before" />
+          <img src="projects/atlas/assets/compare_sfdr_after.png" alt="SFDR, after" />
+          <img src="projects/atlas/assets/compare_sfdr_before.png" alt="SFDR, before" />
         </div>
         <p class="compare-caption">SFDR, restructured into its own step-by-step journey</p>
       </div>
@@ -806,7 +890,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
       <p>Org structure had a database already, but every entity in it had been added by hand. Letting customers build their own meant representing a tree the product had never had to hold, and the hard part wasn't the shape. It was rights and ownership: who can see which branch, who can edit it, what a group-level user is entitled to across entities they don't directly own. That took a few rounds with legal on GDPR.</p>
       <img class="project-hero-img" src="projects/atlas/assets/org_structure_planning.png" alt="Planning notes, Slack thread, and diagram mapping org tree requirements and permission cascades" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
       <p class="img-caption">Working out the org tree structure and permission cascade</p>
-      <p>Reporting setup was where the contract problem surfaced for the user. Once entitlements were standardised, we could show them plainly: this is what you're reporting on, this is what your contract covers, this is what the platform does that you're not currently buying. That last line was a side effect worth keeping — a customer showing interest in a module they didn't have now had somewhere obvious to be noticed and passed to sales.</p>
+      <p>Reporting setup was where the contract problem surfaced for the user. Once entitlements were standardised, we could show them plainly: this is what you're reporting on, this is what your contract covers, this is what the platform does that you're not currently buying. That last line was a side effect worth keeping: a customer showing interest in a module they didn't have now had somewhere obvious to be noticed and passed to sales.</p>
       <img class="project-hero-img" src="projects/atlas/assets/reporting_setup_spec.png" alt="Specification mapping network standards to data requirements per reporting level, with options, tooltips and edge cases per standard" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
       <p class="img-caption">Mapping every reporting standard to what it requires at GP, fund and portfolio level</p>
       <p>Data requirements falls out of the step before it. Once the reporting setup is machine readable, the required data points are derivable rather than assembled by a consultant. That screen is mostly a consequence.</p>
@@ -814,7 +898,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
       <p class="img-caption">Reports setup with data requirements configuration</p>
 
       <h4 class="case-study-subhead">The step nobody sees</h4>
-      <p>Submit isn't the end. The flow is self-serve, but the output wasn't trusted enough yet to go straight through, so the last step is a person. The ESG team needs to see what changed — not re-read the whole configuration, just the delta. A reviewer who has to reconstruct the change from scratch stops reviewing within a month.</p>
+      <p>Submit isn't the end. The flow is self-serve, but the output wasn't trusted enough yet to go straight through, so the last step is a person. The ESG team needs to see what changed, not re-read the whole configuration, just the delta. A reviewer who has to reconstruct the change from scratch stops reviewing within a month.</p>
       <img class="project-hero-img" src="projects/atlas/assets/admin_review_screen.png" alt="Internal admin screen showing reporting setup changes for a customer, with a diff between the previous and new year's values and an approve or reject action" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
       <p class="img-caption">The backend admin screen, where the ESG team reviews the delta before approving</p>
       <p>Making that check intelligent enough to disappear is phase two. The first release had enough in it: a structure builder, a contract model, a derived requirements layer.</p>
@@ -831,7 +915,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
     <div class="project-section">
       <h3>Design process</h3>
-      <p>A double-diamond process adapted for a complex B2B product: a <strong>Strategic Phase</strong> — Discover, Empathize and Define — to properly understand the problem, followed by a <strong>Creative Phase</strong> — Develop, Iterate and Deliver — to design and ship the solution. Structured enough to move fast, flexible enough to handle regulatory ambiguity at every turn.</p>
+      <p>A double-diamond process adapted for a complex B2B product: a <strong>Strategic Phase</strong> (Discover, Empathize and Define) to properly understand the problem, followed by a <strong>Creative Phase</strong> (Develop, Iterate and Deliver) to design and ship the solution. Structured enough to move fast, flexible enough to handle regulatory ambiguity at every turn.</p>
     </div>
 
     <div class="process-stack">
@@ -840,23 +924,23 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
           <div class="stack-track">
             <div class="stack-card active" data-n="0">
               <div class="stack-card-img"><img src="projects/atlas/assets/process_1.png" alt=""></div>
-              <div class="stack-card-caption"><strong>Discover / Empathize</strong> — Getting close to the people who'd use it: empathy mapping to understand the real pressures, workflows and user journey behind the problem.</div>
+              <div class="stack-card-caption"><strong>Discover / Empathize.</strong> Getting close to the people who'd use it: empathy mapping to understand the real pressures, workflows and user journey behind the problem.</div>
             </div>
             <div class="stack-card" data-n="1">
               <div class="stack-card-img"><img src="projects/atlas/assets/process_2.png" alt=""></div>
-              <div class="stack-card-caption"><strong>Define</strong> — Organizing that research into a clear problem statement, then narrowing and prioritizing features and defining requirements, so the whole team was solving the same problem.</div>
+              <div class="stack-card-caption"><strong>Define.</strong> Organizing that research into a clear problem statement, then narrowing and prioritizing features and defining requirements, so the whole team was solving the same problem.</div>
             </div>
             <div class="stack-card" data-n="2">
               <div class="stack-card-img"><img src="projects/atlas/assets/process_3.png" alt=""></div>
-              <div class="stack-card-caption"><strong>Develop</strong> — Shaping the information architecture and user flows: an end-to-end service blueprint connecting roles, data and touchpoints across the whole system.</div>
+              <div class="stack-card-caption"><strong>Develop.</strong> Shaping the information architecture and user flows: an end-to-end service blueprint connecting roles, data and touchpoints across the whole system.</div>
             </div>
             <div class="stack-card" data-n="3">
               <div class="stack-card-img"><img src="projects/atlas/assets/process_4.png" alt=""></div>
-              <div class="stack-card-caption"><strong>Iterate</strong> — Wireframing early ideas, then iterating on flows and layout through ongoing feedback and design reviews.</div>
+              <div class="stack-card-caption"><strong>Iterate.</strong> Wireframing early ideas, then iterating on flows and layout through ongoing feedback and design reviews.</div>
             </div>
             <div class="stack-card" data-n="4">
               <div class="stack-card-img"><img src="projects/atlas/assets/process_5.png" alt=""></div>
-              <div class="stack-card-caption"><strong>Deliver</strong> — Creating prototypes and testing ideas with users, making adjustments through live design reviews, finalizing decisions before each release.</div>
+              <div class="stack-card-caption"><strong>Deliver.</strong> Creating prototypes and testing ideas with users, making adjustments through live design reviews, finalizing decisions before each release.</div>
             </div>
           </div>
         </div>
@@ -876,7 +960,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 
     <div class="project-section">
       <h3>Impact</h3>
-      <p>Building Atlas from zero to acquisition meant designing through every stage of a product's life — from rough early concepts with no users to a mature platform trusted by financial institutions across 15+ countries.</p>
+      <p>Building Atlas from zero to acquisition meant designing through every stage of a product's life, from rough early concepts with no users to a mature platform trusted by financial institutions across 15+ countries.</p>
       <p>The challenge was never any single feature. It was maintaining coherence, quality, and user trust across a product that kept expanding in every direction.</p>
     </div>
 

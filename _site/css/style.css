@@ -71,6 +71,8 @@ body {
 
 #intro {
 	will-change: transform;
+	padding: 0 24px;
+	box-sizing: border-box;
 }
 
 #intro p {
@@ -507,21 +509,38 @@ figcaption h2 i {
 	line-height: 1;
 }
 
-/* theme toggle / about button tooltips go left of their fixed buttons */
+/* About sits in the top-right filter bar with the quick-filter pill right
+   next to it — a left-facing tip (the old shared rule) overlapped that
+   pill, so it drops straight down underneath the icon instead. Right-aligned
+   (not centered) so the tip's right edge lines up with the icon's own right
+   edge — same padding from the right as the button itself. */
 #theme-toggle { overflow: visible; }
-#theme-toggle .kbd-tip,
 #about .kbd-tip {
-	top: auto;
-	bottom: 50%;
+	top: calc(100% + 10px);
+	bottom: auto;
 	left: auto;
-	right: calc(100% + 10px);
-	transform: translateY(50%) translateX(4px);
+	right: 0;
+	transform: translateY(-4px);
 }
-#theme-toggle:hover .kbd-tip,
 #about:hover .kbd-tip {
 	opacity: 1;
-	transform: translateY(50%) translateX(0);
+	transform: translateY(0);
 	transition-delay: 0.45s;   /* show after a pause; hide is instant */
+}
+
+/* Theme toggle sits fixed at the bottom-right corner — no room below it,
+   so its tip opens upward instead. Same right-aligned treatment as About. */
+#theme-toggle .kbd-tip {
+	top: auto;
+	bottom: calc(100% + 10px);
+	left: auto;
+	right: 0;
+	transform: translateY(4px);
+}
+#theme-toggle:hover .kbd-tip {
+	opacity: 1;
+	transform: translateY(0);
+	transition-delay: 0.45s;
 }
 
 /* close button tooltip: JS sets exact top/left via getBoundingClientRect,
@@ -1133,20 +1152,12 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
 	#menu {height: 140px !important}
 	#m-center p {line-height: 140px; font-size: 80px;}
 	
-#mobile-close {
-	margin-left: 45%;
-	margin-right: auto;
-	margin-top: 50px;
-	right: 0;
-	left: 0;
-	background-image: url(assets/close-B.png);
-	background-size: cover;
-	background-repeat: no-repeat;
-	width: 50px;
-	height: 50px;
-	display: inline-block;
-	float: left;
-}
+/* #mobile-close removed: dead markup with no click handler anywhere in
+   angelo.js — the real close control is #scroll-progress (initScrollProgress),
+   which already works on all screen sizes. This old element only rendered on
+   phones because the previous broken viewport tag kept @media queries from
+   engaging on real devices; now that's fixed, hide it instead of styling it. */
+#mobile-close { display: none !important; }
 
 
 
@@ -1565,6 +1576,36 @@ html.dark .project-section .img-caption { color: #999; }
 	cursor: pointer;
 	z-index: 300;
 	transition: transform 0.2s ease, background 0.4s ease, border-color 0.4s ease;
+}
+
+/* Mobile only: sits in the top-right corner, to the RIGHT of the profile
+   icon (the true corner spot) instead of floating bottom-right. #filter-bar
+   gets extra right padding below to shift the quick-filter pill + profile
+   icon left, clearing room for this button rather than overlapping the
+   pill. Homepage only — while a project is open (#remove exists, see
+   loadFolio/close in angelo.js) it's hidden so it doesn't compete with the
+   project's own close control. */
+@media (max-width: 760px) {
+	#filter-bar {
+		padding-right: calc(80px - (100vw - 100%));   /* normal 24px edge offset + this button's width (44) + gap (12) */
+	}
+	#theme-toggle {
+		top: 13px;
+		bottom: auto;
+		left: auto;
+		right: calc(24px - (100vw - 100%));   /* now the rightmost element, so it takes the standard edge offset */
+	}
+	#theme-toggle .kbd-tip {
+		top: calc(100% + 10px);
+		bottom: auto;
+		transform: translateY(-4px);
+	}
+	#theme-toggle:hover .kbd-tip {
+		transform: translateY(0);
+	}
+	body:has(#remove) #theme-toggle {
+		display: none;
+	}
 }
 #theme-toggle:hover { transform: scale(1.08); }
 

@@ -30,14 +30,23 @@ function runScramble(el, duration) {
   // In a proportional face a random glyph is rarely the same width as the one
   // it stands in for, so without pinned slots every frame relays out the line
   // and the whole headline jitters. Spaces stay real text nodes so the line
-  // still wraps and copies normally.
+  // still wraps and copies normally — but each word's letter-spans also need
+  // a shared nowrap wrapper, or the browser treats the gap BETWEEN adjacent
+  // inline-block spans as a break opportunity too, wrapping mid-word.
   el.textContent = '';
   var slots = [];
+  var wordWrap = null;
   for (i = 0; i < n; i++) {
     if (chars[i] === ' ') {
       el.appendChild(document.createTextNode(' '));
       slots.push(null);
+      wordWrap = null;
       continue;
+    }
+    if (!wordWrap) {
+      wordWrap = document.createElement('span');
+      wordWrap.style.whiteSpace = 'nowrap';
+      el.appendChild(wordWrap);
     }
     var s = document.createElement('span');
     s.textContent = chars[i];
@@ -45,7 +54,7 @@ function runScramble(el, duration) {
     s.style.textAlign = 'center';
     s.style.filter = 'blur(8px)';
     s.style.opacity = '0.35';
-    el.appendChild(s);
+    wordWrap.appendChild(s);
     slots.push(s);
   }
   // Measure all, then write all — interleaving would force a reflow per slot.
@@ -189,12 +198,13 @@ function initCloseTip() {
   tip.style.cssText = 'position:fixed;opacity:0;pointer-events:none;z-index:9999;transition:opacity 0.18s ease,transform 0.18s ease;';
   document.body.appendChild(tip);
 
+  // Below the button, right-aligned to its right edge — same convention as
+  // the About/Theme-toggle tips (see #about .kbd-tip in style.css).
   function position() {
     var r = btn.getBoundingClientRect();
     var tw = tip.offsetWidth;
-    var th = tip.offsetHeight;
-    tip.style.top  = Math.round(r.top + r.height / 2 - th / 2) + 'px';
-    tip.style.left = Math.round(r.left - tw - 10) + 'px';
+    tip.style.top  = Math.round(r.bottom + 10) + 'px';
+    tip.style.left = Math.round(r.right - tw) + 'px';
   }
 
   var showT = null;
@@ -589,6 +599,11 @@ function initScrollProgress() {
 function initApproachScroll() {
   var section = document.querySelector('.approach-scroll');
   if (!section) return;
+  // Below 760px the CSS drops the sticky split for a plain stacked layout
+  // (see the matching @media block in atlas.html) — every item/image is
+  // forced visible there, so the pin/progress math and its click-to-scroll
+  // handler would only fight that with a stale, meaningless target.
+  if (window.innerWidth <= 760) return;
   var pin = section.querySelector('.approach-pin');
   var items = Array.from(section.querySelectorAll('.approach-item'));
   var imgs = Array.from(section.querySelectorAll('.approach-img'));
