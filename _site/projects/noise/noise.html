@@ -57,7 +57,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -84,7 +84,7 @@ iframe {
 }
 
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 20px;
 	text-align: center;
@@ -116,9 +116,37 @@ p {
 <body> 
 	
 	
-		<div class="center"><h4>Noise Font</h4></div> 
+		<div class="page-title">
+  <h4>Noise Font — A generative typeface</h4>
+  <div class="project-meta">
+    <span class="project-tag">Typography</span>
+    <span class="project-tag">Generative</span>
+    <span class="project-tag">Concept</span>
+  </div>
+</div> 
 		<img id="loader2" src="loading_good.gif" width="auto" height="auto">
 		<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">A non-perfect font, generated in a non-perfect world — a typeface built from noise, where every character carries the artefacts of the system that produced it.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Concept / Design</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>Generative typeface</p>
+          <p>Type specimen</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 		
 				<video class="lazy" width="100%" height="auto" autoplay loop controls muted>
 		<source src="projects/noise/assets/noise.mp4" type="video/mp4">
@@ -129,9 +157,11 @@ p {
 	<div style="height100px;">&nbsp;<br />&nbsp;<br />&nbsp;</div>	
 		  </div> <!-- project -->
 		 
- <p id="wrap_project4">
-A non-perfect font, generated in a non-perfect world...<br /><br /><span style="opacity:0.7;font-size:15px;" >Concept / Design</span> 
-</p>
+ <div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
 	<div id="mobile-close"></div>		 
 
 </body>

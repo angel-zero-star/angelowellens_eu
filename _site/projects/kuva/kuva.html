@@ -64,16 +64,21 @@ video {
 
 #wrap_project {
 	margin-left: auto;
-	margin-right: auto;	
-	width: 84%;
-	max-width: 1400px;
+	margin-right: auto;
+	/* Fixed, not fluid: every image/video below is positioned with
+	   percentage-based negative margins tuned against one specific
+	   container width. A fluid width (the old 84%/max-1400px pair) makes
+	   that math drift at different window sizes, opening gaps between
+	   overlapping elements. Pinning it keeps the collage aligned. */
+	width: 1400px;
+	max-width: 96vw;
 	left: 0;
 	right: 0;
 	opacity: 0;
 	-webkit-transform: translate3d(0,100px,0);
 			transform: translate3d(0,100px,0);
 	-webkit-transition: all 0.85s ease-out;
-			transition: all 0.85s ease-out;	
+			transition: all 0.85s ease-out;
 }
 
 .project-alt {
@@ -83,7 +88,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -110,13 +115,49 @@ iframe {
 }
 
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 20px;
 	text-align: center;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 30px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #191919;
+  line-height: 32px;
+}
+
+@media screen and (max-width: 800px) {
+  .stats-grid { grid-template-columns: repeat(1, 1fr); }
 }
 
 
@@ -130,10 +171,89 @@ p {
 <body> 
 	
 	
-		<div class="center"><h4>Kuva</h4></div> 
+		<div class="page-title">
+  <h4>Kuva — Digital currency wallet</h4>
+  <div class="project-meta">
+    <span class="project-tag">Mobile</span>
+    <span class="project-tag">Fintech</span>
+    <span class="project-tag">Blockchain</span>
+    <span class="project-tag">iOS / Android</span>
+    <span class="project-tag">B2C</span>
+  </div>
+</div> 
 		<img id="loader2" src="loading_good.gif" width="auto" height="auto">
 		
 		<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">Kuva is a startup with strong African roots, specialising in blockchain technology. Kuvacash, its consumer wallet, runs on the Kuva Network (kNET) — a digital currency platform built around convenience and everyday ease of use.</p>
+    <p class="project-description">The work ran from brand identity through to the shipped iOS and Android product.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Branding / Product Design / UI-UX</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>Brand identity</p>
+          <p>Mobile product design</p>
+          <p>iOS &amp; Android app</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="http://www.kuva.com/" target="_blank">kuva.com ↗</a></p>
+          <p><a href="https://www.kuvacash.com" target="_blank">kuvacash.com ↗</a></p>
+          <p><a href="https://apps.apple.com/us/app/kuvacash/id1514354130" target="_blank">App Store ↗</a></p>
+          <p><a href="https://play.google.com/store/apps/details?id=com.kuvacash.kuva&amp;hl=en&amp;gl=US" target="_blank">Play Store ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-section">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-label">Dash Treasury Funding</div><div class="stat-value">$550K</div></div>
+        <div class="stat"><div class="stat-label">Users at Launch</div><div class="stat-value">5,000+</div></div>
+        <div class="stat"><div class="stat-label">Regulator</div><div class="stat-value">RBZ licensed</div></div>
+      </div>
+      <p class="results-note">Funded by the Dash treasury and licensed by the Reserve Bank of Zimbabwe.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Problem</h3>
+      <p>In Zimbabwe, cash was scarce and the local currency couldn't be trusted. People queued for hours at banks to reach their own money, paid heavy fees on every transaction, and clean US dollar bills sold at a 10–20% markup.</p>
+      <p>Crypto could fix the speed and cost. But existing wallets were built for people who already understood crypto.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>What we built</h3>
+      <p>The largest project the Dash treasury had funded at the time, built to make Dash work as everyday money.</p>
+      <ul class="feature-list">
+        <li><strong>Send and receive</strong> — Send Dash or Kuva to anyone in a few taps.</li>
+        <li><strong>Pay in shops</strong> — Scan the shop's QR code and pay.</li>
+        <li><strong>Cash in and out</strong> — Top up or cash out to physical US dollars at agents and branches. Agents verified each user's ID at pickup to stop fraud.</li>
+        <li><strong>Remittances</strong> — A web app for family abroad to send money straight into a Kuva wallet.</li>
+      </ul>
+    </div>
+
+    <div class="project-section">
+      <h3>Design decisions</h3>
+      <h4 class="case-study-subhead">QR codes instead of wallet addresses</h4>
+      <p>Crypto addresses are long strings that are easy to mistype and meaningless to most people. Sending and paying ran on QR codes: scan, check the amount, confirm. No addresses to copy or read out.</p>
+    </div>
+
+    <div class="project-section">
+      <h3>Traction</h3>
+      <p>Nearly 200 people pre-registered within days, before any campaign ran. The pre-launch app then passed the 500 users needed for a full pilot in Harare, and launch grew that to over 5,000 users. Over 1,000 people emailed asking to help, and the launch video passed a million views.</p>
+      <p class="results-note">Kuva later expanded to Kenya, Ethiopia, Namibia and South Africa.</p>
+    </div>
+
+  </div>
+
 		<div>
 		<img class="lazy" style="margin-top: 13%; z-index: 103; margin-left: 5%;" src="projects/kuva/assets/ipad.png" width="90%" height="auto">
 				<video class="lazy" style=" z-index: 102; margin-top: -52.2%; margin-left: 7.4%;" width="85%" height="auto" loop autoplay muted poster="0.png">
@@ -176,13 +296,11 @@ p {
 		 
 			 
 		 
- <p id="wrap_project4">
-<br /><br /><span> Branding / Product Design / UI - UX  -> <a href="http://www.kuva.com/" target="_blank">kuva.com</a> & <a href="https://www.kuvacash.com" target="_blank">kuvacash.com</a><br /><br />
-Kuva is a start-up with strong African roots specialised in blockchain technologies. Kuvacash - the Wallet of the Future, powered by the Kuva Network (kNET), a digital currency platform focused on convenience and ease of use. For <a href="https://play.google.com/store/apps/details?id=com.kuvacash.kuva&hl=en&gl=US" target="_blank">Android</a> and <a href="https://apps.apple.com/us/app/kuvacash/id1514354130" target="_blank">iOS</a>.</span>
-
-
-<div id="mobile-close"></div>	
-</p>
+ <div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
 </body>
 </html>
   

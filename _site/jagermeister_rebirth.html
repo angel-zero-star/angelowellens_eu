@@ -1,0 +1,497 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+
+<head>
+
+
+<meta http-equiv="Content-Type" content="" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<title>@AngeloWellens | Jager Rebirth</title>
+<meta name="viewport" content="maximum-scale=2" />
+<meta name="viewport" content="user-scalable=no,width=760" />
+	<meta property="fb:app_id" content="1515307378526510">
+    <meta property="og:title" content="@AngeloWellens | Jager Rebirth"/>
+    <meta property="og:url" content="https://www.angelowellens.eu/jagermeister_rebirth.html"/>
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://www.angelowellens.eu/projects/jagermeister_rebirth/Jager_thumb.gif"/>
+     <meta property="og:image:alt" content="https://www.angelowellens.eu/projects/jagermeister_rebirth/Jager_thumb.gif"/>
+
+    <meta property="og:description" content="Jager Rebirth — Rebirth. Case study by Angelo Wellens, independent Product Designer."/>
+<meta name="description" content="Jager Rebirth — Rebirth. Case study by Angelo Wellens, independent Product Designer." />
+<meta name="keywords" content="Digital, Media, Design, Art Direction, Art, Motion, Animation, Web, Development, HTML5, CSS3, Mograph, Motion Graphics, Graphics, Experimental, Digital Media, Video, Noise, Processing, Arduino" />
+<link rel="Shortcut Icon" href="favicon.ico?v=2" type="image/x-icon" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=2" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2" />	
+
+<script>
+// apply saved theme before CSS paints — prevents a light flash
+// dark is the site default: only an explicit saved 'light' choice opts out,
+// regardless of the visitor's system preference.
+try {
+  var _t = localStorage.getItem('theme');
+  if (_t !== 'light') {
+    document.documentElement.classList.add('dark');
+  }
+} catch (e) {}
+</script>
+<link rel="stylesheet" href="css/style.css?v=114" type="text/css" media="screen" />
+<link href="css/twentytwenty-no-compass.css?v=2" rel="stylesheet" type="text/css" />
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js"></script>
+<script type="text/javascript" src="js/masonry-min.js"></script>
+<script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="js/angelo.js?v=20260918m"></script>	
+<script type="text/javascript" src="js/jquery.shuffleLetters.js"></script>
+<script type="text/javascript" src="js/jquery.lazyloadxt.extra.min.js"></script>
+<script src="js/jquery.event.move.js"></script>
+<script src="js/jquery.twentytwenty.js"></script>
+<!-- <script type="text/javascript" src="/js/jquery.address-1.5.min.js?tracker=track"></script> -->
+
+
+<script type="text/javascript">
+
+  
+  $(window).load(function() {
+
+
+		// one masonry instance per section grid (see initWorkGrids in angelo.js)
+		initWorkGrids(true);
+		// Compress to 2-column layout while still hidden — gives items varied x+y start positions
+		$('.work-grid').masonry({ columnWidth: 470, isFitWidth: false, isAnimated: false });
+
+  });
+  
+ 
+function filter(check,category,category2,category3) {
+	//add and remove categories
+	var $items = $('.'+category);
+	var $items2 = $('.'+category2);
+	var $items3 = $('.'+category3);
+	
+	if ($(check).is(':checked')) {
+		//getposts(category);
+		
+		$('#check'+category).prop("checked", false);
+		$('#check'+category2).prop("checked", false);
+		$($items).fadeOut('fast', function() { 
+ 			$($items).addClass('showhide');
+ 			$('#'+category).addClass('non_active');
+/*  			$('#container').masonry( 'reload'); */
+   		 	 });
+   		 	 
+   		 $($items2).fadeOut('fast', function() { 
+ 			$($items2).addClass('showhide');
+ 			$('#'+category2).addClass('non_active');
+ 			$('#container').masonry( 'reload');
+   		 	 });
+   		 	 
+   		 	 $($items3).removeClass('showhide');
+   		 	 $('#'+category3).removeClass('non_active');
+   		 	 $('#container').masonry( 'reload', function() {	
+   		 	 $($items3).fadeIn('fast', function() {
+	   		 	 $('#container').masonry( 'reload');
+   		 	 });
+   		 	 });
+	}
+	else {
+		$('#check'+category).prop("checked", false);
+		$('#check'+category2).prop("checked", false);
+		$($items).removeClass('showhide');
+		$($items2).removeClass('showhide');
+		$('#'+category).removeClass('non_active');
+		$('#'+category2).removeClass('non_active');
+ 		$('#container').masonry( 'reload', function() {
+ 			 $($items).fadeIn('fast', function() {});
+ 			 $($items2).fadeIn('fast', function() {});
+ 		});
+		 
+		}
+    }
+
+	
+
+
+</script>
+
+
+</head>
+
+<body class="noscroll">
+	<noscript><p class="caution aligncenter">Enable Javascript to browse this site, please.</p></noscript>
+			
+<div id="zwart"><img id="loader" src="loading_good.gif" width="auto" height="auto"></div>	
+
+<div id="filter-bar">
+  <div class="fb-left">
+    <a class="fb-logo" href="/" aria-label="Home"><svg version="1.1" id="logo_small" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="62px" height="50px" viewBox="0 0 51.841 39.939" enable-background="new 0 0 51.841 39.939" xml:space="preserve">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0,36.768c0.218-1.328,0.451-2.652,0.654-3.981
+	c1.024-6.697,2.183-13.369,3.917-19.923C5.354,9.9,6.246,6.958,7.705,4.234c0.776-1.45,1.695-2.789,3.176-3.617
+	c2.006-1.122,4.31-0.692,6.046,1.115c1.415,1.474,2.261,3.284,2.972,5.16c1.577,4.159,2.504,8.495,3.452,12.823
+	c0.784,3.586,1.556,7.177,2.334,10.766c0.021,0.101,0.067,0.196,0.146,0.426c0.384-1.406,0.73-2.685,1.082-3.961
+	c0.618-2.238,1.119-4.513,2.125-6.626c0.449-0.944,0.983-1.833,1.75-2.555c1.917-1.809,4.459-1.685,6.196,0.304
+	c1.106,1.266,1.769,2.78,2.183,4.373c0.6,2.292,1.063,4.618,1.586,6.929c0.172,0.75,0.351,1.5,0.526,2.249
+	c0.04,0.003,0.081,0.006,0.122,0.009c0.071-0.375,0.152-0.75,0.213-1.127c0.243-1.543,0.653-3.03,1.499-4.364
+	c0.67-1.057,1.534-1.884,2.817-2.106c1.618-0.28,2.896,0.373,3.738,1.702c0.562,0.89,0.98,1.9,1.299,2.909
+	c0.36,1.147,0.508,2.36,0.802,3.531c0.307,1.225-0.383,2.577-1.749,2.89c-1.281,0.293-2.664-0.594-2.994-1.905
+	c-0.129-0.511-0.214-1.033-0.32-1.549c-0.021-0.102-0.064-0.201-0.171-0.302c-0.094,0.51-0.145,1.033-0.29,1.528
+	c-0.374,1.274-0.772,2.542-1.203,3.798c-0.128,0.372-0.376,0.713-0.613,1.035c-1.504,2.037-4.021,2.147-5.7,0.249
+	c-1.12-1.265-1.696-2.814-2.109-4.405c-0.709-2.729-1.313-5.485-1.99-8.222c-0.214-0.867-0.524-1.709-0.791-2.562
+	c-0.054-0.001-0.107-0.003-0.16-0.005c-0.121,0.305-0.269,0.602-0.357,0.916c-0.629,2.252-1.21,4.518-1.879,6.759
+	c-0.575,1.942-1.203,3.871-1.893,5.776c-0.235,0.654-0.657,1.272-1.109,1.81c-1.493,1.771-3.835,1.777-5.397,0.061
+	c-0.778-0.854-1.235-1.89-1.628-2.953c-1.118-3.036-1.639-6.228-2.413-9.353c-1.17-4.72-2.132-9.497-3.642-14.127
+	c-0.477-1.467-1.139-2.875-1.723-4.308c-0.055-0.137-0.152-0.257-0.289-0.484c-0.324,0.687-0.632,1.273-0.883,1.884
+	c-1.05,2.574-1.789,5.246-2.417,7.949C8.85,21.818,7.924,27.035,7.155,32.281c-0.236,1.61-0.471,3.222-0.749,4.824
+	c-0.348,2.005-2.485,3.321-4.295,2.663c-1.129-0.411-1.792-1.232-2.016-2.411C0.069,37.222,0.032,37.088,0,36.954
+	C0,36.892,0,36.83,0,36.768z"/>
+</svg></a>
+  </div>
+  <div class="fb-actions">
+<div class="quick-filter" id="quick-filter">
+  <button type="button" class="qf-btn" aria-haspopup="listbox" aria-expanded="false" onclick="toggleQuickFilter()">
+    <span class="qf-label">Product work</span>
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="qf-menu" role="listbox">
+    <button type="button" class="qf-option is-selected" data-cat="product" role="option" aria-selected="true" onclick="selectQuickFilter('product', this)">
+      <svg class="qf-check" width="12" height="9" viewBox="0 0 12 9" fill="none" aria-hidden="true"><path d="M1 4.5L4.2 7.5L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Product work
+    </button>
+    <button type="button" class="qf-option" data-cat="other" role="option" aria-selected="false" onclick="selectQuickFilter('other', this)">
+      <svg class="qf-check" width="12" height="9" viewBox="0 0 12 9" fill="none" aria-hidden="true"><path d="M1 4.5L4.2 7.5L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Other design work
+    </button>
+  </div>
+</div>
+<div id="about"><a href="about.html" onclick="folio('about','content'); return false;">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="7.5" r="4.2"/>
+    <path d="M12 13.6c-4.5 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.5-6.4-8-6.4z"/>
+  </svg>
+</a><span class="kbd-tip"><span class="kbd-tip-label">About me</span></span></div>
+  </div>
+</div>
+
+<div style="max-width: 1530px;margin-left:auto;margin-right:auto;" id="all">
+<div class="top">
+	
+<div style="max-width: 1530px;margin-left:auto;margin-right:auto;" id="m">
+
+
+
+<div id="intro">
+<p>
+<span id="shuffle1">Angelo Wellens, independent Product Designer</span><br />
+<span id="shuffle2">Builds from first idea to launched product</span><br /></p></div>
+		
+<!-- <div id="topbar"></div>	 -->
+<div id="menu">	
+
+<!--
+	<a class="tag" id="experiental" ><input id="checkexperiental" onclick="filter('#checkexperiental','digital','motion','experiental');" style="visibility:;" type="checkbox"  >
+	<label for="checkexperiental">Experiential</label><a>
+	
+	<a class="tag" id="motion" style="margin-left:170px;"><input id="checkmotion" style="visibility:;" onclick="filter('#checkmotion','digital','experiental','motion');" type="checkbox" >
+	<label for="checkmotion">Motion</label></a>
+	
+	<a class="tag" id="digital" style="margin-left:300px;"><input id="checkdigital" style="visibility:;" onclick="filter('#checkdigital','experiental','motion','digital');" type="checkbox" >
+	<label for="checkdigital">Ui/Ux</label></a>
+-->
+	
+<!--
+	<a class="tag" id="branding" style="margin-left:420px;"><input id="checkweb" style="visibility:hidden;" onclick="filter('#checkweb','branding');" type="checkbox" checked="true">
+	<label for="checkweb">Branding</label></a>
+-->
+	
+</div><!-- /menu -->
+
+
+</div><!-- /m -->
+</div><!-- /top -->
+
+<div id="work">
+<section class="work-section cols-4 work-scope-product">
+  <h2 class="work-heading">Selected work</h2>
+  <div class="work-grid" id="grid-selected">
+<a style="cursor:pointer;" href="atlas.html" onclick="folio('atlas','content'); return false;"><div class="item digital cat-selected cat-product cat-fintech" style="width:470px;">
+  <div class="overlayitem"> <figcaption> <h2>Atlas<br /><i>ESG data infrastructure for private markets</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/atlas/assets/atlas.png" width="100%" height="100%"></div></a>
+<a style="cursor:pointer;" href="kuva.html" onclick="folio('kuva','content'); return false;"><div class="item digital cat-selected cat-product cat-mobile cat-fintech" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>Kuva<br /><i>Digital currency wallet</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/kuva/kuva.gif" width="100%" height="100%"></div></a>
+<a style="cursor:pointer;" href="parco.html" onclick="folio('parco','content'); return false;"><div class="item digital cat-selected cat-product cat-mobile" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>Parco<br /><i>Mobile Parking Platform</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/parco/parco.gif" width="100%" height="100%"></div></a>
+  </div>
+</section>
+
+<section class="work-section cols-4 work-scope-product">
+  <h2 class="work-heading">Older work</h2>
+  <div class="work-grid" id="grid-older">
+<a style="cursor:pointer;" href="parkhere.html" onclick="folio('parkhere','content'); return false;"><div class="item digital cat-product cat-mobile" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>ParkHere<br /><i>Digital parking management</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/parkhere/parkhere.gif" width="100%" height="100%"></div></a>
+<a style="cursor:pointer;" href="summerboard.html" onclick="folio('summerboard','content'); return false;"><div class="item digital cat-product cat-mobile" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>Summerboard<br /><i>Companion app for e-boards</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/summerboard/summerboard.png" width="100%" height="100%"></div></a>
+<a style="cursor: pointer;" href="scribblepost.html" onclick="folio('scribblepost','content'); return false;">  
+  <div class="item digital effect-honey cat-product">
+  <div class="overlayitem"> <figcaption> <h2>Scribblepost<br /><i>Task &amp; note manager</i></h2></figcaption>	</div>
+  <img class="img_bottom" src="projects/scribblepost/Scribble_tumb.png" width="auto" height="auto">
+  </div></a>
+<a style="cursor: pointer;" href="shopstyle.html" onclick="folio('shopstyle','content'); return false;">  
+  <div class="item thumb-outline digital effect-honey cat-ecommerce cat-product">
+  <div class="overlayitem"> <figcaption> <h2>ShopStyle<br /><i>E-commerce concepts</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/ShopStyle_ui/Shop_style.png" width="auto" height="auto">
+  </div></a>
+<a style="cursor: pointer;" href="videobeats.html" onclick="folio('videobeats','content'); return false;">  
+  <div class="item thumb-outline digital effect-honey cat-product">
+  <div class="overlayitem"> <figcaption> <h2>Videobeat<br /><i>Marketing analytics dashboard</i></h2></figcaption>	</div>
+  <img class="img_bottom" src="projects/videobeats/Tumb_videob.jpg" width="auto" height="auto">
+  </div></a>
+<a style="cursor: pointer;" href="c11.html" onclick="folio('c11','content'); return false;">  
+  <div class="item digital effect-honey cat-product cat-fintech" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>C11<br /><i>Blockchain football manager</i></h2></figcaption>	</div>
+  <img class="img_bottom" src="projects/c11/tumb.jpg" width="100%" height="100%">
+  </div></a>
+<a style="cursor: pointer;" href="trvlr.html" onclick="folio('trvlr','content'); return false;">  
+  <div class="item thumb-outline digital effect-honey cat-product cat-mobile cat-fintech older-extra showhide">
+  <div class="overlayitem"> <figcaption> <h2>TRVLR<br /><i>Group travel expenses</i></h2></figcaption>	</div>
+  <img class="img_bottom" src="projects/trvlr/autolike_thumb3.gif" width="auto" height="auto">
+  </div></a>
+<a style="cursor: pointer;" href="autolikeit.html" onclick="folio('autolikeit','content'); return false;">  
+  <div class="item digital cat-product older-extra showhide" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>AutoLike.it<br /><i>Instagram growth service</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/autolikeit/thumb_autolike.jpg" width="100%" height="100%"></div></a>
+<a style="cursor: pointer;" href="prezzee.html" onclick="folio('prezzee','content'); return false;">  
+  <div class="item digital cat-product cat-mobile older-extra showhide">
+  <div class="overlayitem"> <figcaption> <h2>Prezze<br /><i>Digital gift cards</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/prezzee/Tumb_prezzee.png" width="auto" height="auto"></div></a>
+  </div>
+  <div id="older-more-wrap">
+    <button type="button" id="older-more-btn" onclick="toggleOlderMore()">Show more</button>
+  </div>
+</section>
+
+<section class="work-section work-scope-other section-hidden">
+  <div class="work-grid" id="grid-other">
+<a style="cursor: pointer;" href="number5.html" onclick="folio('number5','content'); return false;">  
+  <div class="item motion effect-honey cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Number5.be<br /><i>Branding &amp; motion identity</i></h2></figcaption>	</div>
+  <img class="img_bottom" src="projects/number5/5_tumb.gif" width="auto" height="auto">
+  </div></a>
+<a style="cursor: pointer;" href="clarks.html" onclick="folio('clarks','content'); return false;">  
+  <div class="item digital cat-ecommerce cat-web">
+  <div class="overlayitem"> <figcaption> <h2>Clarks E-commerce<br /><i>E-commerce experience</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/clarks/clarks_tumb.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="honeywell.html" onclick="folio('honeywell','content'); return false;">  
+  <div class="item digital cat-mobile cat-experiential" style="width:230px;">
+  <div class="overlayitem"> <figcaption> <h2>Honeywell<br /><i>Mission Ready AR game</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/honeywell/Tumb_videob.gif" width="100%" height="100%"></div></a>
+<a style="cursor: pointer;" href="futureville.html" onclick="folio('futureville','content'); return false;">  
+  <div class="item experiental cat-experiential">
+  <div class="overlayitem"> <figcaption> <h2>Future Ville<br /><i>Science Museum installation</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/futureville/Gif_AE_v3.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="asiancup.html" onclick="folio('asiancup','content'); return false;">  
+  <div class="item thumb-outline experiental cat-experiential">
+  <div class="overlayitem"> <figcaption> <h2>Asian Cup 2015<br /><i>Stage design</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/asiancup/asiancup_tumb.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="style.html" onclick="folio('style','content'); return false;">  
+  <div class="item motion effect-honey cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>style.com<br /><i>Product visual narrative</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/style/Thumb.gif" width="auto" height="auto">
+ 
+  </div></a>
+<a style="cursor: pointer;" href="noise.html" onclick="folio('noise','content'); return false;">  
+  <div class="item thumb-outline motion cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Noise Font<br /><i>A generative typeface</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/noise/Thumb_noise.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="wintergames.html" onclick="folio('wintergames','content'); return false;">  
+  <div class="item experiental cat-experiential">
+  <div class="overlayitem"> <figcaption> <h2>WinterGames 2015<br /><i>LED installation</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/wintergames/thumb_wintergames.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="pepsi.html" onclick="folio('pepsi','content'); return false;">  
+  <div class="item experiental cat-experiential" style="width:470px;">
+  <div class="overlayitem"> <figcaption> <h2>Pepsi Superbowl 2015<br /><i>Super Bowl 2015 concepts</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/pepsi/pepsi_tumb2.jpg" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="resonate.html" onclick="folio('resonate','content'); return false;">  
+  <div class="item digital cat-web">
+  <div class="overlayitem"> <figcaption> <h2>Resonate Website<br /><i>Festival website</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/resonate/Tumb_resonate.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="cravendale.html" onclick="folio('cravendale','content'); return false;">  
+  <div class="item digital cat-mobile">
+  <div class="overlayitem"> <figcaption> <h2>Cravendale Icons<br /><i>Milk Matters icon set</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/cravendale/Tumb_cravendale_icons.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="noisebox.html" onclick="folio('noisebox','content'); return false;">  
+  <div class="item experiental cat-experiential">
+  <div class="overlayitem"> <figcaption> <h2>NoiseBox<br /><i>Perfection in imperfection</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/noisebox/logo2.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="artloop.html" onclick="folio('artloop','content'); return false;">
+  <div class="item digital effect-honey cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Artloop<br /><i>Experiencing art differently</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/artloop/thumb_artloop.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="red_bull.html" onclick="folio('red_bull','content'); return false;">  
+  <div class="item thumb-outline digital cat-ecommerce cat-web">
+  <div class="overlayitem"> <figcaption> <h2>Red Bull<br /><i>Sample ordering micro-site</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/red_bull/tumb_redbull.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="registery_direct.html" onclick="folio('registery_direct','content'); return false;">  
+	  <div class="item digital cat-fintech cat-web">
+	  <div class="overlayitem"> <figcaption> <h2>Registry Direct<br /><i>Share registry rebrand</i></h2></figcaption></div>
+	  <img class="img_bottom" src="projects/registery_direct/Thumb_rd.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="resonate_teaser.html" onclick="folio('resonate_teaser','content'); return false;">  
+  <div class="item motion cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Resonate Teaser<br /><i>Festival teaser</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/resonate_teaser/Res_teaser_thumb.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="floodworks.html" onclick="folio('floodworks','content'); return false;">  
+  <div class="item digital cat-experiential" >
+  <div class="overlayitem"> <figcaption> <h2>Flood Works<br /><i>HTML5 canvas game</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/floodworks/Tumb2_lessrain.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;"  href="survey.html" onclick="folio('survey','content'); return false;">    
+  <div class="item digital cat-fintech">
+  <div class="overlayitem"> <figcaption> <h2>Survey Yell<br /><i>Financial market micro-site</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/survey/tumb_survey.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="skull.html" onclick="folio('skull','content'); return false;">  
+  <div class="item experiental cat-experiential cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Skull Mapping<br /><i>Projection-mapped sculpture</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/skull/skull_thumb2.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="jagermeister_rebirth.html" onclick="folio('jagermeister_rebirth','content'); return false;">  
+  <div class="item motion cat-motion" style="width:470px;">
+  <div class="overlayitem"> <figcaption> <h2>Jager Rebirth<br /><i>Rebirth</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/jagermeister_rebirth/Jager_thumb.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="spiel.html" onclick="folio('spiel','content'); return false;">  
+  <div class="item experiental cat-experiential">
+  <div class="overlayitem"> <figcaption> <h2>Spiel Der Machinen<br /><i>Interactive sound sculpture</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/spiel/Spiel_der.png" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="time_foundation.html" onclick="folio('time_foundation','content'); return false;">  
+  <div class="item motion cat-motion">
+  <div class="overlayitem"> <figcaption> <h2>Time Foundation<br /><i>Short film</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/time_foundation/tumb_timeFoundation.gif" width="auto" height="auto"></div></a>
+<a style="cursor: pointer;" href="saatchi.html" onclick="folio('saatchi','content'); return false;">  
+  <div class="item digital cat-web">
+  <div class="overlayitem"> <figcaption> <h2>Saatchi & Saatchi<br /><i>Digital</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/saatchi/Tumb_saatchi.png" width="auto" height="auto"></div></a>
+  </div>
+</section>
+
+<!--
+  <a style="cursor: pointer;" href="sex_bytes.html" onclick="folio('sex_bytes','content'); return false;">  
+  <div class="item nonproduct showhide experiental">
+  <div class="overlayitem"> <figcaption> <h2>Sex Bytes Rock'n'Roll<br /><i>Audiovisual installation</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/sex_bytes/Tumb3.jpg" width="auto" height="auto"></div></a>
+-->
+<!--
+      <a style="cursor: pointer;" href="mixlab.html" onclick="folio('mixlab','content'); return false;">  
+  <div class="item nonproduct showhide motion effect-honey">
+  <div class="overlayitem"> <figcaption> <h2>Dulux MixLab<br /><i>Product film</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/mixlab/dulux.gif" width="auto" height="auto">
+  </div></a>
+-->
+<!--
+    <a style="cursor: pointer;" onClick="">  
+  <div class="item nonproduct showhide digital effect-honey">
+  <div class="overlayitem"> <figcaption> <h2>Bettega<br /><i>Motion</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/botegga/Tumb_botegga.png" width="auto" height="auto">
+  </div></a>
+-->
+<!--
+  <a style="cursor: pointer;" href="weather.html" onclick="folio('weather','content'); return false;">  
+  <div class="item nonproduct showhide digital">
+  <div class="overlayitem"> <figcaption> <h2>Weather App<br /><i>24-hour forecast concept</i></h2></figcaption></div>
+  <img class="img_bottom" src="projects/weather/Thumb_weather_v3.png" width="auto" height="auto"></div></a>
+  
+-->
+<!--
+  <a style="cursor: pointer;" onClick="">   
+  <div class="item nonproduct showhide web">
+  <h2>Ambivalentie</h2><br />  
+  <img class="img_top" src="images/ambivalentie/tumb_amb_zw.jpg" width="auto" height="auto">
+  <img class="img_bottom" src="images/ambivalentie/tumb_amb.jpg" width="auto" height="auto">
+  <h1>Published on March 16, 2012. Category: Motion.</h1></div></a>
+-->
+</div><!-- /work -->
+
+
+
+
+
+<div id="overlay"></div>
+<script type="text/javascript">
+
+		$(window).load(function() { // makes sure the whole site is loaded
+
+			enableScroll();
+			
+	
+			//loading.style.animationPlayState = loading.style.WebkitAnimationPlayState = 'paused';
+			 $( "#loader" ).delay(1500).fadeOut( 1000, function() {
+			 	$("body").removeClass("noscroll");
+			 	$("#zwart").delay(0).fadeOut();
+
+			 	// Lay the grid out instantly, then reveal it with the very same
+			 	// top-centre cascade the Product / Other design work switch uses
+			 	// (runCascade in angelo.js) so both entrances match.
+			 	// only the active scope's grids get revealed — the hidden scope's
+			 	// section is display:none, so its grid measures zero and is
+			 	// relaid out by setScope() if it's ever switched to
+			 	var $grids = $('.work-section').not('.section-hidden').find('.work-grid');
+			 	var $items = $grids.find('.item').not('.showhide');
+			 	$('.work-grid').masonry({ columnWidth: 230, isFitWidth: true, isAnimated: false });
+			 	$items.css({ opacity: 0 });
+
+			 	$('#m').fadeIn(1000);
+			 	setTimeout(function() {
+			 		// offset each section so they cascade in order, not together
+			 		$grids.each(function(gi) {
+			 			var $g = $(this);
+			 			runCascade($g.find('.item').not('.showhide'), $g, gi * 180);
+			 		});
+			 		// hand animation back to masonry so columns slide on window
+			 		// resize (the layout above ran with isAnimated:false so the
+			 		// cards snapped straight to their start positions)
+			 		setTimeout(function() {
+			 			$('.work-grid').masonry('option', {
+			 				isAnimated: true,
+			 				animationOptions: { queue: false, duration: 500, easing: 'easeInOutCubic' }
+			 			});
+			 		}, 2600);
+			 	}, 150);
+			 	$(function(){
+	// Both headline lines scramble at once and settle after 1.8s.
+	initIntroScramble(1800);
+});
+	
+			 	});	
+/*
+			 	$(".logo3").delay(0).fadeIn(700);
+			 	$("#tittle").delay().addClass("tittle-alt");
+			 	$("#gallery").delay().addClass("gallery-alt");
+*/
+
+				
+    		
+			
+			
+			
+		})
+	
+</script> 
+
+
+
+
+</div></div><!-- /all -->
+
+<div id="theme-toggle" onclick="toggleTheme()"><span class="tt-dot"></span><span class="kbd-tip"><span class="kbd-tip-label">Theme</span><kbd>D</kbd></span></div>
+
+</body>
+</html>
+
+  
+
+
+

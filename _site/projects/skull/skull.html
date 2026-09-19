@@ -57,7 +57,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -99,7 +99,7 @@ iframe {
 }
 
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 20px;
 	text-align: center;
@@ -116,10 +116,47 @@ p {
 <body> 
 	
 	
-		<div class="center"><h4>Skull Mapping</h4></div> 
+		<div class="page-title">
+  <h4>Skull Mapping — Projection-mapped sculpture</h4>
+  <div class="project-meta">
+    <span class="project-tag">Experiential</span>
+    <span class="project-tag">Projection Mapping</span>
+    <span class="project-tag">3D</span>
+    <span class="project-tag">Motion</span>
+  </div>
+</div> 
 		<img id="loader2" src="loading_good.gif" width="auto" height="auto">
 
 		<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">A projection-mapped skull, modelled in Cinema 4D and built physically with Pepakura.</p>
+    <p class="project-description">Visuals were generated in Resolume Avenue, with colour, effects and mapping driven through Quartz Composer using the Kineme3D and Syphon plugins. Made at Hi-Res!.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Motion / Projection Mapping</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>Physical build</p>
+          <p>Projection mapping</p>
+          <p>Generative visuals</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="http://hi-res.net/" target="_blank">Hi-Res! ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 	<video class="lazy" width="100%" height="auto" autoplay controls>
 		<source src="projects/skull/assets/skull_3d_1280x720.mp4" type="video/mp4">
 	</video>
@@ -143,18 +180,11 @@ p {
 				<div style="height100px;">&nbsp;<br />&nbsp;<br />&nbsp;</div>
 			</div>	<!-- slider -->	
 
- <p id="wrap_project4">
-					Modelled with Cinema 4D and printed with Pepakura/<br />
-					<a target="blank" href="http://tamasoft.co.jp/pepakura-en/">tamasoft.co.jp/pepakura-en/</a><br />
-					Graphics are generated in Resolume Avenue/<br />
-					<a target="blank" href="http://resolume.com">resolume.com</a><br />
-					Colours, effects and mapping witch Quart Composer,
-					Kineme 3D plugin/<br />
-					<a target="blank" href="kineme.net/Kineme3D">kineme.net/Kineme3D</a><br />
-					also indispensable/<br />
-					<a target="blank" href="syphon.v002.info">syphon.v002.info</a><br />
-<br/ ><br /><span style="opacity:0.7;font-size:15px;" > Motion / Projection Mapping <a href="http://builders-club.com/" target="_blank">@Hi-Res!</a></span> 
-</p>	
+ <div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>	
 <div id="mobile-close"></div>	
 </body>
 </html>

@@ -57,7 +57,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -83,7 +83,7 @@ iframe {
 	   		box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.2);
 }
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 20px;
 	text-align: center;
@@ -116,20 +116,57 @@ p {
 <body> 
 	
 	
-		<div class="center"><h4>Dulux MixLab</h4></div> 
+		<div class="page-title">
+  <h4>Dulux MixLab — Product film</h4>
+  <div class="project-meta">
+    <span class="project-tag">Motion</span>
+    <span class="project-tag">Storyboarding</span>
+    <span class="project-tag">Brand Film</span>
+  </div>
+</div> 
 				<img id="loader2" src="loading_good.gif" width="auto" height="auto">
 		
-		<div id="wrap_project">		
+		<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">A motion piece introducing Dulux MixLab, a technology that lets Dulux mix and match colour digitally.</p>
+    <p class="project-description">Produced with AnalogFolk, from storyboard through to final animation.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Storyboarding / Design / Motion</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>Storyboards</p>
+          <p>Motion design</p>
+          <p>Product film</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="https://analogfolk.com/" target="_blank">AnalogFolk ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+		
 			<video class="lazy" width="100%" height="auto" controls poster="projects/mixlab/assets/MixLab_Final_stream.jpg">
 				<source src="projects/mixlab/assets/MixLab_Final_stream.mp4" type="video/mp4">
 			</video>	
 		
 		<div style="height100px;">&nbsp;<br />&nbsp;<br />&nbsp;</div>	
 		  </div> <!-- project -->
-		  <p id="wrap_project4">
-Video I made for Dulux MixLab with the people at AnalogFolk.
-</br>MixLab is a new technology that Delux uses to mix colors digitally.<br /><br /><span style="opacity:0.7;font-size:15px;" >Storyboarding / Design / Motion <a href="https://analogfolk.com/" target="_blank">@AnalogFolk</a></span> 
-</p>
+		  <div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
 <div id="mobile-close"></div>	s
 
 </body>

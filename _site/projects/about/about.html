@@ -60,7 +60,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -71,7 +71,7 @@ h4 {
 }
 
 h2 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	text-decoration: none;
 	color: #3c3c3c;
 	font-size: 20px;
@@ -113,12 +113,19 @@ iframe {
 }
 
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 28px;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 40px;
+}
+
+/* The 5% above is ~47px against this container, which on top of the 40px
+   line-height reads as a double break between the About paragraphs. These
+   float, so their margins never collapse into one another either. */
+.about-copy {
+	margin-bottom: 20px;
 }
 
 #wrap_project a {
@@ -152,6 +159,10 @@ p {
 	border-top: 1px solid black;
 	width: 100%;
 	opacity: 0.4;
+	/* overrides the 28px/40px from the global `p` rule so the two links and
+	   the copyright line all share one size and sit on the same baseline */
+	font-size: 13px;
+	line-height: 1;
 }
 @media only screen and (max-width: 760px) {
 .left {
@@ -180,21 +191,21 @@ p {
 	
 			
 			
-				<img  style="margin-bottom:4%" class="lazy-hidden" src="/projects/about/full._web.jpg"  width="100%" height="auto">
+				<img  style="margin-bottom:4%; border-radius:8px;" class="lazy-hidden" src="/projects/about/full._web.jpg"  width="100%" height="auto">
 
 				<div class="left" style="float:left;width:100%;text-align:left;margin-right:4%;" >
 				<h2 style="margin-top:40px;text-align:left;">About<br />—</h2>
-				<p style="text-align:left; float:left;">
-					I'm a freelance digital Art Director working in the industry for about 10 years. Focusing on Product UI/ UX design for web and mobile with a strong creative background and taste for animations. Belgium waffle lover,  currently living in <span style="text-decoration: line-through;">London</span>, <span style="text-decoration: line-through;">Sydney</span>, <span style="text-decoration: line-through;">Amsterdam</span>, <span style="text-decoration: line-through;">Bali</span>, <span style="text-decoration: line-through;">Hamburg</span>, Berlin.<br /> Get in touch to make something tasty! ✌️ </p>
+				<p class="about-copy" style="text-align:left; float:left; width: 100%">
+					I help teams turn complicated problems into products that ship. 12+ years across major agencies, specialist studios and early-stage start-ups, with a background in motion, interaction and art direction.</p>
+				<p class="about-copy" style="text-align:left; float:left; width: 100%">
+					Belgian waffle lover, currently living in <span style="text-decoration: line-through;">London</span>, <span style="text-decoration: line-through;">Sydney</span>, <span style="text-decoration: line-through;">Amsterdam</span>, <span style="text-decoration: line-through;">Bali</span>, <span style="text-decoration: line-through;">Hamburg</span>, <span style="text-decoration: line-through;">Berlin</span>, Porto. I used to brew my own beer, I surf when the swell allows, and I'm a dad.</p>
+				<p class="about-copy" style="text-align:left; float:left; width: 100%">
+					Get in touch to make something tasty ✌️</p>
 	<br /><br />
 	<h2 style="margin-top:40px;text-align:left;">Contact<br />—</h2>
 	<p style="text-align:left; float:left; width: 100%">
 	💌 hello@angelowellens.eu</p>
-	
-		<h2 style="margin-top:40px;text-align:left;">Work<br />—</h2>
-	<p style="text-align:left; float:left; width: 100%">
-	🎨 At present running <a href="http://www.madmad.digital">madmad.digital</a></p>
-	
+
 	  <!-- specialised in design . concept . motion . direction. with a love for digital and innovative technologies. Crafter of interactive experiences, creating high quality work with the eye for detail, as well online as offline. I'm not afraid of a challenge, I like pushing boundaries and love working with talented people. I'm always looking for exciting projects. -->
 
 
@@ -243,7 +254,7 @@ p {
 
 <a class="" target="_blank" href="http://dribbble.com/angelowellens">Dribbble</a>&nbsp;&nbsp;&nbsp;&nbsp;
 <a class="" target="_blank" href="https://www.linkedin.com/in/angelowellens/">LinkedIn</a>&nbsp;&nbsp;&nbsp;&nbsp;
-<span style="float:right; font-size:13px;">©2021 Angelo Wellens</span>
+<span style="float:right;">©2026 Angelo Wellens</span>
 </br>
 <div id="mobile-close"></div>
 </p>

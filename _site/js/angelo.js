@@ -1,12 +1,426 @@
 var isMenuOpen = false;
 
+// ── Intro scramble ──
+// Every character cycles random glyphs, then locks into its final letter.
+// Both lines run at once, and each character picks its own random moment to
+// land rather than sweeping across — a left-to-right wipe reads as mechanical.
+// Letters keep their fixed-width slots after the intro so hovering one can
+// re-shuffle it without shifting anything around it.
+var SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$%&*<>/\\{}[]()=+-?@";
+
+function randGlyph() {
+  return SCRAMBLE_GLYPHS.charAt(Math.floor(Math.random() * SCRAMBLE_GLYPHS.length));
+}
+
+function scrambleText(el, duration) {
+  if (!el) return;
+  // Measure once webfonts are in, otherwise slot widths get sized off the
+  // fallback face and everything shifts when the real font swaps in.
+  var run = function () { runScramble(el, duration); };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  else run();
+}
+
+function runScramble(el, duration) {
+  var chars = el.textContent.split('');
+  var n = chars.length;
+  var i;
+
+  // One fixed-width slot per character, sized to that character's FINAL glyph.
+  // In a proportional face a random glyph is rarely the same width as the one
+  // it stands in for, so without pinned slots every frame relays out the line
+  // and the whole headline jitters. Spaces stay real text nodes so the line
+  // still wraps and copies normally.
+  el.textContent = '';
+  var slots = [];
+  for (i = 0; i < n; i++) {
+    if (chars[i] === ' ') {
+      el.appendChild(document.createTextNode(' '));
+      slots.push(null);
+      continue;
+    }
+    var s = document.createElement('span');
+    s.textContent = chars[i];
+    s.style.display = 'inline-block';
+    s.style.textAlign = 'center';
+    s.style.filter = 'blur(8px)';
+    s.style.opacity = '0.35';
+    el.appendChild(s);
+    slots.push(s);
+  }
+  // Measure all, then write all — interleaving would force a reflow per slot.
+  var widths = slots.map(function (sp) {
+    return sp ? sp.getBoundingClientRect().width : 0;
+  });
+  for (i = 0; i < n; i++) {
+    if (slots[i]) slots[i].style.width = widths[i] + 'px';
+  }
+
+  // Scattered landing times: nothing resolves in the first 15%, then each
+  // character lands whenever its own number comes up.
+  var revealAt = [];
+  for (i = 0; i < n; i++) {
+    revealAt[i] = duration * (0.15 + Math.random() * 0.85);
+    if (slots[i]) slots[i].textContent = randGlyph();
+  }
+
+  // Glyphs churn on their own slower clock — rerolling every frame reads as mush.
+  var GLYPH_MS = 45;
+  var locked = new Array(n);
+  var lastRoll = -Infinity;
+  var start = null;
+  var finished = false;
+
+  function frame(now) {
+    if (finished) return;
+    if (start === null) start = now;
+    var t = now - start;
+    var roll = (t - lastRoll) >= GLYPH_MS;
+    if (roll) lastRoll = t;
+
+    var done = true;
+    for (var k = 0; k < n; k++) {
+      if (locked[k] || !slots[k]) continue;
+      if (t >= revealAt[k]) {
+        slots[k].textContent = chars[k];
+        slots[k].style.filter = 'blur(0px)';
+        slots[k].style.opacity = '1';
+        locked[k] = true;
+        continue;
+      }
+      done = false;
+      // Blur/opacity ease in gradually across this letter's own countdown to
+      // lock — starts resolving from frame one of the scramble, not just in
+      // the instant it settles.
+      var progress = t / revealAt[k];
+      slots[k].style.filter = 'blur(' + (8 * (1 - progress)) + 'px)';
+      slots[k].style.opacity = 0.35 + 0.65 * progress;
+      if (roll) slots[k].textContent = randGlyph();
+    }
+
+    if (done) { finalize(); return; }
+    requestAnimationFrame(frame);
+  }
+
+  // rAF is paused entirely while the tab is backgrounded, which would leave the
+  // headline sitting in random glyphs and — worse — never bind the hover
+  // handlers. setTimeout still fires there, so use it as a safety net.
+  function finalize() {
+    if (finished) return;
+    finished = true;
+    for (var j = 0; j < n; j++) {
+      if (!slots[j]) continue;
+      slots[j].textContent = chars[j];
+      slots[j].style.filter = 'blur(0px)';
+      slots[j].style.opacity = '1';
+      attachHoverScramble(slots[j], chars[j]);
+    }
+  }
+
+  requestAnimationFrame(frame);
+  setTimeout(finalize, duration + 800);
+}
+
+// Re-shuffle a single letter on hover. The slot keeps its pinned width, so the
+// substitute glyphs can't push the rest of the line around.
+function attachHoverScramble(slot, finalChar) {
+  var busy = false;
+  slot.addEventListener('mouseenter', function () {
+    if (busy) return;
+    busy = true;
+    slot.style.filter = 'blur(4px)';
+    slot.style.opacity = '0.4';
+    var DUR = 450, GLYPH_MS = 40, last = -Infinity, t0 = null;
+    function step(now) {
+      if (t0 === null) t0 = now;
+      var t = now - t0;
+      if (t >= DUR) { slot.textContent = finalChar; slot.style.filter = 'blur(0px)'; slot.style.opacity = '1'; busy = false; return; }
+      var progress = t / DUR;
+      slot.style.filter = 'blur(' + (4 * (1 - progress)) + 'px)';
+      slot.style.opacity = 0.4 + 0.6 * progress;
+      if (t - last >= GLYPH_MS) { slot.textContent = randGlyph(); last = t; }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function initIntroScramble(duration) {
+  duration = duration || 1800;
+  var a = document.getElementById('shuffle1');
+  var b = document.getElementById('shuffle2');
+  // #shuffle2 sits at opacity 0 until revealed — it used to wait for line 1.
+  if (b) b.classList.add('showshuffle');
+  scrambleText(a, duration);
+  scrambleText(b, duration);
+}
+
+// ── Night mode ──
+var _themingT = null;
+function toggleTheme() {
+  var root = document.documentElement;
+  root.classList.add('theming');           // enables the crossfade
+  root.classList.toggle('dark');
+  try {
+    localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+  } catch (e) {}
+  // repaint the progress ring with the new palette
+  var c = document.getElementById('content');
+  if (c) c.dispatchEvent(new Event('scroll'));
+  // a stale timer from a rapid double-toggle would cut the crossfade short
+  clearTimeout(_themingT);
+  _themingT = setTimeout(function() { root.classList.remove('theming'); }, 600);
+}
+
+// ── Close button tooltip ──
+// Mounted on body as position:fixed so #content's overflow-x:hidden can't clip it.
+function initCloseTip() {
+  var old = document.getElementById('close-kbd-tip');
+  if (old) old.remove();
+
+  var btn = document.getElementById('scroll-progress');
+  if (!btn) return;
+
+  var dark = document.documentElement.classList.contains('dark');
+  var tip = document.createElement('div');
+  tip.id = 'close-kbd-tip';
+  tip.className = 'kbd-tip';
+  tip.innerHTML = '<span class="kbd-tip-label">Close</span><kbd>ESC</kbd>';
+  tip.style.cssText = 'position:fixed;opacity:0;pointer-events:none;z-index:9999;transition:opacity 0.18s ease,transform 0.18s ease;';
+  document.body.appendChild(tip);
+
+  function position() {
+    var r = btn.getBoundingClientRect();
+    var tw = tip.offsetWidth;
+    var th = tip.offsetHeight;
+    tip.style.top  = Math.round(r.top + r.height / 2 - th / 2) + 'px';
+    tip.style.left = Math.round(r.left - tw - 10) + 'px';
+  }
+
+  var showT = null;
+  btn.addEventListener('mouseenter', function() {
+    clearTimeout(showT);
+    showT = setTimeout(function() {
+      position();
+      tip.style.opacity = '1';
+    }, 450);
+  });
+  btn.addEventListener('mouseleave', function() {
+    clearTimeout(showT);
+    tip.style.opacity = '0';
+  });
+}
+
+// ── Work grid ──
+// One masonry instance per section grid (Selected work, Older work, Other).
+var MASONRY_OPTS = {
+  itemSelector: '.item',
+  columnWidth: 230,
+  gutterWidth: 10,
+  isFitWidth: true,
+  isAnimated: true,
+  animationOptions: { duration: 500, easing: 'easeInOutCubic', queue: true }
+};
+
+function initWorkGrids(animated) {
+  var opts = $.extend({}, MASONRY_OPTS, { isAnimated: !!animated });
+  $('.work-grid').each(function() { $(this).masonry(opts); });
+}
+
+// ── Work sections ──
+// Two scopes, swapped by the quick-filter dropdown next to the About icon:
+//   'product' — Selected work + Older work (first 6, rest behind Show more)
+//   'other'   — everything that isn't product work, as one full-width grid
+// Each scope is a set of <section class="work-scope-*">; switching hides one
+// set and reveals the other, then cascades the incoming cards in.
+var _activeScope = 'product';   // must match which sections lack .section-hidden
+var _scopeToken = 0;            // rapid switches: later runs invalidate earlier
+var _olderExpanded = false;
+
+function setScope(scope) {
+  if (scope === _activeScope) return;
+  _activeScope = scope;
+  syncQuickFilter(scope);
+  document.title = scope === 'product' ? '@AngeloWellens | Product Work' : '@AngeloWellens | Other design work';
+  var token = ++_scopeToken;
+
+  var $in  = $(scope === 'product' ? '.work-scope-product' : '.work-scope-other');
+  var $out = $(scope === 'product' ? '.work-scope-other' : '.work-scope-product');
+  var $outItems = $out.find('.item').not('.showhide');
+
+  // outgoing cards shrink away first, so the swap has somewhere to go
+  $outItems.css({
+    transition: 'opacity 0.18s ease, transform 0.18s ease',
+    opacity: 0,
+    transform: 'scale(0.94)'
+  });
+
+  setTimeout(function() {
+    if (token !== _scopeToken) return;
+
+    $out.addClass('section-hidden');
+    $outItems.css({ transition: '', opacity: '', transform: '' });
+    $in.removeClass('section-hidden');
+
+    // a grid laid out while its section was display:none measured zero wide,
+    // so it needs a relayout now that it actually has a width
+    $in.find('.work-grid').each(function(gi) {
+      var $g = $(this);
+      $g.masonry('option', { isAnimated: false });
+      $g.masonry('reload');
+      $g.masonry('option', { isAnimated: true });
+      // stagger the second section so the two cascade in order, not together
+      runCascade($g.find('.item').not('.showhide'), $g, gi * 180);
+    });
+  }, 190);
+}
+
+// Older work ships 6 cards; the rest carry .older-extra and sit behind the
+// button. No FLIP needed either way — masonry places bricks in order, so
+// adding or removing trailing cards never moves the ones already placed.
+function toggleOlderMore() {
+  _olderExpanded = !_olderExpanded;
+
+  var $g = $('#grid-older');
+  var $extra = $g.find('.item.older-extra');
+  var btn = document.getElementById('older-more-btn');
+  if (btn) btn.textContent = _olderExpanded ? 'Show less' : 'Show more';
+
+  function relayout() {
+    $g.masonry('option', { isAnimated: false });
+    $g.masonry('reload');
+    $g.masonry('option', { isAnimated: true });
+  }
+
+  if (_olderExpanded) {
+    // relayout first so the cards have real positions, then run the same
+    // top-centre cascade as the page load and the scope switch
+    $extra.removeClass('showhide').css({ transition: 'none', opacity: 0 });
+    relayout();
+    runCascade($extra, $g);
+  } else {
+    $extra.css({
+      transition: 'opacity 0.18s ease, transform 0.18s ease',
+      opacity: 0,
+      transform: 'scale(0.94)'
+    });
+    setTimeout(function() {
+      $extra.addClass('showhide').css({ transition: '', opacity: '', transform: '' });
+      relayout();
+    }, 190);
+  }
+}
+
+// Parks each card up near the grid's top centre so it can spread out into its
+// real position — the swap equivalent of the page-load "fall into place".
+// Must run after masonry has relaid out, since it reads final positions.
+// Pull is partial (0.55) rather than all the way to the centre: a full gather
+// makes cards on the far edges travel absurdly far and read as a swoosh.
+function cascadeInFrom($items, $grid, baseDelay) {
+  baseDelay = baseDelay || 0;
+  var gw = $grid.width() || 1;
+  var gh = $grid.height() || 1;
+  $items.each(function() {
+    var $c = $(this);
+    var pos = $c.position();
+    var cx = pos.left + ($c.outerWidth() / 2);
+    var dx = Math.round((gw / 2 - cx) * 0.55);
+    var dy = Math.round(-pos.top * 0.55 - 90);
+    // fan out left-to-right, top-to-bottom, same feel as the load cascade
+    var delay = baseDelay + Math.round((pos.left / gw) * 260 + (pos.top / gh) * 420);
+    $c.data('cascadeDelay', delay);
+    $c.css({
+      transition: 'none',
+      opacity: 0,
+      transform: 'translate(' + dx + 'px,' + dy + 'px) scale(0.94)'
+    });
+  });
+}
+
+// Lets cards parked by cascadeInFrom go, each waiting out its own stagger.
+function cascadeRelease($items) {
+  $items.each(function() {
+    var d = $(this).data('cascadeDelay') || 0;
+    $(this).css({
+      transition: 'transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) ' + d + 'ms, ' +
+                  'opacity 0.5s ease ' + d + 'ms',
+      opacity: 1,
+      transform: 'none'
+    });
+  });
+}
+
+// Park + release + clean up in one call. Used by both entrances: the
+// page-load reveal and the scope switch, so the two look identical.
+function runCascade($items, $grid, baseDelay) {
+  if (!$items || !$items.length || !$grid || !$grid.length) return;
+  cascadeInFrom($items, $grid, baseDelay);
+  requestAnimationFrame(function() { requestAnimationFrame(function() {
+    cascadeRelease($items);
+    // last card only starts once its stagger elapses, so clear well after
+    setTimeout(function() {
+      $items.css({ transition: '', opacity: '', transform: '' });
+    }, 1800);
+  }); });
+}
+
+// ── Quick filter dropdown ──
+// Custom menu, not a native <select> — the open <select> list is drawn by the
+// OS and can't be styled to match the rest of the site.
+function toggleQuickFilter() {
+  var el = document.getElementById('quick-filter');
+  if (!el) return;
+  var open = el.classList.toggle('is-open');
+  el.querySelector('.qf-btn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function closeQuickFilter() {
+  var el = document.getElementById('quick-filter');
+  if (!el || !el.classList.contains('is-open')) return;
+  el.classList.remove('is-open');
+  el.querySelector('.qf-btn').setAttribute('aria-expanded', 'false');
+}
+
+function selectQuickFilter(cat, btn) {
+  closeQuickFilter();
+  syncQuickFilter(cat, btn);
+  setScope(cat);
+}
+
+// keeps the button label + option checkmark in sync, whether the change came
+// from this menu or from a pill click on 'selected'/'all' down in the grid
+function syncQuickFilter(cat, btn) {
+  var el = document.getElementById('quick-filter');
+  if (!el) return;
+  if (!btn) btn = el.querySelector('.qf-option[data-cat="' + cat + '"]');
+  if (!btn) return;
+  el.querySelector('.qf-label').textContent = btn.textContent.trim();
+  el.querySelectorAll('.qf-option').forEach(function(o) {
+    var on = o === btn;
+    o.classList.toggle('is-selected', on);
+    o.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+}
+
+document.addEventListener('click', function(e) {
+  var el = document.getElementById('quick-filter');
+  if (el && el.classList.contains('is-open') && !el.contains(e.target)) closeQuickFilter();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeQuickFilter();
+});
+
 // ── Circle reveal ──
 // The project page opens as a growing circle from the exact click point,
 // like ink spreading from where you touched the grid.
 var _clickPoint = null;
 
+// Grid links used to be href="javascript:folio(...)"; they're real
+// href="slug.html" URLs now (so refreshing/sharing a project link works),
+// with the folio() call moved to onclick — match that instead.
 document.addEventListener('click', function(e) {
-  var a = e.target.closest ? e.target.closest('a[href^="javascript:folio"]') : null;
+  var a = e.target.closest ? e.target.closest('a[onclick^="folio("]') : null;
   if (a) _clickPoint = { x: e.clientX, y: e.clientY };
 }, true);
 
@@ -65,6 +479,11 @@ function initParallax() {
       } : null
     });
   });
+  // Single free-standing image drifting horizontally as it crosses the
+  // viewport — no bg/top pair, no wrapping box, just itself.
+  document.querySelectorAll('.parallax-x').forEach(function(el) {
+    _parallaxItems.push({ section: el, x: el });
+  });
   if (_parallaxItems.length && !_parallaxRafRunning) {
     _parallaxRafRunning = true;
     parallaxLoop();
@@ -84,6 +503,7 @@ function parallaxLoop() {
     var c = progress - 0.5; // -0.5 (entering) .. +0.5 (leaving)
     if (item.bg)  item.bg.style.transform  = 'translateY(' + (c * -80)  + 'px)';
     if (item.top) item.top.style.transform = 'translateY(' + (c * -240) + 'px)';
+    if (item.x)   item.x.style.transform   = 'translateX(' + (c * 160)  + 'px)';
     if (item.fan) {
       var f = item.fan;
       // Center drifts straight up; side phones lift up AND spread outward as you scroll down.
@@ -137,8 +557,11 @@ function initScrollProgress() {
   var complete = false, hover = false;
   function paint() {
     var filled = complete || hover;
-    bg.style.fill = filled ? '#191919' : '#ffffff';
-    xs.forEach(function(l) { l.style.stroke = filled ? '#ffffff' : '#191919'; });
+    var dark = document.documentElement.classList.contains('dark');
+    var ink = dark ? '#ececec' : '#191919';
+    var paper = dark ? '#1c1c1c' : '#ffffff';
+    bg.style.fill = filled ? ink : paper;
+    xs.forEach(function(l) { l.style.stroke = filled ? paper : ink; });
   }
 
   function update() {
@@ -176,16 +599,9 @@ function initApproachScroll() {
   var STEP_VH = 55;
   section.style.height = ((n - 1) * STEP_VH + 100) + 'vh';
 
-  // Snap anchors — one per item.
-  section.querySelectorAll('.approach-snap').forEach(function(m) { m.remove(); });
-  for (var k = 0; k < n; k++) {
-    var mk = document.createElement('div');
-    mk.className = 'approach-snap';
-    mk.style.top = (k * STEP_VH) + 'vh';
-    section.appendChild(mk);
-  }
-
   var current = -1;
+  var approachList = section.querySelector('.approach-list');
+  var approachRight = section.querySelector('.approach-right');
 
   function update() {
     var rect = section.getBoundingClientRect();
@@ -200,8 +616,20 @@ function initApproachScroll() {
       imgs.forEach(function(el, k) { el.classList.toggle('active', k === active); });
     }
 
-    content.classList.toggle('snap-active', progress > 0.002 && progress < 0.998);
+    // Slide the list so the last item bottom aligns with the image panel bottom at progress=1
+    var panelH = approachRight ? approachRight.offsetHeight : pin.offsetHeight;
+    var maxY = Math.max(0, panelH - approachList.offsetHeight);
+    approachList.style.transform = 'translateY(' + (progress * maxY) + 'px)';
   }
+
+  items.forEach(function(item, k) {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var sectionTop = content.scrollTop + section.getBoundingClientRect().top - content.getBoundingClientRect().top;
+      content.scrollTo({ top: sectionTop + k * STEP_VH * window.innerHeight / 100, behavior: 'smooth' });
+    });
+  });
 
   content.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
@@ -209,30 +637,38 @@ function initApproachScroll() {
 }
 
 // ── Process carousel (pinned; vertical scroll drives horizontal track travel) ──
+// A real horizontal scroller: the viewport is a native overflow-x container,
+// so vertical page/mouse-wheel scrolling passes straight through untouched —
+// only an explicit horizontal gesture (trackpad swipe, shift+wheel) or the
+// arrow buttons move the cards. Firefox is the one browser that redirects a
+// plain vertical wheel into horizontal scroll on an overflow-x element, so
+// that case is caught and re-issued as a normal page scroll instead.
 function initProcessStack() {
   var section = document.querySelector('.process-stack');
   if (!section) return;
-  var pin = section.querySelector('.stack-pin');
   var viewport = section.querySelector('.stack-viewport');
-  var track = section.querySelector('.stack-track');
   var cards = Array.from(section.querySelectorAll('.stack-card'));
-  var captions = Array.from(section.querySelectorAll('.stack-caption-item'));
   var n = cards.length;
   var content = document.getElementById('content');
-  if (!content) return;
-  var current = -1;
-  var STEP_VH = 55;   // vertical scroll per image (one snap gesture)
   var wrap = document.getElementById('wrap_project');
+  var current = -1;
 
-  // Build the scroll runway + one snap anchor per image.
-  section.style.height = ((n - 1) * STEP_VH + 100) + 'vh';
-  section.querySelectorAll('.stack-snap').forEach(function(m) { m.remove(); });
-  for (var k = 0; k < n; k++) {
-    var mk = document.createElement('div');
-    mk.className = 'stack-snap';
-    mk.style.top = (k * STEP_VH) + 'vh';
-    section.appendChild(mk);
+  var prevBtn = document.getElementById('stack-prev');
+  var nextBtn = document.getElementById('stack-next');
+
+  var dotsWrap = document.getElementById('stack-dots');
+  var dots = [];
+  if (dotsWrap) {
+    dotsWrap.innerHTML = '';
+    cards.forEach(function() {
+      var d = document.createElement('span');
+      d.className = 'stack-dot';
+      dotsWrap.appendChild(d);
+      dots.push(d);
+    });
   }
+
+  var track = section.querySelector('.stack-track');
 
   // Card width = text column width (.project-details, max-width 780px).
   function sizeCards() {
@@ -240,48 +676,190 @@ function initProcessStack() {
     var cw = details ? details.clientWidth : (wrap ? wrap.clientWidth : viewport.clientWidth);
     cards.forEach(function(c) { c.style.width = Math.round(cw) + 'px'; });
   }
-  sizeCards();
 
-  // translateX that centres card i in the viewport
-  function targetX(i) {
-    var card = cards[i];
-    return -(card.offsetLeft + card.offsetWidth / 2 - viewport.clientWidth / 2);
+  // The viewport is full-bleed (100vw) but the reading column isn't, so
+  // centering a card in the viewport — the original approach — leaves a big
+  // gap before card 0 and swings every step across nearly the whole screen.
+  // Aligning to the column's left edge instead keeps every card (including
+  // the first) flush with the surrounding copy, with the next one just
+  // peeking in from the right — matching the "sized/aligned to the content
+  // column" comment on .process-stack above, and reads much calmer.
+  //
+  // That alignment needs actual scroll room to reach, though: getting card 0
+  // flush means scrolling to a negative position (padding-left worth of
+  // travel), which scrollLeft can never go below — it just clamps to 0,
+  // stranding card 0 against the full-bleed edge instead. Padding-left on
+  // the track gives the scroller that room at the start, and it works
+  // reliably because leading padding always counts toward scrollWidth.
+  //
+  // Trailing padding doesn't get the same guarantee — browsers are
+  // inconsistent about whether end-side padding on a scroll container
+  // contributes to its scrollable range, and here it measurably didn't
+  // (maxScroll came up short by exactly one inset, stranding the last card
+  // the same way card 0 was stranded). A real spacer element at the end
+  // always counts, so that's what provides the room on that side instead.
+  // Aligned to .breakout (the page's other full-bleed media — gif grids,
+  // hero shots), not .project-details itself: .breakout already has an
+  // established, deliberate bleed past the text column, and matching that
+  // reads as consistent with the rest of the page rather than looking
+  // arbitrarily narrower or wider than everything else that breaks out.
+  function contentInset() {
+    var ref = document.querySelector('.breakout') || document.querySelector('.project-details');
+    if (!ref) return 0;
+    return Math.max(0, ref.getBoundingClientRect().left - viewport.getBoundingClientRect().left);
   }
-  function smooth(t) { return t * t * (3 - 2 * t); }
 
-  function update() {
-    var rect = section.getBoundingClientRect();
-    var total = section.offsetHeight - pin.offsetHeight;   // scroll distance while pinned
-    var progress = total > 0 ? (-rect.top) / total : 0;
-    progress = Math.max(0, Math.min(1, progress));
-
-    // Interpolate the track toward the target image; snapping lands progress on
-    // exact per-image steps, so the track settles each image dead-centre.
-    var seg = progress * (n - 1);
-    var i = Math.min(n - 2, Math.floor(seg));
-    var f = seg - i;
-    var e = smooth(f);
-    var x = n > 1 ? targetX(i) + (targetX(i + 1) - targetX(i)) * e : targetX(0);
-    track.style.transform = 'translateX(' + x + 'px)';
-
-    var active = n > 1 ? Math.round(seg) : 0;
-    if (active !== current) {
-      current = active;
-      cards.forEach(function(c, k) { c.classList.toggle('active', k === active); });
-      captions.forEach(function(c, k) { c.classList.toggle('active', k === active); });
+  function endSpacer() {
+    var el = track.querySelector('.stack-spacer');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'stack-spacer';
+      el.style.flex = '0 0 auto';
+      el.setAttribute('aria-hidden', 'true');
+      track.appendChild(el);
     }
-
-    // Enable native snap only while travelling between the first and last image,
-    // so the page scrolls normally before/after (and never traps on the last marker).
-    content.classList.toggle('snap-active', progress > 0.002 && progress < 0.998);
+    return el;
   }
 
-  content.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', function() { sizeCards(); update(); });
-  update();
+  // The end spacer needs more than just `inset` — mirroring the left side
+  // isn't enough. Once the last card is aligned flush-left, everything to
+  // its right in the viewport is empty by definition (there's nothing left
+  // to show), and that leftover width still has to be physically scrollable
+  // into view for the browser to let scrollLeft reach that position at all.
+  // Required width, derived from maxScroll >= targetLeft(last):
+  //   viewport width − inset − card width − one gap
+  // (confirmed by measurement: using plain `inset` here left the last card
+  // ~395px short, clamped at the browser's real scroll ceiling.)
+  function padTrack() {
+    var inset = contentInset();
+    track.style.paddingLeft = inset + 'px';
+    var lastCard = cards[cards.length - 1];
+    var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+    var needed = Math.max(inset, viewport.clientWidth - inset - lastCard.offsetWidth - gap);
+    endSpacer().style.width = needed + 'px';
+  }
+
+  function targetLeft(i) {
+    var card = cards[i];
+    return Math.max(0, card.offsetLeft - contentInset());
+  }
+
+  function nearestCard() {
+    var edge = viewport.scrollLeft + contentInset();
+    var best = 0, bestDist = Infinity;
+    cards.forEach(function(c, i) {
+      var d = Math.abs(c.offsetLeft - edge);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  function updateArrows() {
+    if (prevBtn) prevBtn.disabled = current <= 0;
+    if (nextBtn) nextBtn.disabled = current >= n - 1;
+  }
+
+  function updateDots() {
+    dots.forEach(function(d, k) { d.classList.toggle('active', k === current); });
+  }
+
+  // Runs once organic scrolling (trackpad/wheel) has settled, debounced
+  // below. Marks the nearest card active and snaps the viewport the rest of
+  // the way to that card's aligned position — free-scrolling can stop
+  // anywhere mid-card, so this is what makes it land flush instead of
+  // resting wherever momentum happened to run out.
+  function syncActive() {
+    var active = nearestCard();
+    current = active;
+    cards.forEach(function(c, k) { c.classList.toggle('active', k === active); });
+    updateArrows();
+    updateDots();
+    animateScrollTo(targetLeft(active));
+  }
+
+  // Self-driven, not the browser's native scrollTo(..., {behavior:'smooth'})
+  // — confirmed by measurement that retargeting a second click into an
+  // in-flight native smooth scroll doesn't reliably land pixel-exact (it
+  // settled ~200px short of the true aligned position while still marking
+  // the right card active, and didn't fire a clean final 'scroll' event
+  // either, so a debounced correction never got a chance to run). Driving
+  // the tween by hand means a new click always continues smoothly from
+  // wherever the animation currently is, toward the new target, with no
+  // dependence on browser-internal interruption behaviour — the last frame
+  // always lands exactly on target because that's just the loop's exit case.
+  var scrollAnimFrame = null;
+  function animateScrollTo(target) {
+    if (scrollAnimFrame) cancelAnimationFrame(scrollAnimFrame);
+    var start = viewport.scrollLeft;
+    var distance = target - start;
+    var duration = 450, startTime = null;
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function step(now) {
+      if (startTime === null) startTime = now;
+      var p = Math.min((now - startTime) / duration, 1);
+      viewport.scrollLeft = start + distance * easeOut(p);
+      if (p < 1) {
+        scrollAnimFrame = requestAnimationFrame(step);
+      } else {
+        scrollAnimFrame = null;
+      }
+    }
+    scrollAnimFrame = requestAnimationFrame(step);
+  }
+
+  function scrollToCard(k) {
+    k = Math.max(0, Math.min(n - 1, k));
+    current = k;
+    cards.forEach(function(c, i) { c.classList.toggle('active', i === k); });
+    updateArrows();
+    updateDots();
+    animateScrollTo(targetLeft(k));
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function(e) { e.stopPropagation(); scrollToCard(current - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function(e) { e.stopPropagation(); scrollToCard(current + 1); });
+
+  var scrollT;
+  viewport.addEventListener('scroll', function() {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(syncActive, 80);
+  }, { passive: true });
+
+  viewport.addEventListener('wheel', function(e) {
+    var horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
+    if (horizontal) return; // native horizontal scroll handles it
+    // vertical-dominant: hand it to the real scroller so this section never
+    // eats a normal scroll gesture, even in browsers that would redirect it
+    e.preventDefault();
+    if (content) content.scrollTop += e.deltaY;
+    else window.scrollBy(0, e.deltaY);
+  });
+
+  window.addEventListener('resize', function() {
+    sizeCards();
+    padTrack();
+    viewport.scrollLeft = targetLeft(current < 0 ? 0 : current);
+  });
+
+  sizeCards();
+  padTrack();
+  // No smooth-scroll on the very first positioning — nothing has scrolled
+  // yet, so animating "to" 0 is a no-op anyway; snap straight there.
+  viewport.scrollLeft = targetLeft(0);
+  current = 0;
+  cards[0].classList.add('active');
+  updateArrows();
+  updateDots();
 }
 
 // ── Scroll reveal ──
+// threshold 0.08 used to fire the moment an element barely grazed the
+// viewport edge — on tall elements that's well before it's actually visible,
+// so the fade/slide-up was already finished by the time it scrolled into
+// view. rootMargin shrinks the trigger zone in from the bottom so it only
+// fires once the element has genuinely scrolled into view.
+var REVEAL_ROOT_MARGIN = '0px 0px -15% 0px';
+
 function initReveal() {
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
@@ -290,12 +868,44 @@ function initReveal() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.08 });
+  }, { threshold: 0.08, rootMargin: REVEAL_ROOT_MARGIN });
 
-  document.querySelectorAll('#wrap_project .breakout:not(.gif-grid):not(.process-stack):not(.approach-scroll)').forEach(function(el) {
-    el.classList.add('reveal');
-    observer.observe(el);
-  });
+  // A single fade+slide-up on a whole block only reads well if the block is
+  // roughly viewport-sized: on something much taller (a big case-study
+  // section with subheads, images and sliders stacked inside), the required
+  // overlap to cross the intersection threshold means scrolling deep into
+  // it before it's considered "revealed" — the section sits blank the whole
+  // time you'd otherwise be reading its top. Skip those; let them render
+  // normally instead of leaving a long empty gap while scrolling toward them.
+  var MAX_REVEAL_HEIGHT = window.innerHeight * 1.5;
+
+  // Reveals el as one block if it's short enough; otherwise falls back to
+  // revealing its direct children individually, so a section long enough to
+  // span several screens still animates in progressively as you scroll
+  // through it rather than sitting fully static (the whole-block skip above
+  // was fine when only two things on the page were this tall, but the case
+  // study section now runs for several screens by itself, which made most
+  // of the page's scroll length permanently un-animated).
+  function revealBlockOrChildren(el) {
+    if (el.offsetHeight <= MAX_REVEAL_HEIGHT) {
+      el.classList.add('reveal');
+      observer.observe(el);
+      return;
+    }
+    Array.from(el.children).forEach(function(child) {
+      if (child.offsetHeight > MAX_REVEAL_HEIGHT) return;
+      child.classList.add('reveal');
+      observer.observe(child);
+    });
+  }
+
+  document.querySelectorAll(
+    '#wrap_project .breakout:not(.gif-grid):not(.process-stack):not(.approach-scroll), ' +
+    '#wrap_project .project-section, ' +
+    '#wrap_project .results-section, ' +
+    '#wrap_project .project-info-grid, ' +
+    '#wrap_project .parallax-section'
+  ).forEach(revealBlockOrChildren);
 
   var grid = document.querySelector('.gif-grid');
   if (!grid) return;
@@ -310,9 +920,201 @@ function initReveal() {
       });
       gridObserver.disconnect();
     }
-  }, { threshold: 0.08 });
+  }, { threshold: 0.08, rootMargin: REVEAL_ROOT_MARGIN });
   gridObserver.observe(grid);
 }
+
+// ── Inline image lightbox ──
+// Overlay lives on <body> (not #content) so it survives project close/reopen
+// without needing to be recreated on every load; built lazily on first use.
+// Content is rebuilt fresh on every open (rather than reusing a persistent
+// <img>) so the compare mode can drop in a live twentytwenty instance.
+function ensureLightboxOverlay() {
+  var overlay = document.getElementById('img-lightbox');
+  if (overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'img-lightbox';
+  overlay.className = 'img-lightbox';
+  document.body.appendChild(overlay);
+  // Clicking the backdrop closes it. In single-image mode the image itself
+  // is also a valid close target (see openLightbox); in compare mode the
+  // slider stops its own clicks from reaching here so dragging doesn't
+  // close it — see openCompareLightbox.
+  overlay.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeLightbox();
+  });
+  return overlay;
+}
+
+function showLightboxOverlay(overlay) {
+  overlay.style.display = 'flex';
+  // force a reflow so the opacity transition actually runs instead of
+  // jumping straight to 1 right after display was just set to flex
+  overlay.offsetHeight;
+  overlay.classList.add('active');
+}
+
+function openLightbox(src, alt) {
+  var overlay = ensureLightboxOverlay();
+  overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-compare-mode');
+  var img = document.createElement('img');
+  img.src = src;
+  img.alt = alt || '';
+  overlay.appendChild(img);
+  showLightboxOverlay(overlay);
+}
+
+// Full scene, not just the front layer: clones the section's bg + top/fan
+// together so the lightbox shows the same composition as the page, just
+// frozen — the scroll-driven transform each layer picks up from parallaxLoop
+// is stripped so nothing drifts while it's open.
+function openParallaxLightbox(section) {
+  var overlay = ensureLightboxOverlay();
+  overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-compare-mode');
+  var clone = section.cloneNode(true);
+  clone.className = 'img-lightbox-parallax';
+  clone.style.cursor = '';   // drop the original's zoom-in cursor — this is the close target now, so it takes .img-lightbox's zoom-out instead
+  var btn = clone.querySelector('.compare-expand-btn');
+  if (btn) btn.remove();
+  clone.querySelectorAll('.parallax-bg, .parallax-top').forEach(function(el) {
+    el.style.transform = '';
+  });
+  overlay.appendChild(clone);
+  showLightboxOverlay(overlay);
+}
+
+// Same lightbox, but drops in a live twentytwenty slider instead of a
+// static image — reuses .compare-item's existing styling (rounded corners,
+// arrow colors) since it's just that same markup pattern, full-screen.
+function openCompareLightbox(images, alt) {
+  var overlay = ensureLightboxOverlay();
+  overlay.innerHTML = '';
+  overlay.classList.add('img-lightbox-compare-mode');
+
+  var wrap = document.createElement('div');
+  wrap.className = 'compare-item img-lightbox-compare';
+  var container = document.createElement('div');
+  container.className = 'twentytwenty-container';
+  images.forEach(function(src) {
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = alt || '';
+    container.appendChild(img);
+  });
+  wrap.appendChild(container);
+  // Only the handle needs to stop its click from bubbling (that's the drag
+  // target — closing on every drag would defeat the point). Clicking the
+  // image elsewhere is free to bubble up to the overlay's close-on-click
+  // handler, same as the single-image lightbox's click-to-close.
+  wrap.addEventListener('click', function(e) {
+    if (e.target.closest('.twentytwenty-handle')) e.stopPropagation();
+  });
+  overlay.appendChild(wrap);
+
+  showLightboxOverlay(overlay);
+  $(container).twentytwenty({ default_offset_pct: 0.2 });
+}
+
+function closeLightbox() {
+  var overlay = document.getElementById('img-lightbox');
+  if (!overlay || !overlay.classList.contains('active')) return;
+  overlay.classList.remove('active');
+  // Belt-and-braces on top of pointer-events:none: fully take the full-
+  // viewport overlay out of layout once the fade-out finishes, so there's
+  // no way a stationary cursor can end up stuck over a dead hit-test area.
+  // Clearing the content here (not on open) also tears down the compare
+  // mode's live twentytwenty instance and its window resize listener.
+  setTimeout(function() {
+    if (overlay.classList.contains('active')) return;
+    overlay.style.display = 'none';
+    overlay.innerHTML = '';
+  }, 260);
+}
+
+// ── Expand button, shared by compare sliders and standalone research images ──
+// twentytwenty's own click/drag handling on the container makes a plain
+// click-to-zoom (like .project-hero-img alone gets) unreliable there, so
+// every lightbox-enabled image gets this same visible button instead.
+function createExpandBtn(onClick) {
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'compare-expand-btn';
+  btn.setAttribute('aria-label', 'Expand image');
+  btn.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 16 16" fill="none">' +
+      '<path d="M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  });
+  return btn;
+}
+
+// Shared by the expand button and the direct-click-on-slider handler below.
+function openCompareLightboxFromContainer(container) {
+  var imgs = Array.from(container.querySelectorAll('img'));
+  if (!imgs.length) return;
+  var alt = (imgs.find(function(i) { return /after/i.test(i.alt); }) || imgs[0]).alt.replace(/\s*—\s*(before|after)$/i, '');
+  openCompareLightbox(imgs.map(function(i) { return i.src; }), alt);
+}
+
+function initCompareExpand() {
+  // Compare sliders: the button opens the same drag comparison, full-screen
+  // — injected as a sibling of .twentytwenty-container (not inside it),
+  // since that container needs overflow:hidden for its rounded corners.
+  document.querySelectorAll('.compare-item').forEach(function(item) {
+    if (item.querySelector('.compare-expand-btn')) return;
+    var container = item.querySelector('.twentytwenty-container');
+    if (!container) return;
+    item.appendChild(createExpandBtn(function() {
+      openCompareLightboxFromContainer(container);
+    }));
+  });
+
+  // Standalone research images (service blueprint, pain points, …) get the
+  // same icon, wrapped so it can be positioned against them the same way.
+  document.querySelectorAll('.project-hero-img:not(.no-expand)').forEach(function(img) {
+    if (img.closest('.img-expand-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'img-expand-wrap';
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(img);
+    wrap.appendChild(createExpandBtn(function() {
+      openLightbox(img.src, img.alt);
+    }));
+  });
+
+  // Parallax sections (bg + top image, or bg + phones-fan) — already
+  // position:relative/overflow:hidden, so the button drops straight in
+  // without a wrapper. The whole section is clickable too (button's own
+  // stopPropagation keeps this from double-firing), not just the icon.
+  document.querySelectorAll('.parallax-section:not(.compare-item)').forEach(function(section) {
+    if (section.querySelector('.compare-expand-btn')) return;
+    section.style.cursor = 'zoom-in';
+    section.addEventListener('click', function(e) {
+      e.stopPropagation();   // #content click also closes the project — don't let this bubble into that
+      openParallaxLightbox(section);
+    });
+    section.appendChild(createExpandBtn(function() {
+      openParallaxLightbox(section);
+    }));
+  });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  var overlay = document.getElementById('img-lightbox');
+  if (overlay && overlay.classList.contains('active')) {
+    closeLightbox();
+    // stop the page's own Escape-closes-project listener from also firing
+    e.stopImmediatePropagation();
+  }
+});
 
 // ── Counter animation ──
 function initCounters() {
@@ -338,8 +1140,8 @@ function initCounters() {
     el.textContent = prefix + (0).toFixed(decimals) + suffix;
     requestAnimationFrame(step);
   }
-  var grid = document.querySelector('.stats-grid');
-  if (!grid) return;
+  var grids = document.querySelectorAll('.stats-grid');
+  if (!grids.length) return;
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -348,7 +1150,7 @@ function initCounters() {
       }
     });
   }, { threshold: 0.3 });
-  observer.observe(grid);
+  grids.forEach(function(grid) { observer.observe(grid); });
 }
 
 // ── Video autoplay on scroll ──
@@ -384,7 +1186,6 @@ jQuery(document).ready(function() {
   $("#m-bg").height(0);
 
   var introEl = document.getElementById("intro");
-  var logoEl = document.getElementById("logo_small");
   var rafPending = false;
 
   window.addEventListener("scroll", function(e) {
@@ -395,9 +1196,7 @@ jQuery(document).ready(function() {
       requestAnimationFrame(function() {
         var sy = window.scrollY;
         var t = "translate3d(0px," + sy * -0.2 + "px,0px)";
-        var t2 = "translate3d(0px," + sy * -0.1 + "px,0px)";
         if (introEl) { introEl.style.webkitTransform = t; introEl.style.transform = t; }
-        if (logoEl)  { logoEl.style.webkitTransform  = t2; logoEl.style.transform  = t2; }
 
         if (sy > 420) {
           if (!hasScroll) {
@@ -422,8 +1221,10 @@ jQuery(document).ready(function() {
 
   //-------------- menu -------------------------------
   
+    // Deep link: /atlas.html opens that project over the grid.
     if (!isRootPath()) {
     	var url = window.location.pathname.substr(1, window.location.pathname.length);
+    	if (url.slice(-5) === '.html') url = url.slice(0, -5);
     	setTimeout(function() {
 	    	folio(url, 'content', false);
     	}, 500);
@@ -484,7 +1285,11 @@ function loadFolio(url, target) {
   $("body").append('<div id="remove"><div id="content"></div></div>');
   circleReveal();
   $("#overlay").fadeIn("fast", function() {
-    $("body").css("overflow", "hidden");
+    // Lock <html>, not <body> — the page scrollbar lives there now, so
+    // locking body left html still scrollable and #content added a second
+    // scrollbar of its own. scrollbar-gutter:stable holds the gutter open,
+    // so hiding it here doesn't shift the layout underneath.
+    $("html").css("overflow", "hidden");
     $("#content").fadeIn("slow", function() {
       //document.getElementById(target).innerHTML = 'sending...';
       if (window.XMLHttpRequest) {
@@ -515,7 +1320,7 @@ function folio(url, target, push = true) {
   var title = '@AngeloWellens | ' + url;
   document.title = title;
   if (push) {
-	  window.history.pushState({ title: title, url: url }, title, '/' + url);
+	  window.history.pushState({ title: title, url: url }, title, '/' + url + '.html');
   }
 }
 
@@ -533,10 +1338,18 @@ function folioDone(target) {
 
       setTimeout(function() {
         /* 				window.location.hash='#test'; */
-        $(".twentytwenty-container[data-orientation!='vertical']")
+        var $sliders = $(".twentytwenty-container[data-orientation!='vertical']");
+        $sliders.not(".twentytwenty-centered")
           .delay(0)
           .twentytwenty({ default_offset_pct: 0.2 });
-        $("#loader2").fadeOut();
+        $sliders.filter(".twentytwenty-centered")
+          .delay(0)
+          .twentytwenty({ default_offset_pct: 0.5 });
+        initCompareExpand();
+        // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
+        // this in-flow element's space and jolts the content below it
+        // upward right as #wrap_project is animating in.
+        $("#loader2").fadeTo(400, 0);
         initParallax();
         initCounters();
         initVideoObserver();
@@ -544,6 +1357,7 @@ function folioDone(target) {
         initApproachScroll();
         initProcessStack();
         initScrollProgress();
+        initCloseTip();
         $("#wrap_project")
           .delay()
           .addClass("project-alt");
@@ -561,6 +1375,9 @@ function folioDone(target) {
       $("#content img").on("click", function(e) {
         e.preventDefault();
         e.stopImmediatePropagation();
+        if (this.classList.contains('project-hero-img')) {
+          openLightbox(this.src, this.alt);
+        }
       });
       $("#content p").on("click", function(e) {
         /* e.preventDefault(); */
@@ -569,6 +1386,13 @@ function folioDone(target) {
       $(".twentytwenty-container").on("click", function(e) {
         e.preventDefault();
         e.stopImmediatePropagation();
+        // Only the handle has its own drag behavior (see jquery.twentytwenty.js
+        // — it binds move listeners to .twentytwenty-handle, not the whole
+        // container), so clicking anywhere else on the image is free to open
+        // the full-screen comparison. Clicking the handle itself doesn't —
+        // that's for dragging, and the expand button covers opening it instead.
+        if (e.target.closest('.twentytwenty-handle') || e.target.closest('.compare-expand-btn')) return;
+        openCompareLightboxFromContainer(this);
       });
       $("#content video").on("click", function(e) {
         e.preventDefault();
@@ -576,6 +1400,7 @@ function folioDone(target) {
       });
 
       $("#content").on("click", function(e) {
+        if (window.getSelection && window.getSelection().toString()) return;
         close();
       });
       $("body").on("mousemove", function(e) {
@@ -594,7 +1419,7 @@ function folioDone(target) {
 
 function close(clear = true) {
   if (clear) {
-    var title = '@AngeloWellens | Portfolio';
+    var title = '@AngeloWellens | Product Work';
     if (window.history.state) {
     	window.history.go(-1);
     } else {
@@ -603,8 +1428,15 @@ function close(clear = true) {
   	document.title = title;
   }
 
+  var t = document.getElementById('close-kbd-tip');
+  if (t) t.remove();
+
   $("#content").fadeOut("fast", function() {
-    $("body").css("overflow-y", "scroll");
+    // Just drop the inline lock — don't put overflow back on body. Any
+    // overflow value there makes body a scroll container, which kills
+    // #filter-bar's sticky once you return to the homepage.
+    $("html").css("overflow", "");
+    $("body").css({ overflow: "", "overflow-y": "" });
     $("#overlay").fadeOut("slow", function() {
       $("#remove").remove();
     });
@@ -615,5 +1447,9 @@ function close(clear = true) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && !isMenuOpen && document.getElementById('remove')) {
     close();
+  }
+  if ((e.key === 'd' || e.key === 'D') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    var t = e.target.tagName;
+    if (t !== 'INPUT' && t !== 'TEXTAREA' && t !== 'SELECT') toggleTheme();
   }
 });

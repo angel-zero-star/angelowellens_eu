@@ -16,7 +16,7 @@
   -webkit-transition: all 0.85s ease-out;
           transition: all 0.85s ease-out;
   padding-bottom: 120px;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .project-alt {
@@ -54,7 +54,7 @@
   font-weight: 700;
   margin-bottom: 15px;
   line-height: 1.2;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
   float: none;
   position: static;
@@ -89,7 +89,9 @@
 }
 
 .results-note {
-  font-size: 14px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
   color: #191919;
   margin-top: 12px;
   background: #fff;
@@ -102,6 +104,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+/* An inline supporting callout — same 3-column card treatment as the page's
+   headline stats grid, just spaced for sitting mid-paragraph. */
+.stats-grid-2 {
+  margin: 16px 0;
 }
 
 .stat {
@@ -145,13 +153,33 @@
   margin-bottom: 14px;
   color: #999;
   font-weight: 500;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .info-content {
   font-size: 15px;
   line-height: 26px;
   color: #191919;
+}
+
+/* Scoped to the From/To/Outcome summary specifically — it's a few key
+   figures, not running prose, so it gets the same card treatment as .stat.
+   The Role/Scope/Links block above uses the same .info-block/.info-content
+   classes for plain metadata and stays untouched. */
+.info-grid-stat .info-block {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+}
+.info-grid-stat .info-block h4 {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: #717182;
+}
+.info-grid-stat .info-content {
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .info-content p { margin: 0; }
@@ -170,36 +198,28 @@
 }
 
 .project-section h3 {
-  font-size: 18px;
+  font-size: 28px;
   font-weight: 600;
   margin-bottom: 14px;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
   position: static;
   color: #191919;
 }
 
-.project-section p {
-  font-size: 15px;
-  line-height: 26px;
-  color: #666;
-  margin-bottom: 14px;
+.case-study-subhead {
+  font-size: 20px;
+  font-weight: 600;
+  color: #191919;
+  margin: 28px 0 10px;
+  font-family: 'Inter', sans-serif;
 }
 
-.problem-list, .feature-list {
-  list-style: disc;
-  padding-left: 20px;
-  margin-bottom: 0;
+.case-study-subhead.case-study-part {
+  margin-top: 64px;
 }
 
-.problem-list li, .feature-list li {
-  font-size: 15px;
-  line-height: 26px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.feature-list li strong { color: #191919; }
+.case-study-subhead:first-of-type { margin-top: 0; }
 
 .page-title {
   max-width: 780px;
@@ -211,7 +231,7 @@
 }
 
 .page-title h4 {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #3c3c3c;
   font-size: 640%;
   font-style: normal;
@@ -245,20 +265,22 @@
 /* ── Close CTA ── */
 .cta-close {
   display: inline-block;
-  padding: 14px 48px;
-  border-radius: 100px;
-  border: 1.5px solid #191919;
-  background: transparent;
-  font-family: 'Source Sans Pro', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 13px 30px;
+  border-radius: 30px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: #191919;
   cursor: pointer;
-  letter-spacing: 0.3px;
-  transition: background 0.2s, color 0.2s;
+  transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
 }
 
 .cta-close:hover {
+  transform: scale(1.06);
   background: #191919;
   color: #fff;
 }
@@ -290,7 +312,64 @@
   display: block;
 }
 
-/* ── Process carousel (pinned; a scroll gesture snaps to the next image) ── */
+/* ── Before/after comparison sliders (twentytwenty) ── */
+/* Standalone (non-breakout) compare-items dropped inline between paragraphs
+   need their own vertical spacing — .compare-grid's gap only helps grouped ones. */
+.compare-item {
+  position: relative;
+  margin: 24px 0;
+}
+
+.compare-item .twentytwenty-container {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+/* the handle keeps its own drag cursor rather than inheriting zoom-in */
+.compare-item .twentytwenty-handle {
+  cursor: pointer;
+}
+
+/* Once open in the lightbox, clicking the image closes it rather than
+   opening it — flip the cursor to match (higher specificity than the
+   zoom-in rule above so it wins regardless of source order). */
+.img-lightbox .compare-item .twentytwenty-container {
+  cursor: zoom-out;
+}
+
+/* .compare-expand-btn / .img-expand-wrap now live in the shared
+   css/style.css so every project page gets the expand button, not just
+   this one. */
+
+/* Handle + divider stay the plugin's default white; the arrow carets get a
+   darker tint at rest so they're readable against the white handle. They
+   only flip back to white when the dark twentytwenty-overlay itself is
+   hovered — not just anywhere in the container, since the handle sits above
+   the overlay (z-index) and blocks it from darkening directly underneath.
+   The overlay is appended before the handle in the plugin's markup, so the
+   general sibling combinator can target the handle from the overlay's :hover. */
+.compare-item .twentytwenty-left-arrow { border-right-color: #767676; }
+.compare-item .twentytwenty-right-arrow { border-left-color: #767676; }
+.compare-item .twentytwenty-overlay:hover ~ .twentytwenty-handle .twentytwenty-left-arrow { border-right-color: #fff; }
+.compare-item .twentytwenty-overlay:hover ~ .twentytwenty-handle .twentytwenty-right-arrow { border-left-color: #fff; }
+
+/* .compare-caption alone loses to the shared ".project-section p" rule
+   (higher specificity, and it sets font-size/color too) since this is a <p>
+   tag nested inside .project-section — scope it through .compare-item so it
+   actually wins regardless of source order. */
+.compare-item .compare-caption {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* .img-caption now lives in the shared css/style.css. */
+
+/* ── Process carousel (a real horizontal scroller, not a pinned vertical
+   hijack) ── */
 /* Full-bleed so peeking neighbours extend to the screen edges, but the active
    image + caption stay sized/aligned to the content column. */
 .process-stack {
@@ -299,78 +378,128 @@
   margin-left: calc(50% - 50vw);
   margin-top: 24px;                 /* normal spacing after the intro copy */
   margin-bottom: 40px;
-  /* height (scroll runway) set by JS */
 }
-
-/* Snap anchors — invisible; one per image, spaced down the runway. */
-.stack-snap {
-  position: absolute;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-/* Native snap is only switched on while the section is pinned. */
-#content.snap-active { scroll-snap-type: y mandatory; }
 
 .stack-pin {
-  position: sticky;
-  top: 40px;
-  height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   gap: 22px;
 }
 
-.stack-caption-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 780px;                 /* keep caption inside the text column */
-  margin: 0 auto;
-  min-height: 58px;
-}
-
-.stack-caption-item {
-  position: absolute;
-  inset: 0;
-  font-size: 16px;
-  line-height: 26px;
-  color: #777;
-  opacity: 0;
-  transition: opacity 0.4s ease;    /* opacity only — no vertical movement */
-  pointer-events: none;
-}
-
-.stack-caption-item.active { opacity: 1; }
-.stack-caption-item strong { color: #191919; }
-
 .stack-viewport {
-  overflow: hidden;                 /* clips only at the screen edges */
+  overflow-x: auto;
+  overflow-y: hidden;
   width: 100%;
+  /* No scroll-snap-type here on purpose: positioning is fully custom in JS
+     (breakout-aligned, not centered — see targetLeft() in initProcessStack),
+     and the browser's own snap enforcement was fighting that. Confirmed by
+     measurement: a rapid second click could settle the scroll at exactly
+     what scroll-snap-align:center would compute (viewport-centered) instead
+     of the JS target, ~200px off from the intended alignment. */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;            /* the arrows are the visible control */
 }
+.stack-viewport::-webkit-scrollbar { display: none; }
 
 .stack-track {
   position: relative;
   display: flex;
   gap: 26px;
-  will-change: transform;
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stack-card {
   flex: 0 0 auto;
   /* width set by JS = 82% of the content column (same size as before) */
-  border-radius: 20px;
-  overflow: hidden;
   opacity: 0.4;
   transition: opacity 0.45s ease;
 }
 
 .stack-card.active { opacity: 1; }
+
+.stack-card-img {
+  border-radius: 20px;
+  overflow: hidden;
+}
 .stack-card img { width: 100%; height: auto; display: block; }
+
+.stack-card-caption {
+  margin-top: 18px;
+  font-size: 16px;
+  line-height: 26px;
+  color: #3d3d3d;
+}
+.stack-card-caption strong { color: #191919; }
+
+html.dark .stack-card-caption { color: #c4c4c4; }
+html.dark .stack-card-caption strong { color: #ececec; }
+html.dark .compare-item .compare-caption { color: #999; }
+
+.stack-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+}
+.stack-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 34px;
+  border-radius: 999px;
+  background: #f0f0f0;
+}
+.stack-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #c2c2c2;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+.stack-dot.active {
+  width: 20px;
+  background: #191919;
+}
+html.dark .stack-dots { background: #2a2a2a; }
+html.dark .stack-dot { background: #5c5c5c; }
+html.dark .stack-dot.active { background: #fff; }
+.stack-arrows {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+/* Filled, not outlined: a thin-bordered white circle read fine in dark mode
+   purely by accident (it happened to contrast against the dark page), but
+   was nearly invisible white-on-white in light mode. Both modes now get a
+   deliberate filled circle instead — dark-on-light here, and the reverse
+   (formalized, not accidental) below. The icon uses currentColor so it
+   follows suit as color/background swap per mode. */
+.stack-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #191919;
+  background: #191919;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.stack-arrow:hover { background: #333; border-color: #333; }
+.stack-arrow:disabled { background: #e2e2e2; border-color: #e2e2e2; color: #999; opacity: 1; cursor: default; }
+.stack-arrow svg { display: block; }
+
+html.dark .stack-arrow { background: #fff; border-color: #fff; color: #191919; }
+html.dark .stack-arrow:hover { background: #d8d8d8; border-color: #d8d8d8; }
+html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; color: #888; }
 
 /* ── Design approach scroll (pinned split: left text + right image) ── */
 /* Left edge aligns with the text column; right edge bleeds to viewport edge.
@@ -381,15 +510,6 @@
   margin-left: 0;
   margin-top: 80px;
   margin-bottom: 60px;
-}
-
-.approach-snap {
-  position: absolute;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 .approach-pin {
@@ -414,6 +534,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  will-change: transform;
 }
 
 .approach-item {
@@ -421,8 +542,8 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 17px;
-  font-size: 15px;
-  line-height: 24px;
+  font-size: 18px;
+  line-height: 28px;
   color: #666;
   opacity: 0.4;
   transition: opacity 0.5s ease;
@@ -430,6 +551,12 @@
 
 .approach-item.active {
   opacity: 1;
+}
+
+.approach-item:not(.active):hover {
+  opacity: 0.75;
+  border-color: rgba(0, 0, 0, 0.2);
+  background: #f7f7f7;
 }
 
 .approach-item strong { color: #191919; }
@@ -452,7 +579,8 @@
 
 .approach-img.active { opacity: 1; }
 
-.approach-img img {
+.approach-img img,
+.approach-img video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -493,6 +621,7 @@
         <h4>Role</h4>
         <div class="info-content">
           <p>Lead / Founder Designer</p>
+          <p>Product Management</p>
         </div>
       </div>
       <div class="info-block">
@@ -558,7 +687,7 @@
       <div class="approach-pin">
         <div class="approach-left">
           <ol class="approach-list">
-            <li class="approach-item active" data-n="0">Full <strong>design system</strong> built from scratch on Tailwind, scaled to support a growing team and product surface.</li>
+            <li class="approach-item active" data-n="0">Full <strong>design system</strong> built from 187 components, with variants, dropdown states and toggles for flexible builds. Tokens for color, text style, radius and spacing.</li>
             <li class="approach-item" data-n="1"><strong>Design thinking</strong> beyond craft — shaping roadmap decisions, product priorities, and the design processes that would scale with the team.</li>
             <li class="approach-item" data-n="2"><strong>Enterprise data density</strong> with consumer clarity — complex metrics legible without oversimplifying.</li>
             <li class="approach-item" data-n="3">A <strong>visual language</strong> of trust and precision, critical for a compliance-adjacent product.</li>
@@ -568,46 +697,178 @@
           <div class="approach-img active" data-n="0"><img src="projects/atlas/assets/approach_1.png" alt=""></div>
           <div class="approach-img" data-n="1"><img src="projects/atlas/assets/approach_2.png" alt=""></div>
           <div class="approach-img" data-n="2"><img src="projects/atlas/assets/approach_3.png" alt=""></div>
-          <div class="approach-img" data-n="3"><img src="projects/atlas/assets/approach_4.png" alt=""></div>
+          <div class="approach-img" data-n="3"><video src="projects/atlas/assets/approach_4.mp4" autoplay loop muted playsinline></video></div>
         </div>
       </div>
     </div>
 
     <div class="project-section">
       <h3>Product chapters</h3>
-      <p>Rather than a single feature, Atlas was built as a connected suite — each chapter solving a distinct problem in the ESG data journey.</p>
+      <p>Rather than a single feature, Atlas was built as a connected suite. Each chapter solves a distinct problem in the ESG data journey.</p>
       <ul class="feature-list">
-        <li><strong>Data Collection &amp; Network</strong> — value chain data flows, no duplication.</li>
-        <li><strong>Logic Builder &amp; Custom Metrics</strong> — team-defined aggregation rules.</li>
-        <li><strong>Multi-standard Reporting</strong> — one dataset, any framework.</li>
-        <li><strong>Carbon Accounting</strong> — PCAF &amp; GHG Protocol, audit-ready.</li>
-        <li><strong>Risk Engine</strong> — real-time signals, portfolio-level alerts.</li>
-        <li><strong>Performance Monitoring</strong> — benchmarking across portfolios.</li>
-        <li><strong>Materiality Analysis</strong> — automated double-materiality assessments.</li>
+        <li><strong>Data Collection &amp; Network</strong> — Connecting organizations and their value chains so data flows in without duplication or manual chasing. Suppliers, subsidiaries, and third parties can submit directly into the platform, with validation built into the collection layer.</li>
+        <li><strong>Logic Builder &amp; Custom Metrics</strong> — Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li>
+        <li><strong>Multi-standard Reporting</strong> — One dataset, any framework. Designed to eliminate the recurring rebuild that compliance reporting usually requires. CSRD, GRI, SFDR, and custom templates all draw from the same source, reducing both effort and inconsistency risk.</li>
+        <li><strong>Carbon Accounting</strong> — Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review.</li>
+        <li><strong>Risk Engine</strong> — Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li>
+        <li><strong>Performance Monitoring &amp; Dashboards</strong> — Customizable analytics for benchmarking and strategic decisions across portfolios and sectors. Designed for both the sustainability manager tracking progress and the executive who needs a clear signal at a glance.</li>
+        <li><strong>Materiality Analysis</strong> — Automated double materiality assessments with survey flows, scoring, and clear prioritization views. Turns what is typically a months-long consulting engagement into a repeatable internal process.</li>
       </ul>
     </div>
 
     <div class="project-section">
+      <h3>Case study: Scaling past the consulting team</h3>
+      <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
+
+      <h4 class="case-study-subhead">The assumed problem</h4>
+      <p>Our ESG consultants were consistently working over hours. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
+
+      <h4 class="case-study-subhead">What the research showed</h4>
+      <p>We ran user interviews and mapped the full customer journey as a service blueprint, from contract signature through preparation, onboarding, data collection, reporting, off season and into the next reporting year. Every step was marked as either in-platform or manual.</p>
+
+      <img class="project-hero-img" src="projects/atlas/assets/service_blueprint.png" alt="Service blueprint mapping the full customer journey, each step marked in-platform or manual" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Service blueprint of the full customer journey.</p>
+      <p>The map made the assumption look wrong. Only one phase of the journey happened inside the product. Everything before it (contract handover, the welcome call, collecting account information, the consulting and customisation workshops, account setup, invites to portfolio companies) ran on spreadsheets, decks, email and calls. Reporting partly left the platform too, with final reports filled in on official templates off-platform.</p>
+      <p>So the app had real problems. They just weren't the whole bill. The pain points sitting in the manual columns were things no interface change would touch: information collected from customers by hand and re-entered into Atlas, a fully human onboarding process that didn't scale, delays between contract and access, miscommunication between sales and CS, expectations set in sales negotiations that the product then had to meet.</p>
+
+      <img class="project-hero-img" src="projects/atlas/assets/pain_points.png" alt="Prioritized pain points grid, grouped by process-related and product-related issues, high-priority items flagged" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Pain points prioritized by process-related and product-related issues</p>
+      <p>That split the work in two. Fix what was genuinely broken inside the app, and start moving the work that had never been in it.</p>
+
+      <h4 class="case-study-subhead">Principles</h4>
+      <p>I set principles to design against. Three drove this:</p>
+      <ul class="feature-list">
+        <li><strong>Foster a guided, continuous journey.</strong> One end-to-end reporting flow from onboarding to submission, not a set of disconnected modules.</li>
+        <li><strong>Encourage self-sufficiency.</strong> Common questions answerable inside the platform.</li>
+        <li><strong>Align offline and online.</strong> Workshops, consulting and documents are part of the real workflow. Design the platform to absorb them rather than pretend they don't exist.</li>
+      </ul>
+
+      <h4 class="case-study-subhead case-study-part">Part one — Inside the app</h4>
+
+      <h4 class="case-study-subhead">A home page built around what to do next</h4>
+      <p>The entry point already existed. It was a Reporting Summary: completion dial, disclosure counts, progress bars, task counts by state. It reported status accurately and answered the wrong question. A user could see 57% complete and a lot of progress bars and still not know what to do that morning.</p>
+      <p>I replaced it with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_home_after.png" alt="Home — after" />
+          <img src="projects/atlas/assets/compare_home_before.png" alt="Home — before" />
+        </div>
+        <p class="compare-caption">Home, replacing the Reporting Summary with a What's next list</p>
+      </div>
+
+      <h4 class="case-study-subhead">Data collection</h4>
+      <p>Entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
+      <p>I rebuilt it as a single working surface. A whole task opens once, in one place, with the questions in one continuous flow. I condensed the secondary information into the margins, stripped out what wasn't needed at the point of entry, and moved the guidance next to the question that needed it.</p>
+      <p>Nobody wants to spend their week entering ESG data, so the goal was to make it quicker to get through and easier to digest: far fewer clicks, and a clear read at any moment on how far along you are and what's left before the deadline.</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_datacollection_after.png" alt="Data collection — after" />
+          <img src="projects/atlas/assets/compare_datacollection_before.png" alt="Data collection — before" />
+        </div>
+        <p class="compare-caption">Data collection, one continuous flow instead of a field at a time</p>
+      </div>
+
+      <h4 class="case-study-subhead">Framework dashboards</h4>
+      <p>As the app grew, the pieces stopped hanging together. Each new feature arrived as its own module, and nothing said how they related or which order to do them in. A framework could only be navigated through its own taxonomy, which is accurate to the regulation and useless if you don't already know the regulation.</p>
+      <p>I gave each framework its own dashboard and laid the work out as a sequence, so the order was stated rather than something you were expected to know. Numbered steps from setting up the base through to the final report, each with task counts, time estimates and an estimated completion date.</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_sfdr_after.png" alt="SFDR — after" />
+          <img src="projects/atlas/assets/compare_sfdr_before.png" alt="SFDR — before" />
+        </div>
+        <p class="compare-caption">SFDR, restructured into its own step-by-step journey</p>
+      </div>
+
+      <p>The sequence isn't shared. CSRD, SFDR and GRI ask for different things in a different order, so each gets its own path rather than one generic checklist. SFDR, for instance, needs data collected from every portfolio company, so its dashboard tracks progress per company inside the step. CSRD doesn't work that way. Same underlying pattern, shaped to what each standard actually demands.</p>
+
+      <h4 class="case-study-subhead case-study-part">Part two — Outside the app</h4>
+
+      <h4 class="case-study-subhead">Picking where to start</h4>
+      <p>Onboarding was the clearest case of work that had never been in the product. Every kind of setup ran on calls, spreadsheets and documents, handled by the consulting team one client at a time.</p>
+      <p>We picked the new reporting year first because it looked like the quickest win. These are existing customers who are already set up. Nothing new to configure, just roll the previous year forward. It also came round for everyone at once, so automating it would take a predictable, repeating load off the team.</p>
+      <p>I was the designer on this, and for stretches of it the PM as well. The interface turned out to be the last problem, not the first.</p>
+
+      <h4 class="case-study-subhead">The one week estimate</h4>
+      <p>It was scoped as a straightforward piece of design. A week, roughly. The estimate came off a clickthrough someone had generated with AI: real-looking screens, a flow that ran end to end, dropdowns full of plausible options. Take the steps a consultant already followed and put them on screen.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/ai_prototype_clickthrough.png" alt="AI-generated clickthrough prototype of the organization mapping step" style="width:100%; height:auto; display:block; margin: 24px 0 8px; border: 1px solid #e0e0e0; border-radius: 8px;" />
+      <p class="img-caption">AI-generated prototype</p>
+      <p>Discovery killed that. To let a customer set up their own reporting year, the product needs to know what that customer actually has: which frameworks they report against, which funds, which features they pay for. None of that existed in a form the product could read. Contracts weren't standardised, and what had been agreed was recorded nowhere except in PDFs.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/contract_service_table.png" alt="Service and contract configuration table mapping service types, metrics, and required platform features and modules" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Contract terms, mapped to services, metrics, and the platform features and modules each one requires</p>
+      <p>So the real first task wasn't the flow. It was getting to a standardised backend representation of every customer's setup, so the product could tell each one what applied to them and what didn't. That's the cost of moving work that was never designed to live in software: before you can build the screen, you have to make the thing behind it legible.</p>
+      <p>It took closer to six months, build included.</p>
+
+      <h4 class="case-study-subhead">The flow</h4>
+      <p>Four steps: org structure, reporting setup, data requirements, submit. It carries the customer's existing configuration forward and asks them to confirm what changed. Behind each step sat a problem the screen doesn't show.</p>
+      <p>Org structure had a database already, but every entity in it had been added by hand. Letting customers build their own meant representing a tree the product had never had to hold, and the hard part wasn't the shape. It was rights and ownership: who can see which branch, who can edit it, what a group-level user is entitled to across entities they don't directly own. That took a few rounds with legal on GDPR.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/org_structure_planning.png" alt="Planning notes, Slack thread, and diagram mapping org tree requirements and permission cascades" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Working out the org tree structure and permission cascade</p>
+      <p>Reporting setup was where the contract problem surfaced for the user. Once entitlements were standardised, we could show them plainly: this is what you're reporting on, this is what your contract covers, this is what the platform does that you're not currently buying. That last line was a side effect worth keeping — a customer showing interest in a module they didn't have now had somewhere obvious to be noticed and passed to sales.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/reporting_setup_spec.png" alt="Specification mapping network standards to data requirements per reporting level, with options, tooltips and edge cases per standard" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Mapping every reporting standard to what it requires at GP, fund and portfolio level</p>
+      <p>Data requirements falls out of the step before it. Once the reporting setup is machine readable, the required data points are derivable rather than assembled by a consultant. That screen is mostly a consequence.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/reports_setup_screen.png" alt="Reports setup screen listing frameworks with configuration status, next to fund-level reporting requirement selection" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Reports setup with data requirements configuration</p>
+
+      <h4 class="case-study-subhead">The step nobody sees</h4>
+      <p>Submit isn't the end. The flow is self-serve, but the output wasn't trusted enough yet to go straight through, so the last step is a person. The ESG team needs to see what changed — not re-read the whole configuration, just the delta. A reviewer who has to reconstruct the change from scratch stops reviewing within a month.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/admin_review_screen.png" alt="Internal admin screen showing reporting setup changes for a customer, with a diff between the previous and new year's values and an approve or reject action" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">The backend admin screen, where the ESG team reviews the delta before approving</p>
+      <p>Making that check intelligent enough to disappear is phase two. The first release had enough in it: a structure builder, a contract model, a derived requirements layer.</p>
+
+      <h4 class="case-study-subhead">Outcome</h4>
+      <p class="results-note">The year setup moved from the consulting team to the customer. Consultants now review the result and pick up anything a customer has flagged, rather than working through every account by hand. Still work, but a fraction of it, and it stopped landing on the whole team in the same few weeks.</p>
+      <p class="results-note">Support tickets dropped by roughly 75%, and consultants spent far less time in calls explaining next steps, freeing up an estimated 10 to 15 hours of meetings per consultant per week.</p>
+      <div class="stats-grid stats-grid-2">
+        <div class="stat"><div class="stat-label">Support Tickets</div><div class="stat-value">-75%</div></div>
+        <div class="stat"><div class="stat-label">Client Calls</div><div class="stat-value">↓ 10-15 hrs</div></div>
+        <div class="stat"><div class="stat-label">Customers</div><div class="stat-value">🙂 Happier</div></div>
+      </div>
+    </div>
+
+    <div class="project-section">
       <h3>Design process</h3>
-      <p>A double-diamond process adapted for a complex B2B product — structured enough to move fast, flexible enough to handle regulatory ambiguity at every turn.</p>
+      <p>A double-diamond process adapted for a complex B2B product: a <strong>Strategic Phase</strong> — Discover, Empathize and Define — to properly understand the problem, followed by a <strong>Creative Phase</strong> — Develop, Iterate and Deliver — to design and ship the solution. Structured enough to move fast, flexible enough to handle regulatory ambiguity at every turn.</p>
     </div>
 
     <div class="process-stack">
       <div class="stack-pin">
-        <div class="stack-caption-wrap">
-          <div class="stack-caption-item active" data-n="0"><strong>User research</strong> — Sustainability officer empathy map grounding the product in real team pressures and workflows.</div>
-          <div class="stack-caption-item" data-n="1"><strong>Problem framing</strong> — Problem statement and jobs-to-be-done defining what the platform needed to solve for different user types.</div>
-          <div class="stack-caption-item" data-n="2"><strong>Service design</strong> — End-to-end blueprint mapping ESG data collection across all roles, phases, and system touchpoints.</div>
-          <div class="stack-caption-item" data-n="3"><strong>Ideation</strong> — User flow and wireframe iterations for the risk assessment feature, informed by user feedback.</div>
-          <div class="stack-caption-item" data-n="4"><strong>Design review</strong> — Live annotation session capturing UX behaviour decisions directly on screen during iteration.</div>
-        </div>
         <div class="stack-viewport">
           <div class="stack-track">
-            <div class="stack-card active" data-n="0"><img src="projects/atlas/assets/process_1.png" alt=""></div>
-            <div class="stack-card" data-n="1"><img src="projects/atlas/assets/process_2.png" alt=""></div>
-            <div class="stack-card" data-n="2"><img src="projects/atlas/assets/process_3.png" alt=""></div>
-            <div class="stack-card" data-n="3"><img src="projects/atlas/assets/process_4.png" alt=""></div>
-            <div class="stack-card" data-n="4"><img src="projects/atlas/assets/process_5.png" alt=""></div>
+            <div class="stack-card active" data-n="0">
+              <div class="stack-card-img"><img src="projects/atlas/assets/process_1.png" alt=""></div>
+              <div class="stack-card-caption"><strong>Discover / Empathize</strong> — Getting close to the people who'd use it: empathy mapping to understand the real pressures, workflows and user journey behind the problem.</div>
+            </div>
+            <div class="stack-card" data-n="1">
+              <div class="stack-card-img"><img src="projects/atlas/assets/process_2.png" alt=""></div>
+              <div class="stack-card-caption"><strong>Define</strong> — Organizing that research into a clear problem statement, then narrowing and prioritizing features and defining requirements, so the whole team was solving the same problem.</div>
+            </div>
+            <div class="stack-card" data-n="2">
+              <div class="stack-card-img"><img src="projects/atlas/assets/process_3.png" alt=""></div>
+              <div class="stack-card-caption"><strong>Develop</strong> — Shaping the information architecture and user flows: an end-to-end service blueprint connecting roles, data and touchpoints across the whole system.</div>
+            </div>
+            <div class="stack-card" data-n="3">
+              <div class="stack-card-img"><img src="projects/atlas/assets/process_4.png" alt=""></div>
+              <div class="stack-card-caption"><strong>Iterate</strong> — Wireframing early ideas, then iterating on flows and layout through ongoing feedback and design reviews.</div>
+            </div>
+            <div class="stack-card" data-n="4">
+              <div class="stack-card-img"><img src="projects/atlas/assets/process_5.png" alt=""></div>
+              <div class="stack-card-caption"><strong>Deliver</strong> — Creating prototypes and testing ideas with users, making adjustments through live design reviews, finalizing decisions before each release.</div>
+            </div>
+          </div>
+        </div>
+        <div class="stack-footer">
+          <div class="stack-dots" id="stack-dots"></div>
+          <div class="stack-arrows">
+            <button class="stack-arrow" id="stack-prev" type="button" aria-label="Previous">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="stack-arrow" id="stack-next" type="button" aria-label="Next">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -619,7 +880,7 @@
       <p>The challenge was never any single feature. It was maintaining coherence, quality, and user trust across a product that kept expanding in every direction.</p>
     </div>
 
-    <div class="project-info-grid">
+    <div class="project-info-grid info-grid-stat">
       <div class="info-block">
         <h4>From</h4>
         <div class="info-content">
@@ -648,8 +909,10 @@
 
 </div>
 
-<div id="wrap_project4" style="text-align:center; padding: 60px 0 80px;">
-  <button onclick="close()" class="cta-close">Close</button>
+<div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
 </div>
 
 </body>

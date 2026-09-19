@@ -10,7 +10,7 @@ Design by angelo wellens.
 
 /* ---------- BASIC ELEMENTS ---------- */
 
-* {	font-family: 'Source Sans Pro', sans-serif; }
+* {	font-family: 'Inter', sans-serif; }
 
 a {color: black;}
 
@@ -45,15 +45,22 @@ h3 {
 	
 	}	
 
-body {
+/* The always-on scrollbar lives on <html>, not <body>: an overflow value on
+   body makes it a scroll container, and #filter-bar's position:sticky would
+   then anchor to that box — which never scrolls — instead of the viewport. */
+html {
 	overflow-y: scroll;
-	font-family: Arial; 
+	scrollbar-gutter: stable;
+}
+
+body {
+	font-family: 'Inter', sans-serif;
 	font-size: 10px;
 	line-height: 1;
 	background-color: white;
 	margin: 0px;
 	color: #191919;
-	
+
 }
 
 .noscroll{
@@ -67,13 +74,14 @@ body {
 }
 
 #intro p {
-	font-family: 'Source Sans Pro', sans-serif;
-	font-weight: 600;
+	font-family: 'Inter', sans-serif;
+	font-weight: 700;
 	line-height: 50px;
 	padding-left:0px;
 	text-align:center;
-	margin-bottom: 70px;
+	margin-bottom: 80px;
 	font-size: 38px;
+	color: #191919;
 
 }
 
@@ -81,7 +89,7 @@ body {
 	background:none;
 	border:none;
 	
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-weight: 600;
 	line-height: 50px;
 	padding-left:0px;
@@ -124,34 +132,38 @@ body {
  position: absolute; left: 80px; top: 40px; z-index: 200;
 		}
 */
+
+#logo_small path { fill: #191919; }
 	
 		
-#about a {
-	text-decoration: none;
-	font-size: 15px;
-	font-weight: 400;
-	position: absolute; right: 80px; top: 40px; z-index: 200;
-	opacity: 0.4;
-	transition: 0.4s;
-} 
-#about a:hover {
-	opacity: 1;
-}   
-
-#about a:after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  right: 0;
-  width: 100%;
-  border-bottom: 1px solid black;
-  transition: 0.4s;
+/* lives inside #filter-bar now — relative so its .kbd-tip still anchors to it */
+#about {
+	position: relative;
+	z-index: 300;
 }
 
-#about a:hover:after {
-  width: 0%;
-  opacity: 1 !important;
-  }
+#about a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: #fff;
+	border: 1px solid rgba(0,0,0,0.1);
+	color: #191919;
+	text-decoration: none;
+	transition: transform 0.2s ease, background 0.4s ease, border-color 0.4s ease;
+}
+
+#about a:hover {
+	transform: scale(1.08);
+	background: #191919;
+	color: #fff;
+}
+
+#about a:after { display: none; }
+#about a:hover:after { display: none; }
 
 #m {
 	display:none;
@@ -173,7 +185,7 @@ body {
 	filter: alpha(opacity=95);
 	z-index: 101;
 	position: relative;
-	min-height: 500px;
+	min-height: 0;
 
 }
 
@@ -340,34 +352,42 @@ cursor: pointer;
 .overlayitem {
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 20;                 /* above .img_bottom (11) and .img_top (12) */
     background-color: rgba(0,0,0,0);
+	backdrop-filter: blur(0px);
+	-webkit-backdrop-filter: blur(0px);
     -webkit-transition: all 0.4s;
 			transition: all 0.4s;
 
 }
 
 .effect-honey:after {
-  
+
 }
 
-.overlayitem:hover {
-    background-color: rgba(255,255,255,0.95);
-
-
+/* Triggered from .item, not the overlay itself: the thumbnail <img> is the
+   element actually under the cursor over most of the card, and it isn't an
+   ancestor of .overlayitem — so an :hover on the overlay never fired there.
+   Frosted glass rather than a flat wash: the backdrop blur pulls the
+   artwork's own colours up through the overlay behind the title. */
+.item:hover .overlayitem {
+    background-color: rgba(255,255,255,0.72);
+	backdrop-filter: blur(14px) saturate(1.4);
+	-webkit-backdrop-filter: blur(14px) saturate(1.4);
 }
 
 figcaption {
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0;
 	opacity: 0;
-	-webkit-transition: -webkit-transform 0.35s;
-			transition: transform 0.35s;
+	-webkit-transition: -webkit-transform 0.35s, opacity 0.35s;
+			transition: transform 0.35s, opacity 0.35s;
 	-webkit-transform: translate3d(0,0,0);
 			transform: translate3d(0,0,0);
 }
 
 figcaption h2 {
-	position: absolute;	
+	position: absolute;
 	top: 46%;
 	vertical-align: middle;
 	width: 100%;
@@ -375,18 +395,23 @@ figcaption h2 {
 	font-size: 16px;
 	height:100%;
 	color: black;
+	/* the overlay behind this got more transparent so the hover-blur-spot has
+	   real image to blur — this keeps the title legible over busy artwork */
+	text-shadow: 0 1px 6px rgba(255,255,255,0.9);
 	text-align: center;
 	text-decoration: none;
 	}
 	
 figcaption h2 i {
 	font-size: 12px;
-	color: #939393;
+	color: #4a4a4a;
 	font-style: normal;
 	line-height: 25px;
 }
 
-figcaption:hover {
+/* Same reason as .item:hover .overlayitem above — the caption itself is not
+   what the cursor lands on. */
+.item:hover figcaption {
 	opacity: 1 !important;
 	-webkit-transform: translate3d(0,-10px,0);
 			transform: translate3d(0,-10px,0);
@@ -420,6 +445,10 @@ figcaption:hover {
 
 }
 
+/* Stays in flow (the title above it is floated, so an absolute loader would
+   lose its static position and jump to the top of #content). It's faded to
+   opacity 0 rather than display:none — see the fadeTo in folio's callback —
+   so its line box survives and the content below never shifts. */
 #loader2 {
 	position: relative;
 	width: 98px;
@@ -429,35 +458,448 @@ figcaption:hover {
 
 }
 
-/* ---------- itmes ---------- */
+/* ---------- kbd tooltips ---------- */
 
-.card-tags {
+.btn-tip-wrap {
+	position: relative;
+	display: inline-block;
+}
+
+.kbd-tip {
 	position: absolute;
-	top: 12px;
-	right: 12px;
-	z-index: 20;
+	top: calc(100% + 10px);
+	left: 50%;
+	transform: translateX(-50%) translateY(-4px);
 	display: flex;
+	align-items: center;
 	gap: 6px;
+	padding: 7px 12px 7px 14px;
+	background: #191919;
+	border-radius: 30px;
+	white-space: nowrap;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.18s ease, transform 0.18s ease;
+	z-index: 999;
+}
+
+/* close button tooltip is JS-driven (see initCloseTip) — no CSS hover needed here */
+
+.kbd-tip-label {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 9px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #ececec;
+	line-height: 1;
+}
+
+.kbd-tip kbd {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 9px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #ececec;
+	background: rgba(255,255,255,0.15);
+	border: 1px solid rgba(255,255,255,0.2);
+	border-radius: 5px;
+	padding: 3px 7px;
+	line-height: 1;
+}
+
+/* theme toggle / about button tooltips go left of their fixed buttons */
+#theme-toggle { overflow: visible; }
+#theme-toggle .kbd-tip,
+#about .kbd-tip {
+	top: auto;
+	bottom: 50%;
+	left: auto;
+	right: calc(100% + 10px);
+	transform: translateY(50%) translateX(4px);
+}
+#theme-toggle:hover .kbd-tip,
+#about:hover .kbd-tip {
+	opacity: 1;
+	transform: translateY(50%) translateX(0);
+	transition-delay: 0.45s;   /* show after a pause; hide is instant */
+}
+
+/* close button tooltip: JS sets exact top/left via getBoundingClientRect,
+   so the base .kbd-tip centering transform must be neutralized here or it
+   shifts the tip an extra 50% of its own width off to the side. */
+#close-kbd-tip {
+	top: auto;
+	left: auto;
+	transform: none;
+}
+
+html.dark .kbd-tip { background: #ececec; }
+html.dark .kbd-tip .kbd-tip-label { color: #191919; }
+html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.2); }
+
+/* ---------- work section ---------- */
+
+.work-section {
+	margin: 0 auto 10px;
+}
+
+/* Product work is pinned to 4 columns; Other design work runs full width. */
+.work-section.cols-4 {
+	max-width: 970px;
+}
+
+/* the inactive scope — masonry still holds it, it just isn't laid out */
+.work-section.section-hidden {
+	display: none;
+}
+
+.work-section + .work-section {
+	margin-top: 84px;
+}
+
+/* The legacy bare `h2` rule floats left and underlines; both have to be
+   turned off by name, since the cascade resolves per-property and anything
+   left undeclared here still comes from that old rule. */
+.work-heading {
+	float: none;
+	display: block;
+	width: 100%;
+	margin: 0 0 18px;
+	padding-left: 0;
+	border-left: 0;
+	font-family: 'Inter', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-decoration: none;
+	text-align: center;
+	color: #8a8a8a;
+}
+
+/* masonry sets an explicit width with isFitWidth — auto margins centre it */
+.work-grid {
+	margin: 0 auto;
+	position: relative;
+}
+
+.work-grid:after { content: ''; display: table; clear: both; }
+
+/* Case-study image galleries float every <img> (see per-project #wrap_project
+   img rules) but never clear them. Without this, #wrap_project collapses to
+   near-zero height and the floats leak into whatever follows in the flow —
+   most visibly the .cta-close "Close" button, which ends up squeezed into
+   the leftover space beside a tall floated image instead of sitting on its
+   own centered line below it. */
+#wrap_project:after { content: ''; display: table; clear: both; }
+
+#older-more-wrap {
+	display: flex;
+	justify-content: center;
+	margin: 22px auto 0;
+}
+
+#older-more-btn {
+	padding: 11px 24px;
+	border: 1px solid rgba(0,0,0,0.09);
+	border-radius: 30px;
+	background: #fff;
+	font-family: 'Inter', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	color: #666;
+	cursor: pointer;
+	transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+#older-more-btn:hover { border-color: rgba(0,0,0,0.28); color: #191919; }
+
+#work {
+	padding-top: 30px;
+	padding-bottom: 140px;
+}
+
+/* ---------- category bar ---------- */
+
+#cat-bar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin: 0 auto;
+	padding: 0 24px;
+	box-sizing: border-box;
+	transition: padding 0.25s ease;
+}
+
+#cat-bar.has-tags {
+	padding: 26px 24px 30px;
+}
+
+.cat-list {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.cat-extra {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	overflow: hidden;
+	max-width: 0;
+	opacity: 0;
 	pointer-events: none;
 }
 
-.card-tag {
-	display: inline-block;
-	padding: 3px 10px;
-	border-radius: 20px;
-	font-family: 'Open Sans', sans-serif;
-	font-size: 9px;
-	line-height: 14px;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+/* transition is only enabled once JS marks the page ready — otherwise the
+   very first style recalc (default → max-width:0) itself gets animated,
+   flashing the tags open-then-closed on load */
+.cat-extra.transitions-ready {
+	transition: max-width 0.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
 }
 
-.card-tag.tag-featured {
-	background: rgba(255,255,255,0.75);
-	color: #191919;
-	-webkit-backdrop-filter: blur(6px);
-	backdrop-filter: blur(6px);
+.cat-extra.is-visible {
+	opacity: 1;
+	pointer-events: auto;
 }
+
+.cat-tags {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: nowrap;
+	gap: 8px;
+}
+
+.cat-extra.is-visible .cat-tags {
+	flex-wrap: wrap;
+}
+
+.cat-btn {
+	display: inline-block;
+	padding: 9px 16px;
+	border: 1px solid rgba(0,0,0,0.09);
+	border-radius: 30px;
+	background: #fff;
+	font-family: 'Inter', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	color: #666;
+	cursor: pointer;
+	transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.cat-btn:hover { border-color: rgba(0,0,0,0.28); color: #191919; }
+
+.cat-btn.is-active {
+	background: #191919;
+	border-color: #191919;
+	color: #fff;
+}
+
+
+/* ---------- filter bar ---------- */
+
+#filter-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	/* #theme-toggle is positioned off 100vw (which spans the scrollbar), while
+	   this bar is a block element whose width stops at the content edge. Body
+	   has margin:0, so (100vw - 100%) is exactly the scrollbar width — subtract
+	   it so both land the same 24px from the true window edge. */
+	padding: 13px calc(24px - (100vw - 100%)) 13px 24px;
+	background: transparent;
+	box-sizing: border-box;
+	position: sticky;
+	top: 0;
+	/* above .top (101), below #zwart's loading screen (110) */
+	z-index: 105;
+}
+
+.fb-left {
+	display: flex;
+	align-items: center;
+	gap: 26px;
+	min-width: 0;
+}
+
+/* an <a> to the homepage — kill the default underline and the global
+   `#intro a:after` rule that draws one */
+.fb-logo {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	text-decoration: none;
+	transition: opacity 0.2s ease;
+}
+
+.fb-logo:hover { opacity: 0.6; }
+.fb-logo:after, .fb-logo:hover:after { display: none; }
+
+/* svg carries width/height attributes from the old header markup — override */
+.fb-logo svg {
+	width: 40px;
+	height: 32px;
+	display: block;
+}
+
+.fb-logo svg path { fill: #191919; }
+
+.fb-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 13px;
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* the real checkbox stays focusable but visually replaced by .fb-switch */
+.fb-toggle input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.fb-switch {
+	position: relative;
+	flex-shrink: 0;
+	width: 40px;
+	height: 22px;
+	border-radius: 999px;
+	background: #e8e8e8;
+	transition: background 0.25s ease;
+}
+
+.fb-switch::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	border: 1px solid rgba(0,0,0,0.22);
+	box-sizing: border-box;
+	transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease;
+}
+
+.fb-toggle input:checked + .fb-switch { background: #191919; }
+.fb-toggle input:checked + .fb-switch::after {
+	transform: translateX(18px);
+	border-color: transparent;
+}
+
+.fb-toggle input:focus-visible + .fb-switch {
+	outline: 2px solid #191919;
+	outline-offset: 2px;
+}
+
+.fb-label {
+	font-family: 'Inter', sans-serif;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1;
+	color: #191919;
+}
+
+.fb-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+}
+
+/* quick switch between Selected/All, always reachable next to About without
+   scrolling down to the pill bar under the title. Custom menu rather than a
+   native <select> — the open list on a <select> is drawn by the OS and
+   can't be restyled to match the rest of the site. */
+.quick-filter {
+	position: relative;
+	z-index: 5;
+}
+
+.qf-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 44px;
+	padding: 0 16px;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 22px;
+	background: #fff;
+	font-family: 'Inter', sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	color: #191919;
+	cursor: pointer;
+	transition: border-color 0.2s ease;
+}
+
+.qf-btn:hover { border-color: rgba(0,0,0,0.3); }
+.qf-btn:focus-visible { outline: 2px solid #191919; outline-offset: 2px; }
+.qf-btn svg { flex-shrink: 0; transition: transform 0.2s ease; color: #666; }
+.quick-filter.is-open .qf-btn svg { transform: rotate(180deg); }
+
+.qf-menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 0;
+	min-width: 180px;
+	padding: 6px;
+	border: 1px solid rgba(0,0,0,0.09);
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+	box-sizing: border-box;
+	opacity: 0;
+	transform: translateY(-6px);
+	pointer-events: none;
+	transition: opacity 0.16s ease, transform 0.16s ease;
+	z-index: 50;
+}
+
+.quick-filter.is-open .qf-menu {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.qf-option {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 9px 10px;
+	border: none;
+	border-radius: 8px;
+	background: none;
+	font-family: 'Inter', sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	color: #666;
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.qf-option:hover { background: #f4f4f4; }
+.qf-option.is-selected { color: #191919; }
+.qf-check { flex-shrink: 0; opacity: 0; }
+.qf-option.is-selected .qf-check { opacity: 1; }
+
+
+/* ---------- itmes ---------- */
 
 .item {
 	position: relative;
@@ -469,7 +911,28 @@ figcaption:hover {
     float: left;
     cursor: pointer;
     overflow: hidden;
+    border-radius: 8px;
 
+}
+
+/* The hover blur lives on .overlayitem as a backdrop-filter (see above), not
+   on the <img> itself — a filter here promotes the image into its own
+   stacking context, which paints it over .overlayitem and swallows the
+   hover that reveals the title. */
+
+/* Positioned ::after (not a real border, which would add to the box width
+   under content-box and throw off masonry's column math), and not a plain
+   box-shadow either — that paints on .item's own background, UNDER the static
+   <img> child, so it was invisible. A positioned pseudo-element paints above
+   non-positioned siblings regardless of DOM order, same reason .overlayitem
+   already shows above the thumbnail on hover. */
+.item.thumb-outline::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.07);
+	pointer-events: none;
 }
 
 .img_top{
@@ -523,7 +986,7 @@ figcaption:hover {
 
 #m-center p {
 	font-size: 15px;
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-weight: 300;
 	line-height: 60px;
 	margin-left: auto;
@@ -759,3 +1222,494 @@ video {}
 }
 
 
+
+/* ══════════ Project pages: shared header/spec system ══════════ */
+/* Base (light) styles for the classes the atlas/parco templates introduced, so
+   every project fragment can use the same title + intro + specs structure.
+   text-align is set explicitly: older fragments still carry a legacy
+   `p { text-align: center }` rule that would otherwise leak in. */
+
+.page-title {
+	max-width: 780px;
+	margin: 0 auto;
+	text-align: left;
+	padding-top: 14%;
+	padding-bottom: 60px;
+	box-sizing: border-box;
+}
+
+.page-title h4 {
+	font-family: 'Inter', sans-serif;
+	color: #3c3c3c;
+	font-size: 640%;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 1.1;
+	text-align: left;
+	text-decoration: none;
+	position: static;
+	letter-spacing: normal;
+	text-transform: none;
+	margin: 0 0 20px;
+}
+
+.project-meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: 8px;
+	margin-bottom: 30px;
+}
+
+.project-tag {
+	display: inline-block;
+	padding: 5px 13px;
+	border-radius: 20px;
+	font-size: 13px;
+	line-height: normal;
+	color: #555;
+	background: #f0f0f0;
+}
+
+.project-details {
+	max-width: 780px;
+	margin: 0 auto 60px;
+}
+
+.project-description {
+	font-size: 22px;
+	line-height: 32px;
+	text-align: left;
+	margin: 0 0 15px;
+	color: #191919;
+}
+
+.project-info-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 32px;
+	margin-top: 80px;
+	margin-bottom: 80px;
+}
+
+.info-block h4 {
+	font-size: 10px;
+	letter-spacing: 1.2px;
+	text-transform: uppercase;
+	text-align: left;
+	margin: 0 0 14px;
+	color: #999;
+	font-weight: 500;
+	font-family: 'Inter', sans-serif;
+}
+
+.info-content {
+	font-size: 15px;
+	line-height: 26px;
+	text-align: left;
+	color: #191919;
+}
+
+/* font-size/line-height repeated here, not just inherited from .info-content:
+   legacy fragments carry a `p { font-size: 20px }` rule, and a direct rule on
+   the <p> beats an inherited value regardless of the parent's specificity. */
+.info-content p {
+	margin: 0;
+	text-align: left;
+	font-size: 15px;
+	line-height: 26px;
+}
+
+.info-content a {
+	color: #191919;
+	text-decoration: none;
+	border-bottom: 1px solid #191919;
+	transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+	margin-bottom: 44px;
+}
+
+.project-section h3 {
+	font-size: 28px;
+	font-weight: 600;
+	text-align: left;
+	margin: 0 0 14px;
+	font-family: 'Inter', sans-serif;
+	text-decoration: none;
+	position: static;
+	color: #191919;
+}
+
+/* font-size/line-height/text-align repeated here, not just inherited: legacy
+   fragments carry a `p { font-size: 20px; text-align: center }` rule, and a
+   direct rule on the <p> beats an inherited value regardless of specificity. */
+.project-section p {
+	font-size: 18px;
+	line-height: 29px;
+	text-align: left;
+	color: #3d3d3d;
+	margin: 0 0 14px;
+}
+
+/* Beats .project-section p above on specificity (two classes vs one). Was
+   previously only defined in atlas.html's own <style>, so captions on any
+   other project page rendered as plain body text. */
+.project-section .img-caption {
+	font-family: 'Inter', sans-serif;
+	font-size: 12px;
+	color: #bbb;
+	text-align: center;
+	margin: 0 0 24px;
+}
+
+html.dark .project-section .img-caption { color: #999; }
+
+.problem-list, .feature-list {
+	list-style: disc;
+	padding-left: 20px;
+	margin-bottom: 0;
+}
+
+.problem-list li, .feature-list li {
+	font-size: 18px;
+	line-height: 29px;
+	text-align: left;
+	color: #3d3d3d;
+	margin-bottom: 8px;
+}
+
+.feature-list li strong { color: #191919; }
+
+.case-study-subhead {
+	font-size: 20px;
+	font-weight: 600;
+	text-align: left;
+	color: #191919;
+	margin: 28px 0 10px;
+	font-family: 'Inter', sans-serif;
+}
+
+.case-study-subhead:first-of-type { margin-top: 0; }
+
+/* ---------- Inline image lightbox ---------- */
+/* #content img { cursor: default; } elsewhere carries an ID selector, which
+   beats a plain class — match its specificity here to actually win. */
+#content img.project-hero-img:not(.no-expand) { cursor: zoom-in; }
+
+.img-lightbox {
+	position: fixed;
+	inset: 0;
+	background: rgba(60, 60, 60, 0.45);
+	backdrop-filter: blur(40px) saturate(180%);
+	-webkit-backdrop-filter: blur(40px) saturate(180%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.25s ease;
+	cursor: zoom-out;
+	padding: 40px;
+	box-sizing: border-box;
+}
+
+.img-lightbox.active {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Direct child only — in compare mode the images sit nested inside
+   .compare-item > .twentytwenty-container instead, and shouldn't get this
+   single-image styling (that container has its own rounded corners already,
+   and per-image shadow/scale would look broken against twentytwenty's clip-rect). */
+.img-lightbox > img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	border-radius: 8px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	transform: scale(0.96);
+	transition: transform 0.25s ease;
+}
+
+.img-lightbox.active > img { transform: scale(1); }
+
+/* Compare mode: full-screen version of the same slider, reusing
+   .compare-item's existing rounded-corner/arrow-color styling. The extra
+   class beats .compare-item's own margin (defined later, in each page's
+   embedded <style>) on specificity rather than source order. */
+.compare-item.img-lightbox-compare {
+	margin: 0;
+	max-width: min(92vw, 1300px);
+	width: 100%;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	border-radius: 16px;
+	transform: scale(0.96);
+	transition: transform 0.25s ease;
+}
+
+.img-lightbox.active .img-lightbox-compare { transform: scale(1); }
+
+/* Parallax section, full-screen: a clone of the section (see
+   openParallaxLightbox in angelo.js), so it needs the same positioning
+   context its .parallax-bg/.parallax-top children expect, just bigger. */
+.img-lightbox-parallax {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	max-width: min(96vw, 1600px);
+	height: 90vh;
+	border-radius: 16px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	transform: scale(0.96);
+	transition: transform 0.25s ease;
+}
+
+.img-lightbox.active .img-lightbox-parallax { transform: scale(1); }
+
+/* Expand button used by initCompareExpand() (angelo.js) — shared by compare
+   sliders, standalone .project-hero-img, and .parallax-section blocks.
+   Was previously only defined in atlas.html's own <style>, so every other
+   project page got the button injected by JS with no styling to show it. */
+.compare-expand-btn {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: none;
+	background: rgba(25, 25, 25, 0.55);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.2s ease, background 0.2s ease;
+	z-index: 45;
+}
+
+.compare-item:hover .compare-expand-btn,
+.img-expand-wrap:hover .compare-expand-btn,
+.parallax-section:hover .compare-expand-btn { opacity: 1; }
+.compare-expand-btn:hover { background: rgba(25, 25, 25, 0.8); }
+
+/* Wraps each standalone .project-hero-img so the same expand button can be
+   absolutely positioned against it, same as .compare-item does for sliders. */
+.img-expand-wrap {
+	position: relative;
+	display: block;
+}
+
+/* Only the color comes from .project-section p / .results-note's own rule
+   below; text-align/font-size are repeated for the same reason as .project-section p. */
+.results-note {
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-align: left;
+	color: #191919;
+	margin-top: 12px;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+	padding: 17px;
+}
+
+.cta-close {
+	display: inline-block;
+	padding: 13px 30px;
+	border-radius: 30px;
+	border: 1px solid rgba(0,0,0,0.07);
+	background: #fff;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 10px;
+	line-height: 1;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #191919;
+	cursor: pointer;
+	transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.cta-close:hover { transform: scale(1.06); background: #191919; color: #fff; }
+
+@media screen and (max-width: 800px) {
+	.project-info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* ══════════ Night mode ══════════ */
+
+/* Toggle button (bottom-right, matches the progress-ring language) */
+#theme-toggle {
+	position: fixed;
+	/* 100vw includes the body scrollbar, so this stays 26px from the true
+	   window edge whether or not the scrollbar is visible (project open) */
+	left: calc(100vw - 70px);
+	bottom: 26px;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: #fff;
+	border: 1px solid rgba(0,0,0,0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 300;
+	transition: transform 0.2s ease, background 0.4s ease, border-color 0.4s ease;
+}
+#theme-toggle:hover { transform: scale(1.08); }
+
+/* sun (core + 8 ray dots) → moon (crescent) morph; rays retract into the core */
+.tt-dot {
+	width: 11px;
+	height: 11px;
+	border-radius: 50%;
+	background: #191919;
+	box-shadow:
+		inset 0 0 0 0 #ececec,
+		0 -9px 0 -4.2px #191919,
+		0 9px 0 -4.2px #191919,
+		-9px 0 0 -4.2px #191919,
+		9px 0 0 -4.2px #191919,
+		-6.4px -6.4px 0 -4.2px #191919,
+		6.4px -6.4px 0 -4.2px #191919,
+		-6.4px 6.4px 0 -4.2px #191919,
+		6.4px 6.4px 0 -4.2px #191919;
+	transform: rotate(0deg);
+	transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* NOTE: no inverse hover here on purpose — inverting a light/dark toggle
+   on hover makes it preview the opposite theme and reads as a broken switch */
+
+html.dark #theme-toggle { background: #1c1c1c; border-color: rgba(255,255,255,0.1); }
+html.dark .tt-dot {
+	width: 14px;
+	height: 14px;
+	background: transparent;
+	box-shadow:
+		inset -4.5px 3px 0 0 #ececec,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919,
+		0 0 0 -8px #191919;
+	transform: rotate(-25deg);
+}
+
+/* Smooth crossfade while switching themes.
+   Colors only — forcing box-shadow/stroke transitions on every element
+   makes the fade hitch on media-heavy project pages. */
+html.theming, html.theming *, html.theming *:before, html.theming *:after {
+	transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, fill 0.4s ease !important;
+}
+
+/* ── Base surfaces ── */
+html.dark body { background-color: #121212; }
+html.dark h1, html.dark h2 { color: #ececec; background-color: transparent; }
+html.dark a, html.dark #intro a { color: #ececec; }
+html.dark #overlay { background-color: #121212; }
+
+/* ── Home grid ── */
+html.dark .item:hover .overlayitem { background-color: rgba(18,18,18,0.7); }
+html.dark figcaption h2 { color: #ececec; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+html.dark figcaption h2 i { color: #cfcfcf; }
+
+/* ── Category bar ── */
+html.dark .cat-btn { background: #1c1c1c; border-color: rgba(255,255,255,0.14); color: #a3a3a3; }
+html.dark .cat-btn:hover { border-color: rgba(255,255,255,0.4); color: #ececec; }
+html.dark .cat-btn.is-active { background: #ececec; border-color: #ececec; color: #191919; }
+html.dark #older-more-btn { background: #1c1c1c; border-color: rgba(255,255,255,0.14); color: #a3a3a3; }
+html.dark #older-more-btn:hover { border-color: rgba(255,255,255,0.4); color: #ececec; }
+html.dark .work-heading { color: #8a8a8a; }
+
+html.dark .item.thumb-outline::after { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
+
+/* ── Filter bar ── */
+html.dark #filter-bar { background: transparent; }
+html.dark .fb-logo svg path { fill: #ececec; }
+html.dark .fb-label { color: #ececec; }
+html.dark .fb-switch { background: #333; }
+html.dark .fb-switch::after { background: #ececec; border-color: rgba(255,255,255,0.25); }
+html.dark .fb-toggle input:checked + .fb-switch { background: #ececec; }
+html.dark .fb-toggle input:checked + .fb-switch::after { background: #191919; border-color: transparent; }
+html.dark .fb-toggle input:focus-visible + .fb-switch { outline-color: #ececec; }
+
+/* ── Project pages (classes shared by atlas/parco templates) ── */
+html.dark .page-title h4 { color: #ececec; }
+html.dark .project-tag { background: #222; color: #8a8a8a; }
+html.dark .project-description { color: #ececec; }
+html.dark .project-description strong { color: #fff; }
+html.dark .project-section h3 { color: #ececec; }
+html.dark .case-study-subhead { color: #ececec; }
+html.dark .project-section p { color: #c4c4c4; }
+html.dark .problem-list li, html.dark .feature-list li { color: #c4c4c4; }
+html.dark .feature-list li strong { color: #ececec; }
+html.dark .stat,
+html.dark .results-note,
+html.dark .approach-item { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .stat-label { color: #8a8a8a; }
+html.dark .stat-value { color: #ececec; }
+html.dark .results-note { color: #ececec; }
+html.dark .approach-item { color: #c4c4c4; }
+html.dark .approach-item strong { color: #ececec; }
+html.dark .approach-item:not(.active):hover { background: #242424; border-color: rgba(255,255,255,0.24); }
+html.dark .approach-right { background: #1c1c1c; }
+html.dark .info-grid-stat .info-block { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .info-block h4 { color: #8a8a8a; }
+html.dark .info-content { color: #c4c4c4; }
+html.dark .info-content a { color: #ececec; border-bottom-color: #ececec; }
+html.dark .stack-caption-item { color: #8a8a8a; }
+html.dark .stack-caption-item strong { color: #ececec; }
+html.dark .cta-close { background: #1c1c1c; border-color: rgba(255,255,255,0.1); color: #ececec; }
+html.dark .cta-close:hover { background: #ececec; color: #191919; }
+
+/* ── Progress ring ── */
+html.dark #scroll-progress .sp-arc { stroke: #ececec; }
+html.dark #scroll-progress .sp-bg { stroke: rgba(255,255,255,0.1); }
+
+/* ── × cursor, white for dark surfaces ── */
+html.dark #overlay,
+html.dark #content {
+	cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cline x1='4' y1='4' x2='16' y2='16' stroke='%23ececec' stroke-width='1.25' stroke-linecap='round'/%3E%3Cline x1='16' y1='4' x2='4' y2='16' stroke='%23ececec' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E") 10 10,url(assets/close_s.png),auto;
+}
+
+/* ── Night mode: round 2 fixes ── */
+html.dark body { color: #ececec; }
+html.dark #intro p { color: #fff; }                           /* explicit so theming transition fires; brighter than the #ececec used elsewhere so the headline leads */
+html.dark #content { background-color: #121212; }             /* project pages */
+html.dark #zwart { background-color: #121212; }               /* initial load cover */
+html.dark #topbar { background-color: #121212 !important; }
+html.dark #logo_small path { fill: #ececec; }
+html.dark #intro a:after { border-bottom-color: #ececec; }
+html.dark #about a { background: #1c1c1c; border-color: rgba(255,255,255,0.1); color: #ececec; }
+html.dark #about a:hover { background: #ececec; color: #191919; }
+html.dark .qf-btn { background-color: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
+html.dark .qf-btn:hover { border-color: rgba(255,255,255,0.4); }
+html.dark .qf-btn svg { color: #a3a3a3; }
+html.dark .qf-menu { background: #1c1c1c; border-color: rgba(255,255,255,0.14); box-shadow: 0 12px 28px rgba(0,0,0,0.4); }
+html.dark .qf-option { color: #a3a3a3; }
+html.dark .qf-option:hover { background: #2a2a2a; }
+html.dark .qf-option.is-selected { color: #ececec; }
+html.dark ::-webkit-scrollbar-track-piece { background-color: #1c1c1c; }
+html.dark ::-webkit-scrollbar-thumb:vertical { background: #555 no-repeat center; }
+
+/* ── Night mode: loader gifs ── */
+/* invert the grayscale gif, then screen-blend so its (now black) bg melts into the page */
+html.dark #loader,
+html.dark #loader2 {
+	filter: invert(1);
+	mix-blend-mode: screen;
+}

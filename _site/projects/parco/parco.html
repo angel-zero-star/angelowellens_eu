@@ -16,7 +16,7 @@
   -webkit-transition: all 0.85s ease-out;
           transition: all 0.85s ease-out;
   padding-bottom: 120px;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .project-alt {
@@ -54,7 +54,7 @@
   font-weight: 700;
   margin-bottom: 15px;
   line-height: 1.2;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
   float: none;
   position: static;
@@ -89,7 +89,9 @@
 }
 
 .results-note {
-  font-size: 14px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
   color: #888;
   margin-top: 12px;
   background: #fff;
@@ -145,7 +147,7 @@
   margin-bottom: 14px;
   color: #999;
   font-weight: 500;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .info-content {
@@ -170,33 +172,13 @@
 }
 
 .project-section h3 {
-  font-size: 18px;
+  font-size: 28px;
   font-weight: 600;
   margin-bottom: 14px;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
   position: static;
   color: #191919;
-}
-
-.project-section p {
-  font-size: 15px;
-  line-height: 26px;
-  color: #666;
-  margin-bottom: 14px;
-}
-
-.problem-list, .feature-list {
-  list-style: disc;
-  padding-left: 20px;
-  margin-bottom: 0;
-}
-
-.problem-list li, .feature-list li {
-  font-size: 15px;
-  line-height: 26px;
-  color: #666;
-  margin-bottom: 8px;
 }
 
 .page-title {
@@ -209,7 +191,7 @@
 }
 
 .page-title h4 {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #3c3c3c;
   font-size: 640%;
   font-style: normal;
@@ -225,25 +207,6 @@
 .page-title .project-meta {
   justify-content: flex-start;
   margin-bottom: 30px;
-}
-
-.value-item { margin-bottom: 28px; }
-
-.value-item h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #191919;
-  font-family: 'Source Sans Pro', sans-serif;
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-.value-item p {
-  font-size: 15px;
-  line-height: 26px;
-  color: #666;
-  margin: 0;
 }
 
 .phones-row {
@@ -300,9 +263,14 @@ video.project-video {
 /* ── Parallax flow section ── */
 .parallax-section {
   position: relative;
-  height: 560px;
+  height: 360px;
+  margin: 0 0 32px;
   border-radius: 16px;
   overflow: hidden;
+}
+
+.parallax-section:last-of-type {
+  margin-bottom: 0;
 }
 
 .parallax-bg {
@@ -346,20 +314,22 @@ video.project-video {
 /* ── Close CTA ── */
 .cta-close {
   display: inline-block;
-  padding: 14px 48px;
-  border-radius: 100px;
-  border: 1.5px solid #191919;
-  background: transparent;
-  font-family: 'Source Sans Pro', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 13px 30px;
+  border-radius: 30px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: #191919;
   cursor: pointer;
-  letter-spacing: 0.3px;
-  transition: background 0.2s, color 0.2s;
+  transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
 }
 
 .cta-close:hover {
+  transform: scale(1.06);
   background: #191919;
   color: #fff;
 }
@@ -446,6 +416,7 @@ video.project-video {
     <span class="project-tag">Mobile</span>
     <span class="project-tag">Mobility</span>
     <span class="project-tag">iOS / Android</span>
+    <span class="project-tag">B2C</span>
     <span class="project-tag">2024</span>
   </div>
 </div>
@@ -484,7 +455,7 @@ video.project-video {
       </div>
     </div>
 
-    <img class="breakout project-hero-img" src="projects/parco/assets/parco_hero.png" alt="Parco" />
+    <img class="breakout project-hero-img no-expand" src="projects/parco/assets/parco_hero.png" alt="Parco" />
 
     <div class="results-section">
       <div class="stats-grid">
@@ -540,12 +511,30 @@ video.project-video {
       </ul>
     </div>
 
-    <div class="breakout parallax-section">
+    <div class="parallax-section">
       <img class="parallax-bg" src="projects/parco/assets/flow_bg.png" alt="" />
       <img class="parallax-top" src="projects/parco/assets/flow_top.png" alt="Parco user flow" />
     </div>
 
-    <div class="breakout parallax-section">
+    <div class="project-section">
+      <h3>Unexpected interview outcome</h3>
+      <p>The session screen started as one button. Billing was already per minute, so a duration felt unnecessary. Start when you arrive, stop when you leave, pay for the time in between. To me it was the neatest interaction we could offer, and I expected it to test well.</p>
+      <p>We built both that version and a dial that sets an expected duration, and put them in front of 20 potential customers and our main stakeholders. Every one of them chose the dial.</p>
+      <img class="project-hero-img" src="projects/parco/assets/wireframe_start_stop.jpg" alt="Wireframes of the one-button start/stop session flow: before, active, and after" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">The one-button version: start when you arrive, stop when you leave</p>
+      <img class="project-hero-img" src="projects/parco/assets/wireframe_duration_dial.jpg" alt="Wireframes of the duration dial flow: set, active, and extend" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">The dial version: set an expected duration, extend or end early</p>
+      <p>Three reasons came up:</p>
+      <ul class="feature-list">
+        <li>Estimating how long you will park is the habit people already have. It is how every parking meter works.</li>
+        <li>They wanted to see what the parking would cost before committing to it.</li>
+        <li>They enjoyed it. The dial was the part of the prototype people kept playing with.</li>
+      </ul>
+      <p>So we shipped the dial, with per-minute billing behind it. You set an expected duration and see the estimate up front, the app reminds you before it runs out, adding time is one tap, and ending early refunds the difference. People got the control they asked for without the overpayment they were used to from meters.</p>
+      <p class="results-note">The simplest interaction was not the one people wanted to use. That was worth finding out before we built it.</p>
+    </div>
+
+    <div class="parallax-section">
       <img class="parallax-bg" src="projects/parco/assets/flow_bg.png" alt="" />
       <div class="parallax-top phones-fan">
         <img class="phone-left" src="projects/parco/assets/phones_3.png" alt="Parco parking session" />
@@ -556,22 +545,12 @@ video.project-video {
 
     <div class="project-section">
       <h3>User values</h3>
-      <div class="value-item">
-        <h4>Reduced cognitive load</h4>
-        <p>No meters, tickets, or guessing parking duration — users stay in control at all times.</p>
-      </div>
-      <div class="value-item">
-        <h4>Fair pricing &amp; trust</h4>
-        <p>Minutely billing eliminates overpaying and increases confidence in the system.</p>
-      </div>
-      <div class="value-item">
-        <h4>Stress-free urban mobility</h4>
-        <p>Visibility into availability and busyness helps users predict where to find a spot, reducing uncertainty and unnecessary circling.</p>
-      </div>
-      <div class="value-item">
-        <h4>Flexibility in unpredictable situations</h4>
-        <p>One-tap extensions and reminders adapt to real-life delays.</p>
-      </div>
+      <ul class="feature-list">
+        <li><strong>Reduced cognitive load</strong> — No meters, tickets, or guessing parking duration — users stay in control at all times.</li>
+        <li><strong>Fair pricing &amp; trust</strong> — Minutely billing eliminates overpaying and increases confidence in the system.</li>
+        <li><strong>Stress-free urban mobility</strong> — Visibility into availability and busyness helps users predict where to find a spot, reducing uncertainty and unnecessary circling.</li>
+        <li><strong>Flexibility in unpredictable situations</strong> — One-tap extensions and reminders adapt to real-life delays.</li>
+      </ul>
     </div>
 
   </div>
@@ -589,8 +568,10 @@ video.project-video {
 
 </div>
 
-<div id="wrap_project4" style="text-align:center; padding: 60px 0 80px;">
-  <button onclick="close()" class="cta-close">Close</button>
+<div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
 </div>
 
 </body>

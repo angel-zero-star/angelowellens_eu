@@ -57,7 +57,7 @@ video {
 }
 
 h4 {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: 640%;
@@ -83,7 +83,7 @@ iframe {
 	   		box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.2);
 }
 p {
-	font-family: 'Source Sans Pro', sans-serif;
+	font-family: 'Inter', sans-serif;
 	margin-bottom: 5%;
 	font-size: 20px;
 	text-align: center;
@@ -115,9 +115,37 @@ p {
 <body> 
 	
 	
-		<div class="center"><h4Wweather Apph</h4></div> 
+		<div class="page-title">
+  <h4>Weather — 24-hour forecast concept</h4>
+  <div class="project-meta">
+    <span class="project-tag">Mobile</span>
+    <span class="project-tag">Concept</span>
+    <span class="project-tag">UI</span>
+  </div>
+</div> 
 		<img id="loader2" src="loading_good.gif" width="auto" height="auto">
 		<div id="wrap_project">
+
+  <div class="project-details">
+
+    <p class="project-description">A simple, clean way to read the weather for the next 24 hours — a concept stripping the forecast back to the window that actually affects your day.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content"><p>Concept / Design / UI</p></div>
+      </div>
+      <div class="info-block">
+        <h4>Deliverables</h4>
+        <div class="info-content">
+          <p>App concept</p>
+          <p>Mobile UI</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 	<video class="lazy" width="100%" height="auto" autoplay loop controls muted>
 		<source src="projects/weather/assets/video_weather.mp4" type="video/mp4">
 	</video>
@@ -127,10 +155,11 @@ p {
 	<div style="height100px;">&nbsp;<br />&nbsp;<br />&nbsp;</div>	
 
 		  </div> <!-- project -->
-	 <p id="wrap_project4">
-A simple a clean way to check the weather for the next 24 hours. 
-<br /><br /><span style="opacity:0.7;font-size:15px;" > Concept / Design / Ui</span> 
-</p>		 
+	 <div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>		 
 <div id="mobile-close"></div>	
 
 </body>
