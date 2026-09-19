@@ -67,7 +67,13 @@ body {
 	background-color: white;
 	margin: 0px;
 	color: #191919;
-	overflow-x: hidden;
+	/* overflow-x:hidden was here too, but body isn't the actual scroll
+	   container (html is, via overflow-y:scroll above) — giving body a
+	   non-visible overflow value anyway broke #filter-bar's position:sticky,
+	   a well-known interaction (sticky resolves against the nearest actual
+	   scrolling ancestor, and this made browsers second-guess which one that
+	   was). html's own overflow-x:hidden already contains any horizontal
+	   overflow at the true root, so this doesn't need to be duplicated here. */
 
 }
 
@@ -947,11 +953,17 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
    project page repeats this markup, so overriding it here beats all of
    them at once instead of hand-editing dozens of files. !important is
    required to beat the inline style. Masonry re-measures actual rendered
-   widths on each layout pass, so it adapts to whatever this resolves to. */
+   widths on each layout pass, so it adapts to whatever this resolves to.
+   Only the wide/featured cards go full-width — standard cards stay at a
+   minimum of 2 per row, never collapsing to a single column. */
 @media screen and (max-width: 500px) {
-	.item {
+	.item[style*="470px"] {
 		width: 100% !important;
 		max-width: 420px;
+	}
+	.item[style*="230px"] {
+		width: calc(50% - 5px) !important;
+		max-width: none;
 	}
 }
 
