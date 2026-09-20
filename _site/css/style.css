@@ -51,6 +51,15 @@ h3 {
 html {
 	overflow-y: scroll;
 	scrollbar-gutter: stable;
+	/* Stops mobile browsers auto-inflating body text. Safari and Chrome both
+	   enlarge type on pages they judge non-responsive, and the signal they
+	   use is a block far wider than the viewport — which Kuva has, since its
+	   legacy collage is pinned at 1400px. That page alone came out with
+	   noticeably larger copy on a phone while its CSS was byte-for-byte the
+	   same as every other project (verified: .project-description 22px/32px
+	   on Kuva and Atlas alike). Desktop is unaffected either way. */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
 	/* Safety net: several .item cards below carry hardcoded pixel widths
 	   (470px, sometimes 230px) via inline style="" attributes, one per
 	   project page. Any one of those wider than the viewport used to drag
