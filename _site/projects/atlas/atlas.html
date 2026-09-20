@@ -221,6 +221,8 @@
 
 .case-study-subhead:first-of-type { margin-top: 0; }
 
+/* side inset (width:84%, matching #wrap_project) comes from the shared
+   .page-title rule in style.css — deliberately not repeated here */
 .page-title {
   max-width: 780px;
   margin: 0 auto;
@@ -233,7 +235,9 @@
 .page-title h4 {
   font-family: 'Inter', sans-serif;
   color: #3c3c3c;
-  font-size: 640%;
+  /* same clamp as the shared .page-title h4 rule in style.css; repeated only
+     because this local block would otherwise shadow it back to a flat 640% */
+  font-size: clamp(2rem, 8vw, 4rem);
   font-style: normal;
   font-weight: 400;
   line-height: 1.1;
@@ -604,12 +608,7 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
     margin-left: 0;
   }
 
-  /* h4's 640% is relative to the 10px base body font-size — 64px on desktop,
-     where the 780px column gives it room to breathe. On a phone-width
-     column the same size wraps into a wall of oversized text. */
-  .page-title h4 {
-    font-size: 320%;
-  }
+  /* .page-title h4 sizes itself fluidly via clamp() now — no step needed */
 
   .stats-grid, .project-info-grid {
     grid-template-columns: 1fr;

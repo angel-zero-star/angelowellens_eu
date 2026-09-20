@@ -956,30 +956,66 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
    full-width — standard cards stay at a minimum of 2 per row, never
    collapsing to a single column.
 
-   Masonry.js is configured with a FIXED columnWidth:230, and packs items
-   into a coordinate grid built from that fixed number — it does not read
-   these CSS overrides at all. So on mobile it kept positioning cards (and
-   sizing .work-grid itself, via isFitWidth) as if every item were still
-   230/460px wide, leaving a dead gap on the right of the container where
-   the real, wider viewport went unaccounted for. Forcing .item back to
-   static/float here drops it out of Masonry's absolute-positioned,
-   fixed-column layout entirely and lets the plain CSS float flow (already
-   the base behavior of .item) size the grid to the actual viewport. */
+   Masonry is configured with a FIXED columnWidth:230 and writes its packing
+   result as inline position/top/left on every card — numbers computed with
+   no knowledge of a ~390px viewport. Rather than fight those inline styles
+   from here, masonry simply doesn't run below this breakpoint at all (see
+   gridsAreNative() in angelo.js), so these rules only have to beat the
+   inline width="" attributes, not a whole layout engine.
+
+   Flex, not float: two floated cards at calc(50% - 5px) sit flush against
+   each other and dump the full 10px at the right edge instead of between
+   them. `gap` puts it where it belongs, and percentage widths keep the
+   whole thing fluid at any width rather than snapping at fixed sizes.
+
+   Note .item keeps its own `position: relative` here — .overlayitem is
+   absolutely positioned to inset 0 and uses the card as its containing
+   block, so anything that unsets this detaches every hover overlay from
+   its card. */
 @media screen and (max-width: 500px) {
 	.work-grid {
-		width: 100% !important;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		/* !important on both: masonry's isFitWidth writes an inline
+		   `width: 230px` (and a px height) straight onto the grid. The JS
+		   guards should stop it ever running at this width, but there are
+		   five separate masonry entry points across 39 files — if any one
+		   ever slips through again, this keeps the grid fluid instead of
+		   silently collapsing it to a single 230px column. */
+		width: auto !important;
 		height: auto !important;
 	}
+	/* Every card is markup'd as <a><div class="item">…</div></a>, so the grid's
+	   flex children are the ANCHORS, not the items. Masonry hid that: it
+	   absolutely positioned .item, which collapsed the wrapper to nothing. In
+	   normal flex flow the <a> is the real flex item and has to carry the
+	   width — sizing .item alone just resolved 50% against the wrapper's own
+	   content width (230px) and produced 110px cards, one per row. */
+	.work-grid > a {
+		flex: 0 0 calc(50% - 5px);
+		max-width: calc(50% - 5px);
+		min-width: 0;
+	}
+	/* wide/featured cards span the full row */
+	.work-grid > a:has(.item[style*="470px"]) {
+		flex-basis: 100%;
+		max-width: 100%;
+	}
+	/* .showhide zeroes the .item, but the wrapper would still hold a half-width
+	   flex slot open and punch a hole in the grid — collapse it too. */
+	.work-grid > a:has(> .item.showhide) {
+		display: none;
+	}
+	/* any card not wrapped in an anchor still lays out correctly */
+	.work-grid > .item {
+		flex: 0 0 calc(50% - 5px);
+		max-width: calc(50% - 5px);
+	}
 	.item {
-		position: static !important;
-	}
-	.item[style*="470px"] {
 		width: 100% !important;
-		max-width: 420px;
-	}
-	.item[style*="230px"] {
-		width: calc(50% - 5px) !important;
-		max-width: none;
+		margin-top: 0 !important;
+		float: none;
 	}
 }
 
@@ -1289,7 +1325,15 @@ video {}
    text-align is set explicitly: older fragments still carry a legacy
    `p { text-align: center }` rule that would otherwise leak in. */
 
+/* width:84% mirrors #wrap_project, which every page places this OUTSIDE of —
+   that's where the body copy below gets its side inset from. Without it the
+   title and tag row ran edge-to-edge while every paragraph under them was
+   inset, which reads as a misalignment on narrow screens. Both resolve to
+   min(780px, 84% of the page box), so they stay flush at every width.
+   Atlas and Parco redeclare .page-title in their own <style> blocks but
+   neither sets `width`, so this reaches them too. */
 .page-title {
+	width: 84%;
 	max-width: 780px;
 	margin: 0 auto;
 	text-align: left;
@@ -1298,10 +1342,15 @@ video {}
 	box-sizing: border-box;
 }
 
+/* 640% resolved against body's 10px base = 64px, and 4rem is that same 64px,
+   so desktop is unchanged — the clamp only bites below ~800px, where a flat
+   64px title wrapped into a wall of oversized text on a phone. Only Atlas and
+   Parco ever had a mobile override for this (a hard jump to 320% at 760px);
+   the other 35 project pages had none at all. */
 .page-title h4 {
 	font-family: 'Inter', sans-serif;
 	color: #3c3c3c;
-	font-size: 640%;
+	font-size: clamp(2rem, 8vw, 4rem);
 	font-style: normal;
 	font-weight: 400;
 	line-height: 1.1;

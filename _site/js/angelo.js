@@ -253,9 +253,54 @@ var MASONRY_OPTS = {
   animationOptions: { duration: 500, easing: 'easeInOutCubic', queue: true }
 };
 
+// Below this width the grids lay themselves out with plain CSS (flex, see the
+// max-width:500px block in style.css) and masonry never runs at all.
+//
+// Masonry packs into a coordinate grid built from a FIXED columnWidth:230 and
+// writes the result as inline position/top/left on every .item — numbers that
+// have no idea the viewport is only ~390px wide. Overriding those inline
+// styles from CSS is a fight that can't be won cleanly: forcing the items back
+// to `position: static` did get the widths right, but it also destroyed the
+// containing block that .overlayitem (position:absolute, inset 0) depends on,
+// so every hover overlay detached from its card. Not running masonry at all
+// leaves .item's own `position: relative` intact and the overlay anchored by
+// construction.
+function gridsAreNative() { return window.innerWidth <= 500; }
+
 function initWorkGrids(animated) {
+  if (gridsAreNative()) return;
   var opts = $.extend({}, MASONRY_OPTS, { isAnimated: !!animated });
   $('.work-grid').each(function() { $(this).masonry(opts); });
+}
+
+// Pre-pass, called from every page's inline $(window).load: compresses the
+// grid to a 2-column layout while it's still hidden so the cascade has varied
+// x+y start positions to animate out of. Lived inline in all 39 HTML files;
+// it's a function here so the mobile guard exists in exactly one place —
+// as an inline call it ran unconditionally and re-initialised masonry on
+// grids that initWorkGrids had deliberately skipped.
+function initWorkGridsPrepass() {
+  if (gridsAreNative()) return;
+  $('.work-grid').masonry({ columnWidth: 470, isFitWidth: false, isAnimated: false });
+}
+
+// Called from the loader fade-out in every page's inline script: lays the grid
+// out instantly so runCascade has real positions to reveal from. isFitWidth is
+// what writes the inline `width: 230px` onto .work-grid — the single column
+// that was still squeezing the mobile layout after masonry itself was guarded.
+function layoutWorkGridsInstant() {
+  if (gridsAreNative()) return;
+  $('.work-grid').masonry({ columnWidth: 230, isFitWidth: true, isAnimated: false });
+}
+
+// Hands animation back to masonry once the entrance cascade is done, so
+// columns slide on window resize instead of snapping.
+function enableWorkGridAnimation() {
+  if (gridsAreNative()) return;
+  $('.work-grid').masonry('option', {
+    isAnimated: true,
+    animationOptions: { queue: false, duration: 500, easing: 'easeInOutCubic' }
+  });
 }
 
 // ── Work sections ──
@@ -297,9 +342,14 @@ function setScope(scope) {
     // so it needs a relayout now that it actually has a width
     $in.find('.work-grid').each(function(gi) {
       var $g = $(this);
-      $g.masonry('option', { isAnimated: false });
-      $g.masonry('reload');
-      $g.masonry('option', { isAnimated: true });
+      // 'reload' on an element masonry was never initialised on initialises it
+      // — which would quietly undo gridsAreNative() the first time the user
+      // switches scope on a phone.
+      if (!gridsAreNative()) {
+        $g.masonry('option', { isAnimated: false });
+        $g.masonry('reload');
+        $g.masonry('option', { isAnimated: true });
+      }
       // stagger the second section so the two cascade in order, not together
       runCascade($g.find('.item').not('.showhide'), $g, gi * 180);
     });
@@ -317,7 +367,11 @@ function toggleOlderMore() {
   var btn = document.getElementById('older-more-btn');
   if (btn) btn.textContent = _olderExpanded ? 'Show less' : 'Show more';
 
+  // same trap as in setScope: 'reload' would initialise masonry on a grid
+  // that deliberately never had it, so skip it entirely at mobile widths —
+  // the flex layout reflows on its own when .showhide comes off.
   function relayout() {
+    if (gridsAreNative()) return;
     $g.masonry('option', { isAnimated: false });
     $g.masonry('reload');
     $g.masonry('option', { isAnimated: true });

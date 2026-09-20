@@ -59,15 +59,20 @@ video {
 			transform: translate3d(0,0,0) !important;
 }
 
+/* 640% resolved against body's 10px = 64px, so 4rem is the same size it has
+   always been on desktop — the clamp only ever kicks in below ~582px, where
+   a flat 64px ran "angelo wellens" straight off the side of a phone. */
 h4 {
 	font-family: 'Inter', sans-serif;
 	margin-top: 20%;
 	color: #3c3c3c;
-	font-size: 640%;
+	font-size: clamp(2.2rem, 11vw, 4rem);
 	text-align: center;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 100%;
+	padding: 0 24px;
+	box-sizing: border-box;
 }
 
 /* #wrap_project scoping (not just `h2`) beats the shared stylesheet's own
@@ -169,6 +174,16 @@ p {
 	font-size: 13px;
 	line-height: 1;
 }
+/* This page hardcodes #3c3c3c (and plain black rules below), which is close
+   to invisible on the dark background — the headings read as dim grey smudges.
+   Every selector here has to out-specify its light-mode counterpart: the
+   shared sheet's own `html.dark h2` loses to `#wrap_project h2`'s id. */
+html.dark h4 { color: #ececec; }
+html.dark #wrap_project h2 { color: #ececec; }
+html.dark #wrap_project a { color: #ececec; }
+html.dark #wrap_project a:after { border-bottom-color: rgba(255,255,255,0.6); }
+html.dark #links { border-top-color: rgba(255,255,255,0.35); }
+
 @media only screen and (max-width: 760px) {
 .left {
 	width: 100% !important;
@@ -176,9 +191,12 @@ p {
 .right {
 	width: 100% !important;
 }
-	h2 {
+	/* was `h2 { font-size: 44px !important }` — that !important reached past
+	   the #wrap_project h2 rule above and blew the About / Contact headings up
+	   to 44px on exactly the screens with the least room for them. The desktop
+	   size is already mobile-appropriate. */
+	#wrap_project h2 {
 		width: 100% !important;
-		font-size: 44px  !important;
 	}
 }
 
