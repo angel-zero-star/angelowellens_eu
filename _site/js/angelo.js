@@ -1504,11 +1504,20 @@ function fitFixedWidthProject() {
     return;
   }
 
-  // An explicit pixel width, not 100%: #content carries overflow-x:auto and a
-  // 1400px scrollable area, against which a percentage resolved back to 1400
-  // and left the case-study column 780px wide on a 390px screen.
-  wrap.style.width = avail + 'px';
-  wrap.style.maxWidth = avail + 'px';
+  // Match the reading column to .page-title, which sits outside #wrap_project
+  // and is already inset by the site-wide 84% (see .page-title in style.css).
+  // Filling the full viewport width instead left the title and tags indented
+  // while the copy below them ran edge to edge — the thing that made this page
+  // look unlike every other project on a phone.
+  //
+  // An explicit pixel width, not a percentage: #content carries
+  // overflow-x:auto and a 1400px scrollable area, against which a percentage
+  // resolved back to 1400 and left the column 780px wide on a 390px screen.
+  var title = document.querySelector('.page-title');
+  var column = title && title.offsetWidth ? title.offsetWidth
+                                          : Math.round(avail * 0.84);
+  wrap.style.width = column + 'px';
+  wrap.style.maxWidth = column + 'px';
 
   // Two nested boxes per run. The inner one keeps the collage at its true
   // design width and is scaled with a transform; the outer one is the real
@@ -1540,14 +1549,16 @@ function fitFixedWidthProject() {
     existing = wrap.querySelectorAll('.legacy-collage');
   }
 
-  var scale = avail / design;
+  // scaled to the reading column, so the collage lines up with the copy and
+  // the title rather than bleeding past them
+  var scale = column / design;
   Array.prototype.forEach.call(existing, function(box) {
     var inner = box.querySelector('.legacy-collage-inner');
     if (!inner) return;
     inner.style.transform = 'none';                 // measure unscaled
     var h = inner.offsetHeight;
     inner.style.transform = 'scale(' + scale + ')';
-    box.style.width = avail + 'px';
+    box.style.width = column + 'px';
     box.style.height = Math.round(h * scale) + 'px';
   });
 }
