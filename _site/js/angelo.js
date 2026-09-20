@@ -1493,7 +1493,8 @@ function fitFixedWidthProject() {
   if (!avail || avail === Infinity) return;
 
   var existing = wrap.querySelectorAll('.legacy-collage');
-  var design = existing.length ? parseFloat(existing[0].style.width) : wrap.offsetWidth;
+  var firstInner = existing.length ? existing[0].querySelector('.legacy-collage-inner') : null;
+  var design = firstInner ? parseFloat(firstInner.style.width) : wrap.offsetWidth;
 
   // A fluid page (or a screen wide enough for the real thing) needs nothing.
   if (!design || design <= avail + 1) {
@@ -1509,21 +1510,45 @@ function fitFixedWidthProject() {
   wrap.style.width = avail + 'px';
   wrap.style.maxWidth = avail + 'px';
 
+  // Two nested boxes per run. The inner one keeps the collage at its true
+  // design width and is scaled with a transform; the outer one is the real
+  // on-screen size and clips, because a transform leaves the layout box at
+  // its unscaled 1400px and would otherwise put the horizontal scrollbar
+  // straight back.
+  //
+  // transform, not the `zoom` property this first used: zoom is not reliably
+  // applied everywhere, and when it silently no-ops the inner box just stays
+  // 1400px wide inside a 380px column — which looks exactly like the page
+  // being zoomed in. transform: scale() has no such gap in support, and since
+  // these boxes are created here there is nothing for it to collide with.
   if (!existing.length) {
     groupLegacyRuns(wrap).forEach(function(run) {
       var box = document.createElement('div');
       box.className = 'legacy-collage';
-      box.style.width = design + 'px';
-      box.style.display = 'flow-root';   // contain the floats without clipping
+      box.style.overflow = 'hidden';
+
+      var inner = document.createElement('div');
+      inner.className = 'legacy-collage-inner';
+      inner.style.width = design + 'px';
+      inner.style.display = 'flow-root';    // contain the floats
+      inner.style.transformOrigin = 'top left';
+
       run[0].parentNode.insertBefore(box, run[0]);
-      run.forEach(function(el) { box.appendChild(el); });
+      box.appendChild(inner);
+      run.forEach(function(el) { inner.appendChild(el); });
     });
     existing = wrap.querySelectorAll('.legacy-collage');
   }
 
   var scale = avail / design;
   Array.prototype.forEach.call(existing, function(box) {
-    box.style.zoom = scale;
+    var inner = box.querySelector('.legacy-collage-inner');
+    if (!inner) return;
+    inner.style.transform = 'none';                 // measure unscaled
+    var h = inner.offsetHeight;
+    inner.style.transform = 'scale(' + scale + ')';
+    box.style.width = avail + 'px';
+    box.style.height = Math.round(h * scale) + 'px';
   });
 }
 
@@ -1542,9 +1567,11 @@ function groupLegacyRuns(wrap) {
   return runs;
 }
 
+// lift the collage children back out of both boxes and drop the scaffolding
 function unwrapLegacy(wrap, boxes) {
   Array.prototype.forEach.call(boxes, function(box) {
-    while (box.firstChild) box.parentNode.insertBefore(box.firstChild, box);
+    var inner = box.querySelector('.legacy-collage-inner') || box;
+    while (inner.firstChild) box.parentNode.insertBefore(inner.firstChild, box);
     box.parentNode.removeChild(box);
   });
 }
