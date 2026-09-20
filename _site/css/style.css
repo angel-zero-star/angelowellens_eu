@@ -956,66 +956,45 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
    full-width — standard cards stay at a minimum of 2 per row, never
    collapsing to a single column.
 
-   Masonry is configured with a FIXED columnWidth:230 and writes its packing
-   result as inline position/top/left on every card — numbers computed with
-   no knowledge of a ~390px viewport. Rather than fight those inline styles
-   from here, masonry simply doesn't run below this breakpoint at all (see
-   gridsAreNative() in angelo.js), so these rules only have to beat the
-   inline width="" attributes, not a whole layout engine.
+   Masonry still runs at this width — it's the only thing that packs cards of
+   ragged height without leaving holes, which is exactly what the "Other
+   design work" grid needs. What didn't fit a phone was its hardcoded
+   columnWidth:230: two of those plus a gutter need 470px, so a ~380px grid
+   only ever fitted ONE column and centred it, stranding dead space beside it.
+   gridColumnOptions() in angelo.js derives the column width from the grid
+   instead, so it lands on exactly 2 columns here.
 
-   Flex, not float: two floated cards at calc(50% - 5px) sit flush against
-   each other and dump the full 10px at the right edge instead of between
-   them. `gap` puts it where it belongs, and percentage widths keep the
-   whole thing fluid at any width rather than snapping at fixed sizes.
+   A plain flex-wrap layout was tried instead and is the wrong tool: every
+   flex row is as tall as its tallest card, so short cards leave a gap
+   underneath. Flex cannot pack vertically; masonry is precisely the fix.
 
-   Note .item keeps its own `position: relative` here — .overlayitem is
-   absolutely positioned to inset 0 and uses the card as its containing
-   block, so anything that unsets this detaches every hover overlay from
-   its card. */
+   These widths must agree with the columnWidth the JS computes — both are
+   (grid - 10px gutter) / 2. Masonry absolutely positions .item, so the
+   percentages resolve against .work-grid (position:relative) rather than
+   against the <a> wrapper each card is nested in.
+
+   Do NOT force `height: auto` on .work-grid here: its children are
+   absolutely positioned, so the inline height masonry sets is the only
+   thing giving the grid any height at all. */
 @media screen and (max-width: 500px) {
 	.work-grid {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
-		/* !important on both: masonry's isFitWidth writes an inline
-		   `width: 230px` (and a px height) straight onto the grid. The JS
-		   guards should stop it ever running at this width, but there are
-		   five separate masonry entry points across 39 files — if any one
-		   ever slips through again, this keeps the grid fluid instead of
-		   silently collapsing it to a single 230px column. */
+		/* isFitWidth is off at this width, so masonry no longer writes an
+		   inline width — this clears any left over from a wider layout. */
 		width: auto !important;
-		height: auto !important;
-	}
-	/* Every card is markup'd as <a><div class="item">…</div></a>, so the grid's
-	   flex children are the ANCHORS, not the items. Masonry hid that: it
-	   absolutely positioned .item, which collapsed the wrapper to nothing. In
-	   normal flex flow the <a> is the real flex item and has to carry the
-	   width — sizing .item alone just resolved 50% against the wrapper's own
-	   content width (230px) and produced 110px cards, one per row. */
-	.work-grid > a {
-		flex: 0 0 calc(50% - 5px);
-		max-width: calc(50% - 5px);
-		min-width: 0;
-	}
-	/* wide/featured cards span the full row */
-	.work-grid > a:has(.item[style*="470px"]) {
-		flex-basis: 100%;
-		max-width: 100%;
-	}
-	/* .showhide zeroes the .item, but the wrapper would still hold a half-width
-	   flex slot open and punch a hole in the grid — collapse it too. */
-	.work-grid > a:has(> .item.showhide) {
-		display: none;
-	}
-	/* any card not wrapped in an anchor still lays out correctly */
-	.work-grid > .item {
-		flex: 0 0 calc(50% - 5px);
-		max-width: calc(50% - 5px);
 	}
 	.item {
+		width: calc(50% - 5px) !important;
+	}
+	/* A full-bleed card only packs cleanly when it's the FIRST card in its
+	   grid. Masonry has to wait for both columns to clear before it can place
+	   a 2-column brick, so one dropped mid-list strands a hole under whichever
+	   column was shorter — that's the empty space in "Other design work",
+	   where the two wide cards (Pepsi, Jager Rebirth) sit at positions 9 and
+	   20. Selected work's featured card is first, so it still spans. */
+	.work-grid > a:first-child .item[style*="470px"],
+	.work-grid > .item[style*="470px"]:first-child {
 		width: 100% !important;
-		margin-top: 0 !important;
-		float: none;
+		max-width: none;
 	}
 }
 

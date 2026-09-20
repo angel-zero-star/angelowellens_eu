@@ -253,50 +253,99 @@ var MASONRY_OPTS = {
   animationOptions: { duration: 500, easing: 'easeInOutCubic', queue: true }
 };
 
-// Below this width the grids lay themselves out with plain CSS (flex, see the
-// max-width:500px block in style.css) and masonry never runs at all.
+// The 230px column is a desktop constant: two of them plus a 10px gutter need
+// 470px, so on a ~380px phone grid masonry fitted exactly ONE column and
+// centred it, leaving the dead space beside it that started all of this.
 //
-// Masonry packs into a coordinate grid built from a FIXED columnWidth:230 and
-// writes the result as inline position/top/left on every .item — numbers that
-// have no idea the viewport is only ~390px wide. Overriding those inline
-// styles from CSS is a fight that can't be won cleanly: forcing the items back
-// to `position: static` did get the widths right, but it also destroyed the
-// containing block that .overlayitem (position:absolute, inset 0) depends on,
-// so every hover overlay detached from its card. Not running masonry at all
-// leaves .item's own `position: relative` intact and the overlay anchored by
-// construction.
-function gridsAreNative() { return window.innerWidth <= 500; }
+// Below this width the column is derived from the grid instead, so it always
+// lands on 2 columns. Masonry itself keeps running — it's the only thing that
+// packs ragged-height cards without leaving holes under the short ones, which
+// a flex-wrap layout (every row as tall as its tallest card) cannot do.
+//
+// The value has to match the CSS `.item { width: calc(50% - 5px) }` in the
+// max-width:500px block, hence measuring a real card when one is available
+// rather than trusting the arithmetic twice.
+function isNarrowGrid() { return window.innerWidth <= 500; }
+
+function gridColumnOptions($grid, animated) {
+  var opts = $.extend({}, MASONRY_OPTS, { isAnimated: !!animated });
+  if (!isNarrowGrid()) return opts;
+
+  var $std = $grid.find('.item').not('.showhide').filter(function() {
+    return (this.getAttribute('style') || '').indexOf('470px') === -1;
+  }).first();
+
+  var avail = $grid.parent().width() || $grid.width() || 0;
+  var measured = $std.length ? Math.round($std.outerWidth()) : 0;
+  var col = measured > 1 ? measured
+                         : Math.floor((avail - opts.gutterWidth) / 2);
+
+  opts.columnWidth = Math.max(1, col);
+  // isFitWidth shrink-wraps the container to whole columns and centres it —
+  // the exact behaviour that stranded a single column on a phone. Off here so
+  // the grid simply fills its parent.
+  opts.isFitWidth = false;
+  return opts;
+}
 
 function initWorkGrids(animated) {
-  if (gridsAreNative()) return;
-  var opts = $.extend({}, MASONRY_OPTS, { isAnimated: !!animated });
-  $('.work-grid').each(function() { $(this).masonry(opts); });
+  $('.work-grid').each(function() {
+    var $g = $(this);
+    $g.masonry(gridColumnOptions($g, animated));
+  });
+  watchGridBreakpoint();
+}
+
+// Masonry re-layouts on window resize by itself, but it reuses whatever
+// columnWidth it was initialised with — so crossing the breakpoint (rotating a
+// phone, dragging a desktop window narrow) would keep the wrong column count
+// until a reload. Re-derive the options when the narrow/wide state flips.
+function watchGridBreakpoint() {
+  if (watchGridBreakpoint._bound) return;
+  watchGridBreakpoint._bound = true;
+
+  var wasNarrow = isNarrowGrid();
+  var t = null;
+  window.addEventListener('resize', function() {
+    clearTimeout(t);
+    t = setTimeout(function() {
+      var now = isNarrowGrid();
+      if (now === wasNarrow) return;
+      wasNarrow = now;
+      $('.work-grid').each(function() {
+        var $g = $(this);
+        if (!$g.hasClass('masonry')) return;   // never initialised; nothing to redo
+        $g.masonry('option', $.extend(gridColumnOptions($g, false), { isAnimated: false }));
+        $g.masonry('reload');
+      });
+    }, 180);
+  });
 }
 
 // Pre-pass, called from every page's inline $(window).load: compresses the
 // grid to a 2-column layout while it's still hidden so the cascade has varied
 // x+y start positions to animate out of. Lived inline in all 39 HTML files;
-// it's a function here so the mobile guard exists in exactly one place —
-// as an inline call it ran unconditionally and re-initialised masonry on
-// grids that initWorkGrids had deliberately skipped.
+// it's a function here so the width handling lives in exactly one place.
+// Skipped on narrow screens — the 470px column it uses to force 2 desktop
+// columns is wider than the whole grid there, and the layout below reruns
+// immediately anyway.
 function initWorkGridsPrepass() {
-  if (gridsAreNative()) return;
+  if (isNarrowGrid()) return;
   $('.work-grid').masonry({ columnWidth: 470, isFitWidth: false, isAnimated: false });
 }
 
 // Called from the loader fade-out in every page's inline script: lays the grid
-// out instantly so runCascade has real positions to reveal from. isFitWidth is
-// what writes the inline `width: 230px` onto .work-grid — the single column
-// that was still squeezing the mobile layout after masonry itself was guarded.
+// out instantly so runCascade has real positions to reveal from.
 function layoutWorkGridsInstant() {
-  if (gridsAreNative()) return;
-  $('.work-grid').masonry({ columnWidth: 230, isFitWidth: true, isAnimated: false });
+  $('.work-grid').each(function() {
+    var $g = $(this);
+    $g.masonry(gridColumnOptions($g, false));
+  });
 }
 
 // Hands animation back to masonry once the entrance cascade is done, so
 // columns slide on window resize instead of snapping.
 function enableWorkGridAnimation() {
-  if (gridsAreNative()) return;
   $('.work-grid').masonry('option', {
     isAnimated: true,
     animationOptions: { queue: false, duration: 500, easing: 'easeInOutCubic' }
@@ -342,14 +391,11 @@ function setScope(scope) {
     // so it needs a relayout now that it actually has a width
     $in.find('.work-grid').each(function(gi) {
       var $g = $(this);
-      // 'reload' on an element masonry was never initialised on initialises it
-      // — which would quietly undo gridsAreNative() the first time the user
-      // switches scope on a phone.
-      if (!gridsAreNative()) {
-        $g.masonry('option', { isAnimated: false });
-        $g.masonry('reload');
-        $g.masonry('option', { isAnimated: true });
-      }
+      // re-derive columnWidth: this grid was display:none until a moment ago,
+      // so it measured zero wide and any width cached from then is wrong
+      $g.masonry('option', $.extend(gridColumnOptions($g, false), { isAnimated: false }));
+      $g.masonry('reload');
+      $g.masonry('option', { isAnimated: true });
       // stagger the second section so the two cascade in order, not together
       runCascade($g.find('.item').not('.showhide'), $g, gi * 180);
     });
@@ -367,12 +413,8 @@ function toggleOlderMore() {
   var btn = document.getElementById('older-more-btn');
   if (btn) btn.textContent = _olderExpanded ? 'Show less' : 'Show more';
 
-  // same trap as in setScope: 'reload' would initialise masonry on a grid
-  // that deliberately never had it, so skip it entirely at mobile widths —
-  // the flex layout reflows on its own when .showhide comes off.
   function relayout() {
-    if (gridsAreNative()) return;
-    $g.masonry('option', { isAnimated: false });
+    $g.masonry('option', $.extend(gridColumnOptions($g, false), { isAnimated: false }));
     $g.masonry('reload');
     $g.masonry('option', { isAnimated: true });
   }
