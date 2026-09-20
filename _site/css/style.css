@@ -452,13 +452,20 @@ figcaption h2 i {
 	position: relative !important;
 }
 
+/* left/top offset the element's own top-left corner, so centring needs half
+   its size pulled back — the old `left:46%; top:49%` was eyeballing that
+   against a desktop window. The error scales with the viewport
+   (0.04 x width - 49px), so it only ever landed centred around 1225px wide
+   and drifted right as the screen narrowed: ~33px off on a 390px phone.
+   Same margin trick #loader2 below already uses. */
 #loader {
 	position: absolute;
 	width: 98px;
 	height: 12px;
-	top: 49%;
-	left: 46%;
-
+	top: 50%;
+	left: 50%;
+	margin-left: -49px;
+	margin-top: -6px;
 }
 
 /* Stays in flow (the title above it is floated, so an absolute loader would
