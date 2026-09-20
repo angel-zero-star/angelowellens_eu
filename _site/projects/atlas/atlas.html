@@ -614,8 +614,21 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
     grid-template-columns: 1fr;
   }
 
+  /* The hero cards stack instead of sitting side by side. .gif-cell sizes
+     itself with `flex: <grow> 1 0` — a flex-BASIS of 0, which is fine while
+     the row is horizontal (basis applies to width, and grow shares the row
+     out by the 1500/722 ratio). Turning the row vertical repoints that basis
+     at HEIGHT, and since .gif-grid has no height of its own there is no free
+     space for flex-grow to distribute — every cell collapsed to 0 tall and
+     the hero images disappeared entirely on phones. `flex: none` hands
+     sizing back to the images' own intrinsic height. */
   .gif-row {
     flex-direction: column;
+  }
+  .gif-cell,
+  .gif-cell.wide,
+  .gif-cell.narrow {
+    flex: none;
   }
 
   /* ── Design approach scroll: the pinned side-by-side split (fixed 380px

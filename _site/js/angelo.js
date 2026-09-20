@@ -1457,6 +1457,107 @@ function folio(url, target, push = true) {
   }
 }
 
+// ── Fixed-width project pages ──
+// Kuva's collage is pinned to an exact 1400px because its legacy layout places
+// every image with percentage negative margins tuned against that width — let
+// the container shrink and those margins drift, reopening the gaps between
+// sections. The plan was for phones to pan across it like a wide image, but
+// pinch-zoom is disabled site-wide (see the viewport meta / resetViewportZoom),
+// so there was no way to see it whole and it just read as broken.
+//
+// Scaling the whole page down uniformly keeps the collage geometrically
+// identical — both axes scale together, so nothing can drift — while making it
+// fit. `zoom` rather than `transform: scale()` for two reasons: #wrap_project's
+// entrance animation sets `transform` with !important via .project-alt and
+// would clobber an inline transform, and zoom shrinks the layout box too, so
+// there's no leftover empty space below to claw back with negative margins.
+// Only the LEGACY blocks get scaled. #wrap_project also holds the modern
+// case-study copy (.project-details) and the .kuva-feature panels, which are
+// ordinary responsive blocks with their own breakpoints — zooming the whole
+// container shrank those to ~4px text while the page title, which lives
+// outside #wrap_project, stayed full size. So the container goes fluid and
+// each run of legacy siblings is wrapped in its own fixed-width box that is
+// scaled down as a unit, preserving the overlaps between them.
+var LEGACY_SKIP = ['project-details', 'kuva-feature', 'page-title'];
+
+function fitFixedWidthProject() {
+  var wrap = document.getElementById('wrap_project');
+  var content = document.getElementById('content');
+  if (!wrap || !content) return;
+
+  // #content carries overflow-x:auto on this page, so mid-load its clientWidth
+  // can briefly report the full scrollable 1400px rather than the visible box.
+  // Taken at face value that looks like "it already fits" and the collage gets
+  // unwrapped again — clamping to the viewport makes the measurement stable.
+  var avail = Math.min(content.clientWidth || Infinity, window.innerWidth);
+  if (!avail || avail === Infinity) return;
+
+  var existing = wrap.querySelectorAll('.legacy-collage');
+  var design = existing.length ? parseFloat(existing[0].style.width) : wrap.offsetWidth;
+
+  // A fluid page (or a screen wide enough for the real thing) needs nothing.
+  if (!design || design <= avail + 1) {
+    if (existing.length) unwrapLegacy(wrap, existing);
+    wrap.style.width = '';
+    wrap.style.maxWidth = '';
+    return;
+  }
+
+  // An explicit pixel width, not 100%: #content carries overflow-x:auto and a
+  // 1400px scrollable area, against which a percentage resolved back to 1400
+  // and left the case-study column 780px wide on a 390px screen.
+  wrap.style.width = avail + 'px';
+  wrap.style.maxWidth = avail + 'px';
+
+  if (!existing.length) {
+    groupLegacyRuns(wrap).forEach(function(run) {
+      var box = document.createElement('div');
+      box.className = 'legacy-collage';
+      box.style.width = design + 'px';
+      box.style.display = 'flow-root';   // contain the floats without clipping
+      run[0].parentNode.insertBefore(box, run[0]);
+      run.forEach(function(el) { box.appendChild(el); });
+    });
+    existing = wrap.querySelectorAll('.legacy-collage');
+  }
+
+  var scale = avail / design;
+  Array.prototype.forEach.call(existing, function(box) {
+    box.style.zoom = scale;
+  });
+}
+
+// contiguous runs of legacy siblings, split by the modern blocks between them
+function groupLegacyRuns(wrap) {
+  var runs = [], run = [];
+  Array.prototype.forEach.call(wrap.children, function(el) {
+    var modern = LEGACY_SKIP.some(function(c) { return el.classList.contains(c); });
+    if (modern || el.classList.contains('legacy-collage')) {
+      if (run.length) { runs.push(run); run = []; }
+    } else {
+      run.push(el);
+    }
+  });
+  if (run.length) runs.push(run);
+  return runs;
+}
+
+function unwrapLegacy(wrap, boxes) {
+  Array.prototype.forEach.call(boxes, function(box) {
+    while (box.firstChild) box.parentNode.insertBefore(box.firstChild, box);
+    box.parentNode.removeChild(box);
+  });
+}
+
+// re-fit on rotate/resize, but only while a fixed-width project is open
+window.addEventListener('resize', (function() {
+  var t = null;
+  return function() {
+    clearTimeout(t);
+    t = setTimeout(fitFixedWidthProject, 180);
+  };
+})());
+
 function folioDone(target) {
 	console.log('--- folio done', target);
   // only if req is "loaded"
@@ -1491,6 +1592,10 @@ function folioDone(target) {
         initProcessStack();
         initScrollProgress();
         initCloseTip();
+        fitFixedWidthProject();
+        // again once the collage's images have decoded — their height feeds
+        // the scaled box, and the first pass can land before they resolve
+        setTimeout(fitFixedWidthProject, 1200);
         $("#wrap_project")
           .delay()
           .addClass("project-alt");

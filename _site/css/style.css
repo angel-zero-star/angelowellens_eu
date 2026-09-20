@@ -205,15 +205,28 @@ body {
 
 }
 
+/* The old category-filter bar. Its contents are commented out on every live
+   page, but the container still renders: 390px wide, absolutely positioned,
+   ~140px tall and fully transparent. On a phone the grid starts higher up, so
+   this invisible empty box lay across the top of the first work card and
+   swallowed every tap that landed on it — the top ~105px of the Atlas
+   thumbnail was simply not clickable.
+
+   pointer-events:none lets those taps fall through to the cards underneath.
+   Children opt back in, so if the filter markup is ever uncommented (index3
+   still has it) the inputs and labels stay clickable. */
 #menu {
 	padding-top: 25px;
 	width: 390px;
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
+	pointer-events: none;
 		-webkit-transition: background-color .5s ease-out;
             transition: background-color .5s ease-out;
 	}
+
+#menu > * { pointer-events: auto; }
 
 #menu input, #menu label, #menu div {
 cursor: pointer;

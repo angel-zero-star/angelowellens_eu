@@ -408,6 +408,29 @@ video.project-video {
   .website-row img { width: 100%; }
 }
 
+@media screen and (max-width: 760px) {
+  /* This page never had a phone breakpoint, so .breakout kept its desktop
+     154%/-27% here. That math assumes .project-details is pinned at its
+     780px max-width and a breakout child widens past it toward
+     #wrap_project's edges. Below 780px .project-details just fluidly fills
+     #wrap_project — same width as its parent — so 154% of it simply spills
+     off both sides of the screen, which is the hero, video and website
+     images visibly breaking out of the content column. Nothing left to
+     break out into at this size, so they're just full width.
+     (Same rule Atlas already carries.) */
+  .project-details .breakout {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .stats-grid, .project-info-grid { grid-template-columns: 1fr; }
+
+  /* .gif-cell sizes with a flex-basis of 0, which collapses to zero HEIGHT
+     once the row turns vertical — same trap that emptied Atlas's hero. */
+  .gif-row { flex-direction: column; }
+  .gif-cell, .gif-cell.wide, .gif-cell.narrow { flex: none; }
+}
+
 </style>
 </head>
 <body>
