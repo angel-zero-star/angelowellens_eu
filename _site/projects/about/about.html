@@ -94,6 +94,64 @@ h4 {
 	float: left;
 }
 
+/* About / Contact / Languages / Tools: heading left, content right. */
+.about-row {
+	display: grid;
+	grid-template-columns: 180px 1fr;
+	gap: 40px;
+	width: 100%;
+	clear: both;
+	padding: 48px 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.about-row:first-child { border-top: none; }
+/* The heading is 20px at line-height 100% and the copy is 22px at 32px, so
+   top-aligning them put the heading visibly higher than the first line.
+   Line them up on the text baseline instead. */
+.about-row { align-items: baseline; }
+#wrap_project .about-row h2 {
+	margin: 0;
+	text-align: left;
+	line-height: 32px;
+}
+.about-row-body p {
+	margin: 0 0 20px;
+	text-align: left;
+}
+.about-row-body p:last-child { margin-bottom: 0; }
+.about-row-body p.about-list { margin-bottom: 4px; }
+.about-row-body p.about-sub { margin-bottom: 2px; }
+.about-row-body p.about-dim { opacity: 0.7; margin-bottom: 24px; }
+.about-row-body p.about-dim:last-child { margin-bottom: 0; }
+.about-muted { font-size: 13px; opacity: 0.65; }
+html.dark .about-row { border-top-color: rgba(255, 255, 255, 0.12); }
+
+/* Profile photo: the frame clips, the photo inside follows the cursor and
+   leaves a blurred echo behind when moved fast (initProfileMotion in
+   angelo.js). The #wrap_project prefix is needed to beat the generic
+   `#wrap_project img` rule above (float + 5% top margin). */
+#profilePhotoFrame { position: relative; }
+#wrap_project #profilePhoto {
+	display: block;
+	float: none;
+	margin: 0;
+	will-change: transform, filter;
+}
+#wrap_project img.profile-ghost {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	float: none;
+	object-fit: cover;
+	opacity: 0;
+	pointer-events: none;
+	mix-blend-mode: screen;
+	will-change: transform, filter, opacity;
+}
+
 iframe {
 	width: 100%;
 	left: 0;
@@ -198,6 +256,10 @@ html.dark #links { border-top-color: rgba(255,255,255,0.35); }
 	#wrap_project h2 {
 		width: 100% !important;
 	}
+	.about-row {
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
 }
 
 </STYLE>
@@ -214,20 +276,52 @@ html.dark #links { border-top-color: rgba(255,255,255,0.35); }
 	
 			
 			
-				<img  style="margin-bottom:4%; border-radius:8px;" class="lazy-hidden" src="/projects/about/full._web.jpg"  width="100%" height="auto">
+				<div id="profilePhotoFrame" style="float:left; width:100%; margin-top:5%; margin-bottom:4%; border-radius:8px; overflow:hidden;">
+					<img id="profilePhoto" class="lazy-hidden" src="/projects/about/full._web.jpg" width="100%" height="auto">
+				</div>
 
 				<div class="left" style="float:left;width:100%;text-align:left;margin-right:4%;" >
-				<h2 style="margin-top:40px;text-align:left;">About<br />—</h2>
-				<p class="about-copy" style="text-align:left; float:left; width: 100%">
-					I help teams turn complicated problems into products that ship. 12+ years across major agencies, specialist studios and early-stage start-ups, with a background in motion, interaction and art direction.</p>
-				<p class="about-copy" style="text-align:left; float:left; width: 100%">
-					Belgian waffle lover, currently living in <span style="text-decoration: line-through;">London</span>, <span style="text-decoration: line-through;">Sydney</span>, <span style="text-decoration: line-through;">Amsterdam</span>, <span style="text-decoration: line-through;">Bali</span>, <span style="text-decoration: line-through;">Hamburg</span>, <span style="text-decoration: line-through;">Berlin</span>, Porto. I used to brew my own beer, I surf when the swell allows, and I'm a dad.</p>
-				<p class="about-copy" style="text-align:left; float:left; width: 100%">
-					Get in touch to make something tasty ✌️</p>
-	<br /><br />
-	<h2 style="margin-top:40px;text-align:left;">Contact<br />—</h2>
-	<p style="text-align:left; float:left; width: 100%">
-	💌 hello@angelowellens.eu</p>
+				<!-- Each section is one row: heading on the left, content on the right
+				     (stacks under 760px). See .about-row in the <style> above. -->
+				<div class="about-row">
+					<h2>About</h2>
+					<div class="about-row-body">
+						<p>I help teams turn complicated problems into products that ship. 12+ years across major agencies, specialist studios and early-stage start-ups, with a background in motion, interaction and art direction.</p>
+						<p>Belgian 🇧🇪 waffle lover, currently living in <span style="text-decoration: line-through;">London</span>, <span style="text-decoration: line-through;">Sydney</span>, <span style="text-decoration: line-through;">Amsterdam</span>, <span style="text-decoration: line-through;">Bali</span>, <span style="text-decoration: line-through;">Hamburg</span>, <span style="text-decoration: line-through;">Berlin</span>, Porto. I used to brew my own beer, I surf when the swell allows, and I'm a dad.</p>
+						<p>Get in touch to make something tasty ✌️</p>
+					</div>
+				</div>
+
+				<div class="about-row">
+					<h2>Contact</h2>
+					<div class="about-row-body">
+						<p>💌 hello@angelowellens.eu</p>
+					</div>
+				</div>
+
+				<div class="about-row">
+					<h2>Languages</h2>
+					<div class="about-row-body">
+						<p class="about-list">Dutch <span class="about-muted">(Native)</span></p>
+						<p class="about-list">English <span class="about-muted">(Full Professional)</span></p>
+						<p class="about-list">German <span class="about-muted">(Conversational)</span></p>
+						<p class="about-list">Portuguese <span class="about-muted">(A1)</span></p>
+					</div>
+				</div>
+
+				<div class="about-row">
+					<h2>Tools</h2>
+					<div class="about-row-body">
+						<p class="about-sub">Design</p>
+						<p class="about-dim">Figma, Photoshop, Illustrator, After Effects, Framer, Lottie, Cinema 4D</p>
+						<p class="about-sub">Development</p>
+						<p class="about-dim">Terminal, VS Code, GitHub, Xcode</p>
+						<p class="about-sub">Code</p>
+						<p class="about-dim">HTML, CSS, JavaScript, Claude Code (React, React Native), Copilot</p>
+						<p class="about-sub">Productivity</p>
+						<p class="about-dim">Jira, Notion, Slack, Miro, FigJam</p>
+					</div>
+				</div>
 
 	  <!-- specialised in design . concept . motion . direction. with a love for digital and innovative technologies. Crafter of interactive experiences, creating high quality work with the eye for detail, as well online as offline. I'm not afraid of a challenge, I like pushing boundaries and love working with talented people. I'm always looking for exciting projects. -->
 

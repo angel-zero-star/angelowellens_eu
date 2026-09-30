@@ -1056,6 +1056,69 @@ function initReveal() {
   gridObserver.observe(grid);
 }
 
+// ── Staggered rows ──
+// Rows of several images/cards side by side (thumbnails, phone screens, the
+// two-up code and design-system shots) come in one by one, left to right,
+// instead of the whole row fading in as a block. initReveal has already
+// tagged the row itself; take that off and reveal its items instead.
+var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid';
+var STAGGER_STEP = 140;   // ms between items
+
+// A row that's already on screen when the project opens (the thumbnails)
+// would otherwise stagger in while #wrap_project itself is still invisible,
+// waiting on its own .project-alt entrance — so it looked like it just
+// appeared. Hold those until the page is actually showing.
+function whenProjectShown(cb) {
+  var wrap = document.getElementById('wrap_project');
+  if (!wrap || wrap.classList.contains('project-alt')) { cb(); return; }
+  var mo = new MutationObserver(function() {
+    if (!wrap.classList.contains('project-alt')) return;
+    mo.disconnect();
+    setTimeout(cb, 300);   // let the page's own fade-in get going first
+  });
+  mo.observe(wrap, { attributes: true, attributeFilter: ['class'] });
+}
+
+function initStaggerRows() {
+  var rows = document.querySelectorAll('#content ' + STAGGER_ROWS.split(', ').join(', #content '));
+  if (!rows.length || !('IntersectionObserver' in window)) return;
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      observer.unobserve(entry.target);
+      var items = Array.from(entry.target.children);
+      whenProjectShown(function() {
+        items.forEach(function(item, i) {
+          item.style.transitionDelay = (i * STAGGER_STEP) + 'ms';
+          item.classList.add('revealed');
+        });
+        // drop the delays once it's in, so hovers etc. aren't held back later
+        setTimeout(function() {
+          items.forEach(function(item) { item.style.transitionDelay = ''; });
+        }, items.length * STAGGER_STEP + 900);
+      });
+    });
+  }, { threshold: 0.08, rootMargin: REVEAL_ROOT_MARGIN });
+
+  rows.forEach(function(row) {
+    if (row.dataset.stagger) return;
+    row.dataset.stagger = '1';
+    row.classList.remove('reveal', 'revealed');
+    Array.from(row.children).forEach(function(item) {
+      // Snap straight to the hidden state: an item that's already visible
+      // (the thumbnails, on screen from the start) would otherwise *fade out*
+      // over .reveal's 0.8s transition, get .revealed 30ms later, and never
+      // visibly move at all.
+      item.style.transition = 'none';
+      item.classList.add('reveal');
+      void item.offsetWidth;
+      item.style.transition = '';
+    });
+    observer.observe(row);
+  });
+}
+
 // ── Inline image lightbox ──
 // Overlay lives on <body> (not #content) so it survives project close/reopen
 // without needing to be recreated on every load; built lazily on first use.
@@ -1095,6 +1158,24 @@ function openLightbox(src, alt) {
   img.src = src;
   img.alt = alt || '';
   overlay.appendChild(img);
+  showLightboxOverlay(overlay);
+}
+
+// Same overlay, but for the inline "GIF" videos (.project-video: autoplay,
+// loop, muted, no controls — see .project-video-wrap). Bigger copy, same
+// playback style, no controls here either so it stays consistent with the
+// inline one.
+function openVideoLightbox(src) {
+  var overlay = ensureLightboxOverlay();
+  overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-compare-mode');
+  var video = document.createElement('video');
+  video.src = src;
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.playsInline = true;
+  overlay.appendChild(video);
   showLightboxOverlay(overlay);
 }
 
@@ -1221,6 +1302,25 @@ function initCompareExpand() {
     }));
   });
 
+  // Inline "GIF" videos get the same icon and wrapper as standalone
+  // images, but the whole video is a click target too (it has no controls,
+  // so a plain click does nothing on its own — safe to repurpose, same as
+  // .parallax-section below).
+  document.querySelectorAll('.project-video:not(.no-expand)').forEach(function(video) {
+    if (video.closest('.img-expand-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'img-expand-wrap';
+    video.parentNode.insertBefore(wrap, video);
+    wrap.appendChild(video);
+    var openThisVideo = function() {
+      var source = video.currentSrc || (video.querySelector('source') || {}).src;
+      if (source) openVideoLightbox(source);
+    };
+    video.style.cursor = 'zoom-in';
+    video.addEventListener('click', openThisVideo);
+    wrap.appendChild(createExpandBtn(openThisVideo));
+  });
+
   // Parallax sections (bg + top image, or bg + phones-fan) — already
   // position:relative/overflow:hidden, so the button drops straight in
   // without a wrapper. The whole section is clickable too (button's own
@@ -1235,6 +1335,192 @@ function initCompareExpand() {
     section.appendChild(createExpandBtn(function() {
       openParallaxLightbox(section);
     }));
+  });
+}
+
+// ── In-page anchor links (#section) inside a project ──
+// Plain #hash navigation jumps instantly (scroll-behavior on #content wasn't
+// reliably applied), tacks the hash onto the /project.html URL, and the
+// click bubbled on into #content's close-on-click. Scroll smoothly instead,
+// honouring scroll-margin-top and reduced motion, and keep the URL as is.
+function initInPageAnchors() {
+  var content = document.getElementById('content');
+  if (!content) return;
+  content.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    var id = a.getAttribute('href').slice(1);
+    if (!id || a.dataset.anchorBound) return;
+    a.dataset.anchorBound = '1';
+    a.addEventListener('click', function(e) {
+      var target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+}
+
+// ── Floating mini-nav (Claude Code project page) ──
+// The three tool thumbnails again, pinned to the top, but hidden until you
+// scroll back UP past them — a lightweight always-available way to jump
+// between sections without a "back to top" link at the end of each one.
+// Only does anything if the page actually has a #miniNav (every other
+// project page doesn't, so this is a no-op there).
+function initMiniNav() {
+  var nav = document.getElementById('miniNav');
+  var content = document.getElementById('content');
+  if (!nav || !content) return;
+  if (nav.dataset.bound) return;   // folioDone can re-run on the same load; don't double-bind
+  nav.dataset.bound = '1';
+
+  // #wrap_project carries a transform (its entrance animation), and a
+  // transformed ancestor turns position:fixed into "fixed to that element" —
+  // the nav just scrolled away with the page. Re-parent it onto #content
+  // (the fixed scroll container itself, no transform) so it pins properly.
+  content.appendChild(nav);
+
+  var toolGrid = content.querySelector('.tool-grid');
+  var lastTop = content.scrollTop;
+  var upTravel = 0;   // px scrolled up since the last downward move
+
+  content.addEventListener('scroll', function() {
+    var top = content.scrollTop;
+    var delta = top - lastTop;
+    lastTop = top;
+    // "Past" the real thumbnails once their bottom edge has scrolled above
+    // the visible area — getBoundingClientRect, not offsetTop, since a
+    // couple of ancestors here are position:relative (the lightbox expand
+    // wrappers) and would throw an offsetTop chain off.
+    var pastToolGrid = toolGrid && toolGrid.getBoundingClientRect().bottom < 0;
+    if (!pastToolGrid || delta > 2) {
+      // any real downward scroll (or being back up by the thumbnails) hides it
+      upTravel = 0;
+      nav.classList.remove('visible');
+    } else if (delta < 0) {
+      // only show after a deliberate scroll up, not a trackpad wobble
+      upTravel -= delta;
+      if (upTravel > 30) nav.classList.add('visible');
+    }
+  });
+
+  // Scroll-spy: focus whichever section is actually in view, same dim/focus
+  // treatment as Atlas's .approach-item list (opacity 0.55 → 1, on scroll).
+  var links = nav.querySelectorAll('.mini-nav-item');
+  var sections = ['flashcards', 'mortgage', 'schools']
+    .map(function(id) { return document.getElementById(id); })
+    .filter(Boolean);
+  if (!sections.length || !('IntersectionObserver' in window)) return;
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var id = entry.target.id;
+      links.forEach(function(link) {
+        link.classList.toggle('active', link.dataset.section === id);
+      });
+    });
+  }, { root: content, rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+
+  sections.forEach(function(s) { observer.observe(s); });
+}
+
+// ── About page: profile photo that "moves its head" on hover ──
+// The photo is a double-exposure of a head mid-turn. On hover it drifts
+// toward the cursor, and a blurred copy (screen-blended, like the photo's
+// own second exposure) trails behind it in proportion to mouse speed, so a
+// quick flick reads as motion blur and it all settles back when you stop.
+// Skipped for reduced motion and on touch (no hover to drive it).
+// ── GIF-style videos ── autoplay can be held back (Safari Low Power Mode,
+// or a video that wasn't ready when the fragment was injected), leaving a
+// frozen first frame. Nudge each one to play once it can.
+function initGifVideos() {
+  document.querySelectorAll('#content video.project-video').forEach(function(v) {
+    v.muted = true;   // required for autoplay; set the property, not just the attribute
+    var p = v.play();
+    if (p && p.catch) p.catch(function() {});
+  });
+}
+
+function initProfileMotion() {
+  var img = document.getElementById('profilePhoto');
+  var frame = document.getElementById('profilePhotoFrame');
+  if (!img || !frame || frame.dataset.bound) return;
+  frame.dataset.bound = '1';
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
+
+  var ghost = img.cloneNode(false);
+  ghost.removeAttribute('id');
+  ghost.className = 'profile-ghost';
+  ghost.alt = '';
+  ghost.setAttribute('aria-hidden', 'true');
+  frame.appendChild(ghost);
+
+  var x = 0, y = 0, tx = 0, ty = 0;   // drift toward the cursor, px
+  // A fixed 2% overscan (applied up front, not on hover, so nothing visibly
+  // zooms) gives the drift room to move without the frame's edges showing.
+  var s = 1.02, ts = 1.02;
+  img.style.transform = ghost.style.transform = 'scale(1.02)';
+  var vx = 0, vy = 0;                 // smoothed mouse velocity, px per frame
+  var lastX = null, lastY = null, lastT = 0;
+  var raf = null;
+
+  function tick() {
+    x += (tx - x) * 0.12;
+    y += (ty - y) * 0.12;
+    s += (ts - s) * 0.1;
+    vx *= 0.88;
+    vy *= 0.88;
+    var speed = Math.min(Math.sqrt(vx * vx + vy * vy), 25) / 25;   // 0..1
+
+    img.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+    img.style.filter = speed > 0.02 ? 'blur(' + (speed * 1.5).toFixed(2) + 'px)' : '';
+    ghost.style.transform = 'translate3d(' + (x - vx * 1.6).toFixed(2) + 'px,' + (y - vy * 1.6).toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+    ghost.style.opacity = (speed * 0.45).toFixed(3);
+    ghost.style.filter = 'blur(' + (speed * 6).toFixed(2) + 'px)';
+
+    var settled = Math.abs(tx - x) < 0.05 && Math.abs(ty - y) < 0.05 &&
+                  Math.abs(ts - s) < 0.0005 && speed < 0.005;
+    if (settled) {
+      img.style.filter = '';
+      ghost.style.opacity = '0';
+      raf = null;
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(tick); }
+
+  frame.addEventListener('mouseenter', function(e) {
+    lastX = e.clientX; lastY = e.clientY; lastT = performance.now();
+    kick();
+  });
+
+  frame.addEventListener('mousemove', function(e) {
+    var r = frame.getBoundingClientRect();
+    // drift stays inside the 1% overscan on each side at any frame size
+    tx = ((e.clientX - r.left) / r.width - 0.5) * r.width * 0.018;
+    ty = ((e.clientY - r.top) / r.height - 0.5) * r.height * 0.018;
+    var now = performance.now();
+    if (lastX !== null) {
+      var dt = Math.max(now - lastT, 1);
+      // scale to px per ~16ms frame, blended so one jittery event can't spike it
+      vx = vx * 0.5 + ((e.clientX - lastX) / dt * 16) * 0.5;
+      vy = vy * 0.5 + ((e.clientY - lastY) / dt * 16) * 0.5;
+      // cap it: a hard flick should smear the head, not slide a second
+      // copy of the whole photo 200px across (trail tops out ~40px)
+      vx = Math.max(-25, Math.min(25, vx));
+      vy = Math.max(-25, Math.min(25, vy));
+    }
+    lastX = e.clientX; lastY = e.clientY; lastT = now;
+    kick();
+  });
+
+  frame.addEventListener('mouseleave', function() {
+    tx = 0; ty = 0;
+    lastX = null;
+    kick();
   });
 }
 
@@ -1618,6 +1904,10 @@ function folioDone(target) {
           .delay(0)
           .twentytwenty({ default_offset_pct: 0.5 });
         initCompareExpand();
+        initGifVideos();
+        initInPageAnchors();
+        initMiniNav();
+        initProfileMotion();
         // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
         // this in-flow element's space and jolts the content below it
         // upward right as #wrap_project is animating in.
@@ -1626,6 +1916,7 @@ function folioDone(target) {
         initCounters();
         initVideoObserver();
         initReveal();
+        initStaggerRows();
         initApproachScroll();
         initProcessStack();
         initScrollProgress();
@@ -1649,6 +1940,11 @@ function folioDone(target) {
       }, 1500);
 
       $("#content img").on("click", function(e) {
+        // An image inside a link is part of that link (e.g. the thumbnail
+        // cards on the Claude Code page) — cancelling the click here killed
+        // the link and only its text label stayed clickable. Let it through;
+        // the link's own handler (initInPageAnchors) stops it closing the page.
+        if (this.closest('a[href]')) return;
         e.preventDefault();
         e.stopImmediatePropagation();
         if (this.classList.contains('project-hero-img')) {
@@ -1677,6 +1973,13 @@ function folioDone(target) {
 
       $("#content").on("click", function(e) {
         if (window.getSelection && window.getSelection().toString()) return;
+        // Pages marked data-no-click-close (Claude Code) close on a click
+        // *outside* the content column, like every other project, but not on
+        // one inside it (cards, links, gaps between paragraphs). The page's
+        // own Close button relies on this handler too, so it always gets through.
+        if (this.querySelector('[data-no-click-close]') &&
+            !e.target.closest('.cta-close') &&
+            e.target.closest('.project-details, .page-title, .mini-nav')) return;
         close();
       });
       $("body").on("mousemove", function(e) {

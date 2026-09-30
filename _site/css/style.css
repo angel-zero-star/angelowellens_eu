@@ -1058,6 +1058,21 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
 	z-index: 11;
 }
 
+/* Half-height cards: two of them stack beside a 280px featured card (135 +
+   10px gutter + 135). aspect-ratio rather than a fixed height so they still
+   scale with the 50%-wide cards on phones; the thumbnail is cropped to fit. */
+.item.item-half {
+	aspect-ratio: 230 / 135;
+}
+.item.item-half .img_bottom {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .showhide {
  display: none;
  visibility: hidden;
@@ -1478,6 +1493,7 @@ video {}
 .project-section .img-caption {
 	font-family: 'Inter', sans-serif;
 	font-size: 12px;
+	line-height: 1.5;
 	color: #bbb;
 	text-align: center;
 	margin: 0 0 24px;
@@ -1555,6 +1571,19 @@ html.dark .project-section .img-caption { color: #999; }
 }
 
 .img-lightbox.active > img { transform: scale(1); }
+
+/* Same treatment, for the video lightbox (openVideoLightbox in angelo.js). */
+.img-lightbox > video {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	border-radius: 8px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	transform: scale(0.96);
+	transition: transform 0.25s ease;
+}
+
+.img-lightbox.active > video { transform: scale(1); }
 
 /* Compare mode: full-screen version of the same slider, reusing
    .compare-item's existing rounded-corner/arrow-color styling. The extra

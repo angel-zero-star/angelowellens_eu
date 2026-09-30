@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Claude Code</title>
+<style>
+
+#wrap_project {
+  margin-left: auto;
+  margin-right: auto;
+  width: 84%;
+  max-width: 1200px;
+  opacity: 0;
+  -webkit-transform: translate3d(0, 60px, 0);
+          transform: translate3d(0, 60px, 0);
+  -webkit-transition: all 0.85s ease-out;
+          transition: all 0.85s ease-out;
+  padding-bottom: 120px;
+  font-family: 'Inter', sans-serif;
+}
+
+.project-alt {
+  opacity: 1 !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0) !important;
+}
+
+/* ── Breakout: one class, consistent width + spacing for all media ── */
+.breakout {
+  display: block;
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+/* Inside .project-details (780px column) → expand to fill #wrap_project */
+.project-details .breakout {
+  width: 154%;
+  margin-left: -27%;
+}
+
+.project-hero-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.project-video-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+}
+
+video.project-video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* These play like GIFs: hide any native overlay the browser adds anyway
+   (Safari's big play button when autoplay is held back, e.g. Low Power Mode). */
+video.project-video::-webkit-media-controls,
+video.project-video::-webkit-media-controls-start-playback-button,
+video.project-video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+.project-details {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  align-items: center;
+}
+
+.project-details h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  float: none;
+  position: static;
+  color: #191919;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+}
+
+.project-description {
+  font-size: 22px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  color: #191919;
+}
+
+.project-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.info-block h4 {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-content {
+  font-size: 15px;
+  line-height: 26px;
+  color: #191919;
+}
+
+.info-content p { margin: 0; }
+
+.info-content a {
+  color: #191919;
+  text-decoration: none;
+  border-bottom: 1px solid #191919;
+  transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+  margin-bottom: 44px;
+}
+
+.project-section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  position: static;
+  color: #191919;
+}
+
+.project-section p {
+  font-size: 18px;
+  line-height: 29px;
+  text-align: left;
+  color: #3d3d3d;
+  margin: 0 0 14px;
+}
+
+/* The three tool sections are jump targets from the thumbnails below;
+   offset the scroll stop so the sticky #filter-bar (~76px) doesn't cover
+   the heading. */
+#mortgage, #flashcards, #schools {
+  scroll-margin-top: 100px;
+}
+
+.page-title {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 14%;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.page-title h4 {
+  font-family: 'Inter', sans-serif;
+  color: #3c3c3c;
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.1;
+  text-decoration: none;
+  position: static;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0 0 20px;
+}
+
+.page-title .project-meta {
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+/* ── Tool thumbnails: three anchor links down to the sections below ── */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
+.tool-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+}
+
+.tool-card-thumb {
+  display: block;
+  background: #ddd;
+  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.tool-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+.tool-card:hover .tool-card-thumb img { opacity: 0.85; }
+
+.tool-card:focus-visible {
+  outline: 2px solid #191919;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.tool-card-label {
+  display: block;
+  margin-top: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #191919;
+  text-align: center;
+}
+
+/* ── Scroll reveal (same as Atlas / Parco) ── initReveal() in angelo.js
+   tags sections (or their children, for tall ones) with .reveal and adds
+   .revealed as they scroll into view; without these rules nothing moved. */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Floating mini-nav: the three thumbnails again, pinned, revealed only
+   when scrolling up past the real ones (see initMiniNav in angelo.js). The
+   active-section dim/focus treatment (opacity 0.55 → 1, 0.5s ease) is the
+   same one Atlas's .approach-item uses for its scroll-driven list. */
+.mini-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(250, 249, 245, 0.85);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transform: translateY(-100%);
+  visibility: hidden;
+  pointer-events: none;
+  /* visibility waits for the slide-out to finish before hiding */
+  transition: transform 0.35s ease, visibility 0s linear 0.35s;
+}
+
+.mini-nav.visible {
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform 0.35s ease, visibility 0s;
+}
+
+.mini-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  color: #191919;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.55;
+  transition: opacity 0.5s ease;
+}
+
+.mini-nav-item.active { opacity: 1; }
+.mini-nav-item:hover { opacity: 1; }
+
+.mini-nav-item img {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: cover;
+  display: block;
+}
+
+@media screen and (max-width: 700px) {
+  .mini-nav-item span { display: none; }
+  .mini-nav-item { padding: 6px; }
+}
+
+html.dark .mini-nav {
+  background: rgba(18, 18, 18, 0.8);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+html.dark .mini-nav-item {
+  background: #1c1c1c;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ececec;
+}
+
+/* Extra top margin for a section-level subhead, same pattern as Atlas's
+   "Part one" / "Part two" dividers — used here since every subhead in this
+   section (Offers, Estimation calculator, …) is its own top-level break,
+   not a minor heading nested under something bigger. */
+.case-study-subhead.case-study-part {
+  /* the caption above already leaves 24px, so this lands at ~64px total */
+  margin-top: 40px;
+}
+
+.code-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0 8px;
+}
+
+/* Phones in a row, same pattern as Parco's .phones-row — sized for three
+   screens instead of Parco's two (44% each), so the percentage per phone
+   and the gap are smaller here to still fit three across. */
+.phones-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+/* Four equal columns filling the (breakout) row, 15px apart */
+.phones-row img {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+/* Phones: two per row instead of one tall stack */
+@media screen and (max-width: 800px) {
+  .phones-row { flex-wrap: wrap; }
+  .phones-row img { flex: 0 0 calc(50% - 7.5px); }
+}
+
+/* Two screenshots side by side at their own natural aspect ratio, no
+   letterboxing — unlike .code-grid, these two aren't the same shape (a wide
+   table next to a narrow list), so forcing one ratio on both would just
+   shrink the narrow one down to nothing. */
+.design-grid {
+  display: grid;
+  /* Both screenshots are 958px tall at their native size, but very
+     different widths (a wide table vs. a narrow list) — sizing columns by
+     their actual pixel widths (not an even 1fr 1fr) means each image lands
+     at that same shared height once scaled, with no cropping or letterbox
+     needed. */
+  grid-template-columns: 1522fr 472fr;
+  gap: 24px;
+  align-items: start;
+  margin: 24px 0 8px;
+}
+
+.design-grid img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+@media screen and (max-width: 760px) {
+  .design-grid { grid-template-columns: 1fr; }
+}
+
+.code-grid img {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  /* Match the taller screenshot's ratio so both cards land at the same
+     height; the shorter one letterboxes on the editor's own dark background
+     instead of stretching or cropping code out of frame. */
+  aspect-ratio: 1470 / 800;
+  object-fit: contain;
+  background: #141414;
+}
+
+/* Smooth-scroll only within the actual scroll container (#content is
+   position:fixed / overflow-y:scroll; html/body don't scroll on project
+   pages), and only when the visitor hasn't asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  #content { scroll-behavior: smooth; }
+}
+
+/* Only clicks outside the content column close this page (data-no-click-close
+   on #wrap_project), so the site's "close" X cursor only shows out there. */
+#content .project-details, #content .page-title, #content .mini-nav { cursor: auto; }
+/* the shared sheet forces cursor:default on every #content img */
+#content .tool-card, #content .tool-card img,
+#content .mini-nav-item, #content .mini-nav-item img { cursor: pointer; }
+
+@media screen and (max-width: 800px) {
+  .project-info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media screen and (max-width: 760px) {
+  /* no room to break out of the column on phones (same rule as Parco) */
+  .project-details .breakout {
+    width: 100%;
+    margin-left: 0;
+  }
+  .project-info-grid { grid-template-columns: 1fr; }
+  .tool-grid { grid-template-columns: 1fr; }
+  .code-grid { grid-template-columns: 1fr; }
+}
+
+html.dark .page-title h4 { color: #ececec; }
+html.dark .project-tag { background: #222; color: #8a8a8a; }
+html.dark .project-description { color: #ececec; }
+html.dark .project-section h2 { color: #ececec; }
+html.dark .project-section p { color: #c4c4c4; }
+html.dark .tool-card-label { color: #ececec; }
+html.dark .tool-card-thumb { background: #262626; }
+html.dark .tool-card:focus-visible { outline-color: #ececec; }
+
+</style>
+</head>
+<body>
+
+<div class="page-title" id="top">
+  <h4>Built for life in Porto</h4>
+  <div class="project-meta">
+    <span class="project-tag">AI workflows</span>
+    <span class="project-tag">iOS / Android</span>
+    <span class="project-tag">Web app</span>
+    <span class="project-tag">Personal project</span>
+    <span class="project-tag">2026</span>
+  </div>
+</div>
+<img id="loader2" src="loading_good.gif" width="auto" height="auto" />
+
+<div id="wrap_project" data-no-click-close>
+
+  <div class="project-details">
+
+    <p class="project-description">When I moved to Porto, I started using <strong>Claude Code</strong> to build small tools for the practical side of settling in: understanding what a mortgage really costs, learning Portuguese, and finding a home near a good school.</p>
+    <p class="project-description">It was also a way to test <strong>AI-driven workflows in design and development</strong>, and to see how far each could go with Claude leading the build.</p>
+    <p class="project-description">All three are personal tools, built for my own use rather than for clients.</p>
+
+    <div class="tool-grid">
+      <a class="tool-card" href="#flashcards">
+        <span class="tool-card-thumb"><img src="projects/claude_code/assets/flashcards_thumb.png?v=1" alt="" /></span>
+        <span class="tool-card-label">Portuguese flashcards</span>
+      </a>
+      <a class="tool-card" href="#mortgage">
+        <span class="tool-card-thumb"><img src="projects/claude_code/assets/mortgage_offers.png?v=1" alt="" /></span>
+        <span class="tool-card-label">Mortgage calculator</span>
+      </a>
+      <a class="tool-card" href="#schools">
+        <span class="tool-card-thumb"><img src="projects/claude_code/assets/schools_thumb.png?v=2" alt="" /></span>
+        <span class="tool-card-label">Escolas do Porto</span>
+      </a>
+    </div>
+
+    <nav class="mini-nav" id="miniNav" aria-label="Jump to project">
+      <a class="mini-nav-item" href="#flashcards" data-section="flashcards">
+        <img src="projects/claude_code/assets/flashcards_thumb.png?v=1" alt="" />
+        <span>Portuguese flashcards</span>
+      </a>
+      <a class="mini-nav-item" href="#mortgage" data-section="mortgage">
+        <img src="projects/claude_code/assets/mortgage_offers.png?v=1" alt="" />
+        <span>Mortgage calculator</span>
+      </a>
+      <a class="mini-nav-item" href="#schools" data-section="schools">
+        <img src="projects/claude_code/assets/schools_thumb.png?v=2" alt="" />
+        <span>Escolas do Porto</span>
+      </a>
+    </nav>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content">
+          <p>Design &amp; development</p>
+          <p>Personal project</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Scope of work</h4>
+        <div class="info-content">
+          <p>Portuguese flashcards (iOS &amp; Android)</p>
+          <p>Mortgage calculator (web app)</p>
+          <p>Escolas do Porto (web app)</p>
+          <p>Vibe coding with Claude Code</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="https://apps.apple.com/pt/app/memeo-smart-flashcards/id6764189370?l=en-GB" target="_blank">App Store ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-section" id="flashcards">
+      <h2>Portuguese flashcards</h2>
+      <p>Memeo is how I practise Portuguese every day. The content comes from the A1 course I took at university, and a few classmates ended up using it too, while others stuck with pen and paper.</p>
+
+      <div class="phones-row breakout" style="margin-top:24px; margin-bottom:8px;">
+        <img src="projects/claude_code/assets/flashcards_screen_home.png?v=1" alt="Home screen: sessions, modules and stars, with categories like Conjugações and Palavras below" />
+        <img src="projects/claude_code/assets/flashcards_screen_practice.png?v=1" alt="Practice screen: an English word to translate, with a field to type or speak the Portuguese answer" />
+        <img src="projects/claude_code/assets/flashcards_screen_verbs.png?v=1" alt="Verb list screen, showing irregular verbs with their conjugations and a pronunciation button" />
+        <img src="projects/claude_code/assets/flashcards_screen_score.png?v=1" alt="Score screen: total stars, average score, and a chart of results over time" />
+      </div>
+      <p class="img-caption">Home, practice, verb conjugations and progress over time</p>
+
+      <p>The principle is simple: repetition builds memory. Cards are grouped by category, you answer by typing or speaking, every answer is checked, and you can hear the correct pronunciation. The app tracks the words you keep getting wrong and brings them back more often until they stick.</p>
+      <p>I built it with Claude Code connected to Figma through MCP. Claude drafted the first screen, then turned it into a design system of colour tokens, type styles and components that every other screen was built from. The finished app shipped to the App Store and Google Play.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/flashcards_building_components.png?v=1" alt="Claude Code working through the Figma MCP task list: Button done, building Badge, then Card, Input, toggles, and every app screen" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Claude working through the component list in Figma, one component and screen at a time</p>
+
+      <div class="design-grid">
+        <img src="projects/claude_code/assets/flashcards_design_colors.png?v=1" alt="Figma variables panel: the app's colour tokens, dark and light, for background, surface, border, text and accent colours" />
+        <img src="projects/claude_code/assets/flashcards_design_typestyles.png?v=1" alt="Figma text styles panel: Display, Verb, Heading and Body type styles with their sizes and line heights" />
+      </div>
+      <p class="img-caption">The resulting design system: colour tokens for light and dark mode, and a type scale</p>
+
+    </div>
+
+    <div class="project-section" id="mortgage">
+      <h2>Mortgage calculator</h2>
+      <p>Buying a house in Portugal means a broker's spreadsheet, ten banks moving at different speeds, and a layer of taxes and fees that is rarely explained in English. I built a dashboard with Claude Code to bring it all into one place.</p>
+      <p>The first step was structure. Emails, offers, appointment notes and broker messages became one consistent schema, and Portugal's lending rules, such as the Banco de Portugal debt-to-income stress test, became code, so every offer is assessed the same way.</p>
+
+      <div class="code-grid breakout" style="margin-top:24px; margin-bottom:8px;">
+        <div>
+          <img src="projects/claude_code/assets/mortgage_code_banks.png?v=1" alt="A BANKS object in code: each bank's loan-to-value, term, rates, insurance and fees as one typed entry" />
+          <p class="img-caption">Each bank's offer as one structured entry</p>
+        </div>
+        <div>
+          <img src="projects/claude_code/assets/mortgage_code_incomecap.png?v=1" alt="Code implementing the Banco de Portugal debt-to-income stress test rule" />
+          <p class="img-caption">The regulator's lending rule, written as code</p>
+        </div>
+      </div>
+
+      <h4 class="case-study-subhead case-study-part">Offers</h4>
+
+      <p>The broker's comparison is re-priced against the house price and down payment I set. Each row is colour-coded, green for the best value and yellow-green for close behind, so the strongest offer stands out without reading every column.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_offers.png?v=1" alt="Offers table comparing loan, term, rates and total cost across Bankinter, Crédito Agrícola and Abanca" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Every offer re-priced for the same house, with the best value on each row in green</p>
+
+      <h4 class="case-study-subhead case-study-part">Estimation calculator</h4>
+      <p>Using the offers and each bank's own lending rules, the calculator shows what is realistically within reach as you adjust house price, down payment and annual income.</p>
+
+      <div class="project-video-wrap" style="margin: 24px 0 8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/mortgage_demo_2.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Adjust income, price or down payment to see what it takes, and what it costs</p>
+
+      <h4 class="case-study-subhead case-study-part">Costs and timeline</h4>
+      <p>A full breakdown of the mortgage and every fee on top of it, alongside a timeline of when each payment falls due.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_cashflow.png?v=1" alt="Upfront costs, monthly payment breakdown and a timeline of when each payment is due" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Cash needed for the deal, the monthly payment, and when each amount is due</p>
+
+      <h4 class="case-study-subhead case-study-part">Buy vs rent</h4>
+      <p>A sanity check on the whole decision: over a given time horizon, does buying actually beat renting?</p>
+
+      <div class="project-video-wrap" style="margin: 24px 0 8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/mortgage_demo_1.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Adjust rent, time horizon and growth assumptions to see which option comes out ahead</p>
+
+      <h4 class="case-study-subhead case-study-part">Status by bank</h4>
+      <p>An overview of where each application stands, and the next step with every bank.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_status.png?v=1" alt="Application status for ten banks with the next step for each" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Ten banks in one table: the stage each application has reached and what comes next</p>
+
+      <h4 class="case-study-subhead case-study-part">Deal roadmap</h4>
+      <p>Every step from choosing a house to getting the keys, with typical timings, so nothing in the process comes as a surprise.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_roadmap.png?v=1" alt="Numbered roadmap from offer and reservation through valuation to final approval" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">The route from offer to keys, with typical timings for each step</p>
+    </div>
+
+    <div class="project-section" id="schools">
+      <h2>Escolas do Porto</h2>
+      <p>The third tool is an interactive map that scores neighbourhoods around Porto on the things that mattered to us. School performance in Portugal is publicly ranked, so the data was there to use.</p>
+      <p>Whenever a promising listing came up, we pasted in the address and could immediately see which schools served it and whether the area met our criteria.</p>
+
+      <div class="project-video-wrap breakout" style="margin-top:24px; margin-bottom:8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/schools_demo.mp4?v=2" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Paste in an address to see the schools nearby and how each one ranks</p>
+
+      <p>Our criteria were distance to a good school, to the beach and to Porto, and access to public transport. Each has an adjustable tolerance, so we could tighten or relax them until the best areas stood out.</p>
+
+      <p>The order is deliberate: school first, then the beach. A zone with a strong school and a distant beach still ranks above an average school by the sea. Train access and the drive to Porto appear as supporting hints rather than changing the colour.</p>
+      <p>Rankings come from Público's national table of 9th-grade exam results. Because a school can move a hundred places in a single year, the map uses the weaker of the last two results. It also only counts the school a zone is actually assigned to, which reflects how enrolment works in Portugal. Every zone links directly to the homes for sale within it.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/schools_zone.png?v=2" alt="Zone detail for Silvalde, Espinho: school ranking, minutes to the beach, the train station and Porto, and the nearby private schools" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">One zone in detail: its schools and rankings, the nearest beach and station, and the drive into Porto</p>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
+
+</body>
+</html>
