@@ -417,6 +417,13 @@ html.dark .mini-nav-item {
   height: auto;
   display: block;
 }
+/* The Google Play shot is white to its edges; a thin grey line keeps it
+   from bleeding into the page. */
+.store-grid img.store-outlined {
+  border: 1px solid #d6d6d6;
+  box-sizing: border-box;
+}
+html.dark .store-grid img.store-outlined { border-color: #3a3a3a; }
 @media screen and (max-width: 760px) {
   .store-grid { grid-template-columns: 1fr; }
 }
@@ -571,7 +578,7 @@ html.dark .tool-card:focus-visible { outline-color: #ececec; }
         </video>
       </div>
       <p class="img-caption">Memeo in action</p>
-      <p>I built it with Claude Code connected to Figma through MCP. Claude drafted the first screen, then turned it into a design system of colour tokens, type styles and components that every other screen was built from. The finished app shipped to the App Store and Google Play.</p>
+      <p>I built it with Claude Code connected to Figma through MCP. Claude drafted the first screen, then turned it into a design system, tokens, styles and components that every other screen was built from. The finished app shipped to the App Store and Google Play.</p>
 
       <img class="project-hero-img" src="projects/claude_code/assets/flashcards_building_components.png?v=1" alt="Claude Code working through the Figma MCP task list: Button done, building Badge, then Card, Input, toggles, and every app screen" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
       <p class="img-caption">Claude working through the component list in Figma, one component and screen at a time</p>
@@ -584,7 +591,7 @@ html.dark .tool-card:focus-visible { outline-color: #ececec; }
 
       <div class="store-grid">
         <img class="project-hero-img" src="projects/claude_code/assets/flashcards_appstore.png?v=1" alt="Memeo on the App Store: Smart Flashcards, Practice Portuguese Daily, rated 5.0, with app screenshots" />
-        <img class="project-hero-img" src="projects/claude_code/assets/flashcards_googleplay.png?v=1" alt="Memeo on Google Play: Smart Flashcards by Angelo Wellens, with phone and tablet screenshots" />
+        <img class="project-hero-img store-outlined" src="projects/claude_code/assets/flashcards_googleplay.png?v=1" alt="Memeo on Google Play: Smart Flashcards by Angelo Wellens, with phone and tablet screenshots" />
       </div>
       <p class="img-caption">Live on the App Store and Google Play</p>
 
