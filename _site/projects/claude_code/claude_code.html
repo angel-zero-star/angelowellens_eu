@@ -405,6 +405,22 @@ html.dark .mini-nav-item {
   .design-grid { grid-template-columns: 1fr; }
 }
 
+/* Two same-size store screenshots side by side */
+.store-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0 8px;
+}
+.store-grid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media screen and (max-width: 760px) {
+  .store-grid { grid-template-columns: 1fr; }
+}
+
 .code-grid img {
   width: 100%;
   display: block;
@@ -548,6 +564,13 @@ html.dark .tool-card:focus-visible { outline-color: #ececec; }
       <p class="img-caption">Home, practice, verb conjugations and progress over time</p>
 
       <p>The principle is simple: repetition builds memory. Cards are grouped by category, you answer by typing or speaking, every answer is checked, and you can hear the correct pronunciation. The app tracks the words you keep getting wrong and brings them back more often until they stick.</p>
+
+      <div class="project-video-wrap" style="margin: 24px 0 8px; box-shadow: none;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/flashcards_reel.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Memeo in action</p>
       <p>I built it with Claude Code connected to Figma through MCP. Claude drafted the first screen, then turned it into a design system of colour tokens, type styles and components that every other screen was built from. The finished app shipped to the App Store and Google Play.</p>
 
       <img class="project-hero-img" src="projects/claude_code/assets/flashcards_building_components.png?v=1" alt="Claude Code working through the Figma MCP task list: Button done, building Badge, then Card, Input, toggles, and every app screen" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
@@ -558,6 +581,12 @@ html.dark .tool-card:focus-visible { outline-color: #ececec; }
         <img src="projects/claude_code/assets/flashcards_design_typestyles.png?v=1" alt="Figma text styles panel: Display, Verb, Heading and Body type styles with their sizes and line heights" />
       </div>
       <p class="img-caption">The resulting design system: colour tokens for light and dark mode, and a type scale</p>
+
+      <div class="store-grid">
+        <img class="project-hero-img" src="projects/claude_code/assets/flashcards_appstore.png?v=1" alt="Memeo on the App Store: Smart Flashcards, Practice Portuguese Daily, rated 5.0, with app screenshots" />
+        <img class="project-hero-img" src="projects/claude_code/assets/flashcards_googleplay.png?v=1" alt="Memeo on Google Play: Smart Flashcards by Angelo Wellens, with phone and tablet screenshots" />
+      </div>
+      <p class="img-caption">Live on the App Store and Google Play</p>
 
     </div>
 

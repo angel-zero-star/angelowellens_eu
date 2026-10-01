@@ -1061,7 +1061,7 @@ function initReveal() {
 // two-up code and design-system shots) come in one by one, left to right,
 // instead of the whole row fading in as a block. initReveal has already
 // tagged the row itself; take that off and reveal its items instead.
-var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid';
+var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid, .store-grid';
 var STAGGER_STEP = 140;   // ms between items
 
 // A row that's already on screen when the project opens (the thumbnails)
