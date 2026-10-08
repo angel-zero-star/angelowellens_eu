@@ -366,7 +366,7 @@ function setScope(scope) {
   if (scope === _activeScope) return;
   _activeScope = scope;
   syncQuickFilter(scope);
-  document.title = scope === 'product' ? '@AngeloWellens | Product Work' : '@AngeloWellens | Other design work';
+  document.title = scope === 'product' ? 'Angelo Wellens | Product Work' : 'Angelo Wellens | Other design work';
   var token = ++_scopeToken;
 
   var $in  = $(scope === 'product' ? '.work-scope-product' : '.work-scope-other');
@@ -1736,7 +1736,7 @@ function loadFolio(url, target) {
 function folio(url, target, push = true) {
   resetViewportZoom();
   loadFolio('/projects/' + url + '/' + url + '.html?v=' + Date.now(), target);
-  var title = '@AngeloWellens | ' + url;
+  var title = 'Angelo Wellens | ' + url;
   document.title = title;
   if (push) {
 	  window.history.pushState({ title: title, url: url }, title, '/' + url + '.html');
@@ -1998,7 +1998,7 @@ function folioDone(target) {
 
 function close(clear = true) {
   if (clear) {
-    var title = '@AngeloWellens | Product Work';
+    var title = 'Angelo Wellens | Product Work';
     if (window.history.state) {
     	window.history.go(-1);
     } else {

@@ -92,6 +92,109 @@ body {
 
 /* ---------- HEADER ---------- */
 
+/* Full-width, half-screen-tall looping eye-catcher at the very top of the home page. It sits
+   in the flow right after the sticky #filter-bar and is pulled up by the
+   bar's height (72px) so the bar floats over the video; a gradient at the
+   bottom dissolves it into the page background. */
+#banner {
+	position: relative;
+	height: 50vh;
+	height: 50svh;
+	margin-top: -72px;
+	overflow: hidden;
+	background: #f1f1f1;
+}
+
+/* The banner only shows a slice of the 16:9 clip, so the video is laid out at
+   its full size and slid slowly back and forth to reveal all of it over time.
+   It moves with a transform (not object-position) so the compositor handles
+   it at sub-pixel precision — animating object-position repainted every frame
+   and stepped in whole pixels, which looked jittery.
+
+   Wide windows: the clip is as wide as the banner and taller than it, pinned
+   to the bottom (where the most interesting screens are) and slid down until
+   its top edge shows. */
+#banner video {
+	display: block;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	pointer-events: none;
+	will-change: transform;
+	backface-visibility: hidden;
+	animation: banner-pan-y 24s ease-in-out infinite alternate;
+}
+
+@keyframes banner-pan-y {
+	from { transform: translate3d(0, 0, 0); }
+	to   { transform: translate3d(0, max(0px, calc(100% - 50vh)), 0); }
+}
+@supports (height: 50svh) {
+	@keyframes banner-pan-y {
+		from { transform: translate3d(0, 0, 0); }
+		to   { transform: translate3d(0, max(0px, calc(100% - 50svh)), 0); }
+	}
+}
+
+/* Narrow/tall windows (viewport narrower than 8:9, i.e. the half-height
+   banner is narrower than 16:9): the clip is as tall as the banner and wider
+   than it instead, so it slides sideways. */
+@media (max-aspect-ratio: 8/9) {
+	#banner video {
+		top: 0;
+		bottom: auto;
+		width: auto;
+		height: 100%;
+		animation-name: banner-pan-x;
+	}
+}
+
+@keyframes banner-pan-x {
+	from { transform: translate3d(0, 0, 0); }
+	to   { transform: translate3d(min(0px, calc(100vw - 100%)), 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#banner video { animation: none; }
+}
+
+#banner::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 38%;
+	background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.75) 60%, #fff 100%);
+	pointer-events: none;
+}
+
+/* a soft wash along the top edge keeps the logo and controls readable
+   whichever tile of the clip happens to pass underneath them */
+#banner::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 160px;
+	background: linear-gradient(to bottom, rgba(255,255,255,0.75), rgba(255,255,255,0));
+	pointer-events: none;
+	z-index: 1;
+}
+
+/* dark theme: both fades go to the dark page colour instead */
+html.dark #banner { background: #1c1c1c; }
+html.dark #banner::after {
+	background: linear-gradient(to bottom, rgba(18,18,18,0) 0%, rgba(18,18,18,0.75) 60%, #121212 100%);
+}
+html.dark #banner::before {
+	background: linear-gradient(to bottom, rgba(18,18,18,0.7), rgba(18,18,18,0));
+}
+
 #intro {
 	will-change: transform;
 	padding: 0 24px;
