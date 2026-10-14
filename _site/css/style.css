@@ -264,34 +264,52 @@ html.dark #banner::before {
 #logo_small path { fill: #191919; }
 	
 		
-/* lives inside #filter-bar now — relative so its .kbd-tip still anchors to it */
-#about {
+/* About me + AI: text pills in the top-right bar, styled and hovering
+   exactly like the .qf-btn "Product work" pill next to them. */
+#about, #ai-link {
 	position: relative;
 	z-index: 300;
 }
 
-#about a {
+#about a, #ai-link a {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	width: 44px;
+	gap: 8px;
 	height: 44px;
-	border-radius: 50%;
-	background: #fff;
+	padding: 0 16px 0 14px;
+	box-sizing: border-box;
 	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 22px;
+	background: #fff;
+	font-family: 'Inter', sans-serif;
+	font-size: 13px;
+	font-weight: 600;
 	color: #191919;
 	text-decoration: none;
-	transition: transform 0.2s ease, background 0.4s ease, border-color 0.4s ease;
+	white-space: nowrap;
+	transition: border-color 0.2s ease;
 }
+#about a:hover, #ai-link a:hover { border-color: rgba(0,0,0,0.3); }
+#about a:focus-visible, #ai-link a:focus-visible { outline: 2px solid #191919; outline-offset: 2px; }
+#about a:after, #about a:hover:after,
+#ai-link a:after, #ai-link a:hover:after { display: none; }
+#about svg, #ai-link svg { flex-shrink: 0; }
+#about svg { width: 16px; height: 16px; }
+#ai-link .ai-spark { fill: currentColor; width: 18px; height: 16px; }
 
-#about a:hover {
-	transform: scale(1.08);
-	background: #191919;
-	color: #fff;
+/* phones: no room for three labelled pills, so About and AI drop their
+   labels and become 44px circles */
+@media (max-width: 500px) {
+	#about a, #ai-link a { width: 44px; padding: 0; justify-content: center; }
+	#about a span, #ai-link a span { display: none; }
+	/* four controls share the bar — tighten so the filter pill clears the logo */
+	#filter-bar .fb-actions { gap: 6px; }
+	#filter-bar .qf-btn { padding: 0 12px; gap: 6px; font-size: 12px; }
 }
-
-#about a:after { display: none; }
-#about a:hover:after { display: none; }
+/* 360px Androids: a little tighter again so the pill still clears the logo */
+@media (max-width: 380px) {
+	#filter-bar .qf-btn { padding: 0 10px; gap: 4px; font-size: 11px; }
+}
 
 #m {
 	display:none;
@@ -655,27 +673,9 @@ figcaption h2 i {
 	line-height: 1;
 }
 
-/* About sits in the top-right filter bar with the quick-filter pill right
-   next to it — a left-facing tip (the old shared rule) overlapped that
-   pill, so it drops straight down underneath the icon instead. Right-aligned
-   (not centered) so the tip's right edge lines up with the icon's own right
-   edge — same padding from the right as the button itself. */
 #theme-toggle { overflow: visible; }
-#about .kbd-tip {
-	top: calc(100% + 10px);
-	bottom: auto;
-	left: auto;
-	right: 0;
-	transform: translateY(-4px);
-}
-#about:hover .kbd-tip {
-	opacity: 1;
-	transform: translateY(0);
-	transition-delay: 0.45s;   /* show after a pause; hide is instant */
-}
-
 /* Theme toggle sits fixed at the bottom-right corner — no room below it,
-   so its tip opens upward instead. Same right-aligned treatment as About. */
+   so its tip opens upward instead, right-aligned to the button. */
 #theme-toggle .kbd-tip {
 	top: auto;
 	bottom: calc(100% + 10px);
@@ -1973,11 +1973,13 @@ html.dark #zwart { background-color: #121212; }               /* initial load co
 html.dark #topbar { background-color: #121212 !important; }
 html.dark #logo_small path { fill: #ececec; }
 html.dark #intro a:after { border-bottom-color: #ececec; }
-html.dark #about a { background: #1c1c1c; border-color: rgba(255,255,255,0.1); color: #ececec; }
-html.dark #about a:hover { background: #ececec; color: #191919; }
+
 html.dark .qf-btn { background-color: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
 html.dark .qf-btn:hover { border-color: rgba(255,255,255,0.4); }
 html.dark .qf-btn svg { color: #a3a3a3; }
+html.dark #about a, html.dark #ai-link a { background: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
+html.dark #about a:hover, html.dark #ai-link a:hover { border-color: rgba(255,255,255,0.4); }
+html.dark #about a:focus-visible, html.dark #ai-link a:focus-visible { outline-color: #ececec; }
 html.dark .qf-menu { background: #1c1c1c; border-color: rgba(255,255,255,0.14); box-shadow: 0 12px 28px rgba(0,0,0,0.4); }
 html.dark .qf-option { color: #a3a3a3; }
 html.dark .qf-option:hover { background: #2a2a2a; }
