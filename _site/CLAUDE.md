@@ -30,4 +30,4 @@ python3 tools/build_static_copy.py
 python3 tools/build_ai_page.py tools/ai_icons _site/projects/ai/ai.html && python3 tools/build_static_copy.py
 ```
 
-The hero animation is drawn by `initAiHero()` in `js/angelo.js`.
+The AI page hero animation is drawn by `initRailsHero()` in `js/angelo.js`.

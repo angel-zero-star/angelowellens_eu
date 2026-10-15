@@ -1577,27 +1577,30 @@ function initCounters() {
   grids.forEach(function(grid) { observer.observe(grid); });
 }
 
-// ── AI page hero: light rails ──
-// Recreates a "light-rails" export in one fragment shader: a horn of colour
-// bands (orange / violet / blue, pink sheen on the seams) converging on a point
-// at the right edge. It sweeps in from the left once, then stays on while the
-// band colours drift and the sheen runs along the seams. The loop
-// stops once the page is closed and idles while scrolled out of view.
-function initAiHero() {
-  var canvas = document.querySelector('#content .ai-hero-canvas');
-  if (!canvas || canvas.dataset.ready) return;
-  canvas.dataset.ready = '1';
-  var gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
-  if (!gl) {
-    canvas.parentNode.style.background =
-      'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, #000 90%)';
-    return;
-  }
+// ── Light-rails hero (AI page) ──
+// Recreations of "light-rails" exports, one fragment shader per shape, on a
+// <canvas class="rails-canvas" data-rails="…"> at the top of a page.
+//   horn (AI)  colour bands converging on a point at the right edge; only
+//              the lower half shows, cropped by the top of the page
+// Each runs in once, then stays on while the band colours drift and a sheen
+// runs along the seams. The loop stops once the page is closed and idles
+// while scrolled out of view.
+// Mouse: uMouse = (x, y, strength) in the canvas's 0–1 space, y down. The
+// bands bulge away from the cursor like a lens (the sample point is pulled
+// toward it) and the seams light up around it; strength eases to 0 when the
+// pointer leaves, so both settle back.
+var MOUSE_WARP = [
+  '  vec2 md=(uv-uMouse.xy)*vec2(asp,1.0);',
+  '  float near=exp(-dot(md,md)/0.05)*uMouse.z;',
+  '  float glow=exp(-dot(md,md)/0.12)*uMouse.z;',
+  '  uv-=(uv-uMouse.xy)*near*0.4;'
+].join('\n');
+var MOUSE_LIGHT = "  col=mix(col,vec3(1.0,0.82,0.95),glow*(0.18+0.5*exp(-f*5.0)));";
 
-  var vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  var fs = [
+var RAILS_SHADERS = {
+  horn: [
     'precision highp float;',
-    'uniform vec2 uRes;uniform float uTime;',
+    'uniform vec2 uRes;uniform float uTime;uniform vec3 uMouse;',
     'const vec3 ORANGE=vec3(0.93,0.36,0.16);',
     'const vec3 VIOLET=vec3(0.62,0.45,1.0);',
     'const vec3 BLUE=vec3(0.20,0.32,1.0);',
@@ -1612,6 +1615,7 @@ function initAiHero() {
     'void main(){',
     '  vec2 uv=gl_FragCoord.xy/uRes; uv.y=1.0-uv.y;',
     '  float asp=uRes.x/uRes.y;',
+    MOUSE_WARP,
     // d: distance back from the tip, in units of hero height
     '  float d=(1.0-uv.x)*asp*1.6;',
     '  float y=uv.y+0.02;',   // centre line just above the top edge: only the lower half shows
@@ -1641,17 +1645,36 @@ function initAiHero() {
     '  float inA=smoothstep(front+0.25,front-0.05,uv.x)*smoothstep(0.0,0.03,ph);',
     '  inA=ph<0.12?inA*(1.0-step(1.0,as/(0.15+ph/0.12))):1.0;',
     '  float life=t<PERIOD*0.12?inA:1.0;',
+    MOUSE_LIGHT,
     '  col*=m*life;',
     '  col+=(hash(gl_FragCoord.xy+fract(t)*91.7)-0.5)*0.06;',
     '  gl_FragColor=vec4(max(col,0.0),1.0);',
     '}'
-  ].join('\n');
+  ]
+};
+var RAILS_FALLBACK = {
+  horn: 'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, #000 90%)'
+};
+
+function initRailsHero() {
+  var canvas = document.querySelector('#content .rails-canvas');
+  if (!canvas || canvas.dataset.ready) return;
+  canvas.dataset.ready = '1';
+  var kind = RAILS_SHADERS[canvas.dataset.rails] ? canvas.dataset.rails : 'horn';
+  var gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+  if (!gl) {
+    canvas.parentNode.style.background = RAILS_FALLBACK[kind];
+    return;
+  }
+
+  var vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  var fs = RAILS_SHADERS[kind].join('\n');
 
   function sh(type, src) {
     var o = gl.createShader(type);
     gl.shaderSource(o, src);
     gl.compileShader(o);
-    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn('ai-hero', gl.getShaderInfoLog(o));
+    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn('rails-hero', gl.getShaderInfoLog(o));
     return o;
   }
   var prog = gl.createProgram();
@@ -1687,17 +1710,36 @@ function initAiHero() {
     return;
   }
   var visible = true, start = performance.now();
+  var uMouse = gl.getUniformLocation(prog, 'uMouse');
+  var mouse = { x: 0.5, y: 0.5, s: 0, tx: 0.5, ty: 0.5, ts: 0 };
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+    var onMove = function(e) {
+      if (!document.contains(canvas)) { window.removeEventListener('pointermove', onMove); return; }
+      var r = canvas.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      var inside = x >= 0 && x <= 1 && y >= 0 && y <= 1;
+      if (inside) { mouse.tx = x; mouse.ty = y; }
+      mouse.ts = inside ? 1 : 0;
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function() { mouse.ts = 0; });
+  }
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function(e) { visible = e[0].isIntersecting; }).observe(canvas);
   }
   // parallax: the canvas drifts down at about half the scroll speed, inside
-  // .ai-hero's overflow:hidden, so the page slides up over it
+  // the hero's overflow:hidden, so the page slides up over it
   var hero = canvas.parentNode, shift = null;
   (function loop(now) {
     if (!document.contains(canvas)) return;   // page closed
     if (visible) {
       var y = Math.round(Math.max(0, -hero.getBoundingClientRect().top) * 0.5);
       if (y !== shift) { shift = y; canvas.style.transform = 'translate3d(0,' + y + 'px,0)'; }
+      // eased, so the bulge trails the cursor a little and fades in and out
+      mouse.x += (mouse.tx - mouse.x) * 0.08;
+      mouse.y += (mouse.ty - mouse.y) * 0.08;
+      mouse.s += (mouse.ts - mouse.s) * 0.05;
+      gl.uniform3f(uMouse, mouse.x, mouse.y, mouse.s);
       draw((now - start) / 1000);
     }
     requestAnimationFrame(loop);
@@ -2041,7 +2083,7 @@ function folioDone(target) {
         initInPageAnchors();
         initMiniNav();
         initProfileMotion();
-        initAiHero();
+        initRailsHero();
         // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
         // this in-flow element's space and jolts the content below it
         // upward right as #wrap_project is animating in.

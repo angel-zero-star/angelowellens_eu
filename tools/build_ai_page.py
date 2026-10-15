@@ -96,7 +96,7 @@ html = f'''<!DOCTYPE html>
           transform: translate3d(0, 0, 0) !important;
 }}
 
-/* Light-rails animation (WebGL, drawn by initAiHero in angelo.js). Fades
+/* Light-rails animation (WebGL, drawn by initRailsHero in angelo.js). Fades
    into the page at the bottom. */
 .ai-hero {{
   position: relative;
@@ -266,7 +266,7 @@ html.dark .ai-tile-light {{ border-color: transparent; }}
 </head>
 <body>
 
-<div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas"></canvas></div>
+<div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas rails-canvas" data-rails="horn"></canvas></div>
 <div class="page-title" id="top">
   <h4>AI-enabled designer</h4>
 </div>
