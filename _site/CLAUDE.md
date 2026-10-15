@@ -21,3 +21,13 @@ Each root page carries a text-only copy of its case study (between the `static-c
 ```
 python3 tools/build_static_copy.py
 ```
+
+## AI page
+
+`projects/ai/ai.html` is generated, don't edit it by hand. Edit `tools/build_ai_page.py`, then run from the repo root:
+
+```
+python3 tools/build_ai_page.py tools/ai_icons _site/projects/ai/ai.html && python3 tools/build_static_copy.py
+```
+
+The hero animation is drawn by `initAiHero()` in `js/angelo.js`.

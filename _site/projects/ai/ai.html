@@ -26,6 +26,37 @@
           transform: translate3d(0, 0, 0) !important;
 }
 
+/* Light-rails animation (WebGL, drawn by initAiHero in angelo.js). Fades
+   into the page at the bottom. */
+.ai-hero {
+  position: relative;
+  height: 62vh;
+  height: 62svh;
+  min-height: 360px;
+  background: #000;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+          mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+.ai-hero { overflow: hidden; }
+.ai-hero-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Sits behind the top of the page so the title keeps the About page's
+   position (.page-title's 20% top padding) instead of starting below it. */
+.ai-hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+.ai-hero + .page-title {
+  position: relative;
+  z-index: 1;
+}
+
 .page-title {
   max-width: 940px;
   margin: 0 auto;
@@ -165,6 +196,7 @@ html.dark .ai-tile-light { border-color: transparent; }
 </head>
 <body>
 
+<div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas"></canvas></div>
 <div class="page-title" id="top">
   <h4>AI-enabled designer</h4>
 </div>

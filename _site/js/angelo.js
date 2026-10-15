@@ -1577,6 +1577,133 @@ function initCounters() {
   grids.forEach(function(grid) { observer.observe(grid); });
 }
 
+// ── AI page hero: light rails ──
+// Recreates a "light-rails" export in one fragment shader: a horn of colour
+// bands (orange / violet / blue, pink sheen on the seams) converging on a point
+// at the right edge. It sweeps in from the left once, then stays on while the
+// band colours drift and the sheen runs along the seams. The loop
+// stops once the page is closed and idles while scrolled out of view.
+function initAiHero() {
+  var canvas = document.querySelector('#content .ai-hero-canvas');
+  if (!canvas || canvas.dataset.ready) return;
+  canvas.dataset.ready = '1';
+  var gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+  if (!gl) {
+    canvas.parentNode.style.background =
+      'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, #000 90%)';
+    return;
+  }
+
+  var vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  var fs = [
+    'precision highp float;',
+    'uniform vec2 uRes;uniform float uTime;',
+    'const vec3 ORANGE=vec3(0.93,0.36,0.16);',
+    'const vec3 VIOLET=vec3(0.62,0.45,1.0);',
+    'const vec3 BLUE=vec3(0.20,0.32,1.0);',
+    'const vec3 PINK=vec3(1.0,0.58,1.0);',
+    'const float PERIOD=3.6;const float LINES=3.4;',
+    'float hash(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}',
+    'float h1(float n){return fract(sin(n*91.345)*47453.5453);}',
+    'vec3 pal(float v){v=fract(v)*3.0;',
+    '  vec3 a=v<1.0?ORANGE:(v<2.0?VIOLET:BLUE);',
+    '  vec3 b=v<1.0?VIOLET:(v<2.0?BLUE:ORANGE);',
+    '  return mix(a,b,smoothstep(0.78,1.0,fract(v)));}',
+    'void main(){',
+    '  vec2 uv=gl_FragCoord.xy/uRes; uv.y=1.0-uv.y;',
+    '  float asp=uRes.x/uRes.y;',
+    // d: distance back from the tip, in units of hero height
+    '  float d=(1.0-uv.x)*asp*1.6;',
+    '  float y=uv.y+0.02;',   // centre line just above the top edge: only the lower half shows
+    '  float t=uTime; float ph=t/PERIOD;',
+    // horn: narrow at the tip, flaring out to the left, breathing a little
+    '  float w=0.18+0.14*d+0.16*d*d+0.01*sin(t*0.9);',
+    '  float s=y/w;',
+    '  float as=abs(s);',
+    // bands, gently twisting along the horn
+    '  float b=as*LINES+0.5+0.12*sin(d*0.8-t*0.7)+0.06*sin(s*2.0+t*0.5);',
+    '  float k=floor(b); float f=fract(b);',
+    // colours step outward band by band and roll over time
+    '  float drift=t*0.22;',
+    '  vec3 c0=pal(k*0.36+drift+0.08*h1(k));',
+    '  vec3 c1=pal((k+1.0)*0.36+drift+0.08*h1(k+1.0));',
+    '  vec3 col=mix(c0,c1,smoothstep(0.86,1.0,f));',
+    // rib shading: each band brightest just inside its inner seam
+    '  col*=0.86+0.14*(1.0-smoothstep(0.0,0.9,f));',
+    // pink sheen sliding along the seams
+    '  float glint=exp(-pow((uv.x-fract(t*0.25+k*0.21)*1.3+0.15)*3.0,2.0));',
+    '  col=mix(col,PINK,clamp(exp(-f*6.0)*0.75*glint+exp(-(1.0-f)*12.0)*0.3,0.0,0.85));',
+    // soft outer edge, softer where the horn is wide
+    '  float e=0.05+0.06*min(d,2.0);',
+    '  float m=1.0-smoothstep(1.0-e,1.0+e,as);',
+    // sweeps in from the left once, then stays on
+    '  float front=ph/0.12*1.6-0.3;',
+    '  float inA=smoothstep(front+0.25,front-0.05,uv.x)*smoothstep(0.0,0.03,ph);',
+    '  inA=ph<0.12?inA*(1.0-step(1.0,as/(0.15+ph/0.12))):1.0;',
+    '  float life=t<PERIOD*0.12?inA:1.0;',
+    '  col*=m*life;',
+    '  col+=(hash(gl_FragCoord.xy+fract(t)*91.7)-0.5)*0.06;',
+    '  gl_FragColor=vec4(max(col,0.0),1.0);',
+    '}'
+  ].join('\n');
+
+  function sh(type, src) {
+    var o = gl.createShader(type);
+    gl.shaderSource(o, src);
+    gl.compileShader(o);
+    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn('ai-hero', gl.getShaderInfoLog(o));
+    return o;
+  }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  var uRes = gl.getUniformLocation(prog, 'uRes');
+  var uTime = gl.getUniformLocation(prog, 'uTime');
+
+  function draw(t) {
+    // capped: it's all soft gradients, full retina buys nothing
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h;
+      gl.viewport(0, 0, w, h);
+    }
+    gl.uniform2f(uRes, w, h);
+    gl.uniform1f(uTime, t);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  // reduced motion: one full, held frame
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    draw(1.2);
+    window.addEventListener('resize', function() { draw(1.2); });
+    return;
+  }
+  var visible = true, start = performance.now();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(e) { visible = e[0].isIntersecting; }).observe(canvas);
+  }
+  // parallax: the canvas drifts down at about half the scroll speed, inside
+  // .ai-hero's overflow:hidden, so the page slides up over it
+  var hero = canvas.parentNode, shift = null;
+  (function loop(now) {
+    if (!document.contains(canvas)) return;   // page closed
+    if (visible) {
+      var y = Math.round(Math.max(0, -hero.getBoundingClientRect().top) * 0.5);
+      if (y !== shift) { shift = y; canvas.style.transform = 'translate3d(0,' + y + 'px,0)'; }
+      draw((now - start) / 1000);
+    }
+    requestAnimationFrame(loop);
+  })(start);
+}
+
 // ── Video autoplay on scroll ──
 function initVideoObserver() {
   var video = document.querySelector('video.project-video');
@@ -1914,6 +2041,7 @@ function folioDone(target) {
         initInPageAnchors();
         initMiniNav();
         initProfileMotion();
+        initAiHero();
         // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
         // this in-flow element's space and jolts the content below it
         // upward right as #wrap_project is animating in.
