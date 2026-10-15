@@ -1547,15 +1547,21 @@ function initCounters() {
     var target = parseFloat(numStr);
     if (isNaN(target)) return;
     var decimals = numStr.indexOf('.') >= 0 ? numStr.split('.')[1].length : 0;
+    // keep thousands separators when the original had them (3,000+)
+    var grouped = m[2].indexOf(',') >= 0;
+    function fmt(n) {
+      return grouped ? n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+                     : n.toFixed(decimals);
+    }
     var duration = 1400, startTime = null;
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
     function step(now) {
       if (!startTime) startTime = now;
       var p = Math.min((now - startTime) / duration, 1);
-      el.textContent = prefix + (target * easeOut(p)).toFixed(decimals) + suffix;
+      el.textContent = prefix + fmt(target * easeOut(p)) + suffix;
       if (p < 1) requestAnimationFrame(step);
     }
-    el.textContent = prefix + (0).toFixed(decimals) + suffix;
+    el.textContent = prefix + fmt(0) + suffix;
     requestAnimationFrame(step);
   }
   var grids = document.querySelectorAll('.stats-grid');

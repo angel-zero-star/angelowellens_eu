@@ -51,6 +51,12 @@ h3 {
 html {
 	overflow-y: scroll;
 	scrollbar-gutter: stable;
+	/* Safari: pulling past the top rubber-bands the page and fills the gap
+	   above with colour sampled from the banner video (the header there is
+	   transparent), which showed as a light strip over the dark page. No
+	   bounce, and a solid root background in case it still peeks through. */
+	overscroll-behavior-y: none;
+	background-color: white;
 	/* Stops mobile browsers auto-inflating body text. Safari and Chrome both
 	   enlarge type on pages they judge non-responsive, and the signal they
 	   use is a block far wider than the viewport — which Kuva has, since its
@@ -287,9 +293,10 @@ html.dark #banner::before {
 	color: #191919;
 	text-decoration: none;
 	white-space: nowrap;
-	transition: border-color 0.2s ease;
+	transition: transform 0.2s ease, border-color 0.2s ease;
 }
-#about a:hover, #ai-link a:hover { border-color: rgba(0,0,0,0.3); }
+/* same grow-on-hover as the theme toggle */
+#about a:hover, #ai-link a:hover { border-color: rgba(0,0,0,0.3); transform: scale(1.08); }
 #about a:focus-visible, #ai-link a:focus-visible { outline: 2px solid #191919; outline-offset: 2px; }
 #about a:after, #about a:hover:after,
 #ai-link a:after, #ai-link a:hover:after { display: none; }
@@ -1008,10 +1015,10 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
 	font-weight: 600;
 	color: #191919;
 	cursor: pointer;
-	transition: border-color 0.2s ease;
+	transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.qf-btn:hover { border-color: rgba(0,0,0,0.3); }
+.qf-btn:hover { border-color: rgba(0,0,0,0.3); transform: scale(1.08); }
 .qf-btn:focus-visible { outline: 2px solid #191919; outline-offset: 2px; }
 .qf-btn svg { flex-shrink: 0; transition: transform 0.2s ease; color: #666; }
 .quick-filter.is-open .qf-btn svg { transform: rotate(180deg); }
@@ -1896,7 +1903,7 @@ html.theming, html.theming *, html.theming *:before, html.theming *:after {
 }
 
 /* ── Base surfaces ── */
-html.dark body { background-color: #121212; }
+html.dark, html.dark body { background-color: #121212; }
 html.dark h1, html.dark h2 { color: #ececec; background-color: transparent; }
 html.dark a, html.dark #intro a { color: #ececec; }
 html.dark #overlay { background-color: #121212; }

@@ -112,6 +112,15 @@
   margin: 16px 0;
 }
 
+.stats-group-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.stats-grid + .stats-group-label {
+  margin-top: 32px;
+}
+
 .stat {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -752,13 +761,20 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
     </div>
 
     <div class="results-section">
+      <h5 class="stat-label stats-group-label">Atlas at acquisition</h5>
       <div class="stats-grid">
-        <div class="stat"><div class="stat-label">Banks Served</div><div class="stat-value">200+</div></div>
+        <div class="stat"><div class="stat-label">Banks</div><div class="stat-value">200+</div></div>
         <div class="stat"><div class="stat-label">Funds</div><div class="stat-value">150+</div></div>
-        <div class="stat"><div class="stat-label">Businesses</div><div class="stat-value">3000+</div></div>
+        <div class="stat"><div class="stat-label">Businesses</div><div class="stat-value">3,000+</div></div>
+        <div class="stat"><div class="stat-label">Users</div><div class="stat-value">19,000+</div></div>
         <div class="stat"><div class="stat-label">Countries</div><div class="stat-value">15+</div></div>
         <div class="stat"><div class="stat-label">Frameworks Supported</div><div class="stat-value">15+</div></div>
-        <div class="stat"><div class="stat-label">ARR</div><div class="stat-value">2.5M+</div></div>
+      </div>
+      <h5 class="stat-label stats-group-label">My impact</h5>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-label">Support Tickets</div><div class="stat-value">−75%</div></div>
+        <div class="stat"><div class="stat-label">Saved per consultant, per week</div><div class="stat-value">10–15 h</div></div>
+        <div class="stat"><div class="stat-label">Design System Components</div><div class="stat-value">187</div></div>
       </div>
       <p class="results-note">Scaled from zero. Atlas was acquired by Novata in 2026 to expand its reach across global private markets.</p>
     </div>

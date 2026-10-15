@@ -13,3 +13,11 @@ Then open http://localhost:8080
 ## Deploy
 
 Push to main → Vercel auto-deploys. After JS/CSS edits, bump `?v=` cache param in the HTML.
+
+## Static copy for no-JS readers
+
+Each root page carries a text-only copy of its case study (between the `static-copy` markers), so AI tools and scrapers that don't run JS still see the content. It's generated, never edit it by hand. After editing any `projects/<name>/<name>.html` fragment, run from the repo root:
+
+```
+python3 tools/build_static_copy.py
+```
