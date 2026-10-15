@@ -1582,20 +1582,21 @@ function initCounters() {
 // <canvas class="rails-canvas" data-rails="…"> at the top of a page.
 //   horn (AI)  colour bands converging on a point at the right edge; only
 //              the lower half shows, cropped by the top of the page
-// Each runs in once, then stays on while the band colours drift and a sheen
-// runs along the seams. The loop stops once the page is closed and idles
+// Each runs in once, then stays on while the blurred colours drift and streaks
+// of light shoot along the horn. The loop stops once the page is closed and idles
 // while scrolled out of view.
 // Mouse: uMouse = (x, y, strength) in the canvas's 0–1 space, y down. The
-// bands bulge away from the cursor like a lens (the sample point is pulled
-// toward it) and the seams light up around it; strength eases to 0 when the
-// pointer leaves, so both settle back.
+// lines bend toward the cursor (the sample point is pulled toward it), a
+// denser set of faster streaks joins in around it and the area glows a
+// little; strength eases to 0 when the pointer leaves, so it all settles back.
 var MOUSE_WARP = [
   '  vec2 md=(uv-uMouse.xy)*vec2(asp,1.0);',
   '  float near=exp(-dot(md,md)/0.05)*uMouse.z;',
+  '  float halo=exp(-dot(md,md)/0.07)*uMouse.z;',
   '  float glow=exp(-dot(md,md)/0.12)*uMouse.z;',
   '  uv-=(uv-uMouse.xy)*near*0.4;'
 ].join('\n');
-var MOUSE_LIGHT = "  col=mix(col,vec3(1.0,0.82,0.95),glow*(0.18+0.5*exp(-f*5.0)));";
+var MOUSE_LIGHT = "  col=mix(col,vec3(1.0,0.82,0.95),glow*0.15);";
 
 var RAILS_SHADERS = {
   horn: [
@@ -1611,7 +1612,7 @@ var RAILS_SHADERS = {
     'vec3 pal(float v){v=fract(v)*3.0;',
     '  vec3 a=v<1.0?ORANGE:(v<2.0?VIOLET:BLUE);',
     '  vec3 b=v<1.0?VIOLET:(v<2.0?BLUE:ORANGE);',
-    '  return mix(a,b,smoothstep(0.78,1.0,fract(v)));}',
+    '  return mix(a,b,smoothstep(0.0,1.0,fract(v)));}',
     'void main(){',
     '  vec2 uv=gl_FragCoord.xy/uRes; uv.y=1.0-uv.y;',
     '  float asp=uRes.x/uRes.y;',
@@ -1620,29 +1621,45 @@ var RAILS_SHADERS = {
     '  float d=(1.0-uv.x)*asp*1.6;',
     '  float y=uv.y+0.02;',   // centre line just above the top edge: only the lower half shows
     '  float t=uTime; float ph=t/PERIOD;',
-    // horn: narrow at the tip, flaring out to the left, breathing a little
-    '  float w=0.18+0.14*d+0.16*d*d+0.01*sin(t*0.9);',
+    // horn: narrow at the tip, flaring out so its outer edge runs down into
+    // the bottom-left corner whatever the hero's shape, breathing a little
+    '  float w=0.12+0.75*pow(1.0-uv.x,1.3)+0.01*sin(t*0.9);',
     '  float s=y/w;',
     '  float as=abs(s);',
     // bands, gently twisting along the horn
     '  float b=as*LINES+0.5+0.12*sin(d*0.8-t*0.7)+0.06*sin(s*2.0+t*0.5);',
-    '  float k=floor(b); float f=fract(b);',
-    // colours step outward band by band and roll over time
-    '  float drift=t*0.22;',
-    '  vec3 c0=pal(k*0.36+drift+0.08*h1(k));',
-    '  vec3 c1=pal((k+1.0)*0.36+drift+0.08*h1(k+1.0));',
-    '  vec3 col=mix(c0,c1,smoothstep(0.86,1.0,f));',
-    // rib shading: each band brightest just inside its inner seam
-    '  col*=0.86+0.14*(1.0-smoothstep(0.0,0.9,f));',
-    // pink sheen sliding along the seams
-    '  float glint=exp(-pow((uv.x-fract(t*0.25+k*0.21)*1.3+0.15)*3.0,2.0));',
-    '  col=mix(col,PINK,clamp(exp(-f*6.0)*0.75*glint+exp(-(1.0-f)*12.0)*0.3,0.0,0.85));',
+    // base: the colours blur into each other across the bands and drift slowly
+    '  vec3 col=pal(b*0.3+t*0.03);',
+    '  col*=0.9+0.1*cos(b*6.2832);',
+    // streaks: thin soft lanes along the horn, each with light shooting
+    // out of the tip toward the bottom left, a sharp head and a long tail
+    '  float L=b*3.0; float lk=floor(L); float lf=fract(L);',
+    '  float lane=exp(-pow((lf-0.5)*3.6,2.0));',
+    '  float head=1.4-fract(t*(0.12+0.16*h1(lk))+h1(lk+7.0))*1.8;',
+    '  float dx=uv.x-head;',
+    '  float tr=dx>0.0?exp(-dx*2.5):exp(dx*28.0);',
+    '  vec3 sc=mix(pal(lk*0.37+0.5+t*0.05),PINK,0.25)*1.3;',
+    '  col=mix(col,sc,clamp(tr*lane*(0.8+glow),0.0,1.0));',
+    // near the cursor: twice as many lanes, streaking about three times as fast
+    '  float L2=b*7.0; float k2=floor(L2);',
+    '  float lane2=exp(-pow((fract(L2)-0.5)*4.0,2.0));',
+    '  float head2=1.4-fract(t*(0.45+0.4*h1(k2+3.0))+h1(k2+11.0))*1.8;',
+    '  float dx2=uv.x-head2;',
+    '  float tr2=dx2>0.0?exp(-dx2*5.0):exp(dx2*40.0);',
+    '  vec3 sc2=mix(pal(k2*0.29+t*0.05),PINK,0.35)*1.35;',
+    '  col=mix(col,sc2,clamp(tr2*lane2*halo*1.3,0.0,1.0));',
+    // a few crisp hairlines among the blur, about a pixel wide, fading in and
+    // out along their length
+    '  float px=abs(b-1.0)*w*uRes.y/LINES;',
+    '  float hl=1.0-smoothstep(0.4,1.4,min(px,min(abs(b-2.4),abs(b-3.15))*w*uRes.y/LINES));',
+    '  hl*=0.35+0.4*smoothstep(-0.2,0.8,sin(uv.x*5.0+b*1.7-t*0.6));',
+    '  col=mix(col,vec3(1.0,0.9,1.0),hl*0.6);',
     // soft outer edge, softer where the horn is wide
-    '  float e=0.05+0.06*min(d,2.0);',
+    '  float e=0.08+0.1*min(d,2.0);',
     '  float m=1.0-smoothstep(1.0-e,1.0+e,as);',
-    // sweeps in from the left once, then stays on
+    // sweeps in from the tip once, then stays on
     '  float front=ph/0.12*1.6-0.3;',
-    '  float inA=smoothstep(front+0.25,front-0.05,uv.x)*smoothstep(0.0,0.03,ph);',
+    '  float inA=smoothstep(front+0.25,front-0.05,1.0-uv.x)*smoothstep(0.0,0.03,ph);',
     '  inA=ph<0.12?inA*(1.0-step(1.0,as/(0.15+ph/0.12))):1.0;',
     '  float life=t<PERIOD*0.12?inA:1.0;',
     MOUSE_LIGHT,
