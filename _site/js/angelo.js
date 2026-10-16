@@ -33,11 +33,20 @@ function randGlyph() {
   return SCRAMBLE_GLYPHS.charAt(Math.floor(Math.random() * SCRAMBLE_GLYPHS.length));
 }
 
+// Intros waiting for their line to be on screen: a page opened straight onto
+// /ai.html or /about.html hides the homepage intro, and slots measured while
+// hidden all come out 0px wide, stacking every letter on top of the next.
+// hideLanding runs them once the intro is showing again.
+var _pendingScrambles = [];
+
 function scrambleText(el, duration) {
   if (!el) return;
   // Measure once webfonts are in, otherwise slot widths get sized off the
   // fallback face and everything shifts when the real font swaps in.
-  var run = function () { runScramble(el, duration); };
+  var run = function () {
+    if (!el.getClientRects().length) { _pendingScrambles.push([el, duration]); return; }
+    runScramble(el, duration);
+  };
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
   else run();
 }
@@ -498,20 +507,39 @@ function toggleQuickFilter() {
   var el = document.getElementById('quick-filter');
   if (!el) return;
   var open = el.classList.toggle('is-open');
-  el.querySelector('.qf-btn').setAttribute('aria-expanded', open ? 'true' : 'false');
+  el.querySelector('.qf-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
 function closeQuickFilter() {
   var el = document.getElementById('quick-filter');
   if (!el || !el.classList.contains('is-open')) return;
   el.classList.remove('is-open');
-  el.querySelector('.qf-btn').setAttribute('aria-expanded', 'false');
+  el.querySelector('.qf-toggle').setAttribute('aria-expanded', 'false');
 }
 
 function selectQuickFilter(cat, btn) {
   closeQuickFilter();
+  leaveLanding();   // picking work from the AI or About page goes back to the grid
+
   syncQuickFilter(cat, btn);
   setScope(cat);
+}
+
+// Split button: the label goes to the work grid with the current choice, the
+// arrow beside it (toggleQuickFilter) opens the menu to change that choice.
+function goToWork() {
+  closeQuickFilter();
+  if (_landing) leaveLanding();
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function leaveLanding() {
+  if (!_landing) return;
+  var title = 'Angelo Wellens | Product Work';
+  window.history.pushState({ title: title, url: '/' }, title, '/');
+  document.title = title;
+  hideLanding();
+  window.scrollTo(0, 0);
 }
 
 // keeps the button label + option checkmark in sync, whether the change came
@@ -1361,70 +1389,6 @@ function initInPageAnchors() {
   });
 }
 
-// ── Floating mini-nav (Claude Code project page) ──
-// The three tool thumbnails again, pinned to the top, but hidden until you
-// scroll back UP past them — a lightweight always-available way to jump
-// between sections without a "back to top" link at the end of each one.
-// Only does anything if the page actually has a #miniNav (every other
-// project page doesn't, so this is a no-op there).
-function initMiniNav() {
-  var nav = document.getElementById('miniNav');
-  var content = document.getElementById('content');
-  if (!nav || !content) return;
-  if (nav.dataset.bound) return;   // folioDone can re-run on the same load; don't double-bind
-  nav.dataset.bound = '1';
-
-  // #wrap_project carries a transform (its entrance animation), and a
-  // transformed ancestor turns position:fixed into "fixed to that element" —
-  // the nav just scrolled away with the page. Re-parent it onto #content
-  // (the fixed scroll container itself, no transform) so it pins properly.
-  content.appendChild(nav);
-
-  var toolGrid = content.querySelector('.tool-grid');
-  var lastTop = content.scrollTop;
-  var upTravel = 0;   // px scrolled up since the last downward move
-
-  content.addEventListener('scroll', function() {
-    var top = content.scrollTop;
-    var delta = top - lastTop;
-    lastTop = top;
-    // "Past" the real thumbnails once their bottom edge has scrolled above
-    // the visible area — getBoundingClientRect, not offsetTop, since a
-    // couple of ancestors here are position:relative (the lightbox expand
-    // wrappers) and would throw an offsetTop chain off.
-    var pastToolGrid = toolGrid && toolGrid.getBoundingClientRect().bottom < 0;
-    if (!pastToolGrid || delta > 2) {
-      // any real downward scroll (or being back up by the thumbnails) hides it
-      upTravel = 0;
-      nav.classList.remove('visible');
-    } else if (delta < 0) {
-      // only show after a deliberate scroll up, not a trackpad wobble
-      upTravel -= delta;
-      if (upTravel > 30) nav.classList.add('visible');
-    }
-  });
-
-  // Scroll-spy: focus whichever section is actually in view, same dim/focus
-  // treatment as Atlas's .approach-item list (opacity 0.55 → 1, on scroll).
-  var links = nav.querySelectorAll('.mini-nav-item');
-  var sections = ['flashcards', 'mortgage', 'schools']
-    .map(function(id) { return document.getElementById(id); })
-    .filter(Boolean);
-  if (!sections.length || !('IntersectionObserver' in window)) return;
-
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) return;
-      var id = entry.target.id;
-      links.forEach(function(link) {
-        link.classList.toggle('active', link.dataset.section === id);
-      });
-    });
-  }, { root: content, rootMargin: '-40% 0px -50% 0px', threshold: 0 });
-
-  sections.forEach(function(s) { observer.observe(s); });
-}
-
 // ── About page: profile photo that "moves its head" on hover ──
 // The photo is a double-exposure of a head mid-turn. On hover it drifts
 // toward the cursor, and a blurred copy (screen-blended, like the photo's
@@ -1601,7 +1565,7 @@ var MOUSE_LIGHT = "  col=mix(col,vec3(1.0,0.82,0.95),glow*0.15);";
 var RAILS_SHADERS = {
   horn: [
     'precision highp float;',
-    'uniform vec2 uRes;uniform float uTime;uniform vec3 uMouse;',
+    'uniform vec2 uRes;uniform float uTime;uniform vec3 uMouse;uniform float uLight;',
     'const vec3 ORANGE=vec3(0.93,0.36,0.16);',
     'const vec3 VIOLET=vec3(0.62,0.45,1.0);',
     'const vec3 BLUE=vec3(0.20,0.32,1.0);',
@@ -1663,24 +1627,26 @@ var RAILS_SHADERS = {
     '  inA=ph<0.12?inA*(1.0-step(1.0,as/(0.15+ph/0.12))):1.0;',
     '  float life=t<PERIOD*0.12?inA:1.0;',
     MOUSE_LIGHT,
-    '  col*=m*life;',
+    // fades out into the page: black in dark mode, white in light (uLight)
+    '  col=mix(vec3(uLight),col,m*life);',
     '  col+=(hash(gl_FragCoord.xy+fract(t)*91.7)-0.5)*0.06;',
     '  gl_FragColor=vec4(max(col,0.0),1.0);',
     '}'
   ]
 };
 var RAILS_FALLBACK = {
-  horn: 'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, #000 90%)'
+  // fades to the hero's own background (white or black, per theme)
+  horn: 'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, rgba(33,74,255,0) 90%)'
 };
 
 function initRailsHero() {
-  var canvas = document.querySelector('#content .rails-canvas');
+  var canvas = document.querySelector('#landing .rails-canvas, #content .rails-canvas');
   if (!canvas || canvas.dataset.ready) return;
   canvas.dataset.ready = '1';
   var kind = RAILS_SHADERS[canvas.dataset.rails] ? canvas.dataset.rails : 'horn';
   var gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
   if (!gl) {
-    canvas.parentNode.style.background = RAILS_FALLBACK[kind];
+    canvas.parentNode.style.backgroundImage = RAILS_FALLBACK[kind];
     return;
   }
 
@@ -1706,6 +1672,9 @@ function initRailsHero() {
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   var uRes = gl.getUniformLocation(prog, 'uRes');
   var uTime = gl.getUniformLocation(prog, 'uTime');
+  var uLight = gl.getUniformLocation(prog, 'uLight');
+  // follows the theme, eased so a toggle crossfades instead of flashing
+  var light = document.documentElement.classList.contains('dark') ? 0 : 1;
 
   function draw(t) {
     // capped: it's all soft gradients, full retina buys nothing
@@ -1717,6 +1686,10 @@ function initRailsHero() {
     }
     gl.uniform2f(uRes, w, h);
     gl.uniform1f(uTime, t);
+    var target = document.documentElement.classList.contains('dark') ? 0 : 1;
+    light += (target - light) * 0.1;
+    if (Math.abs(target - light) < 0.002) light = target;
+    gl.uniform1f(uLight, light);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -1749,7 +1722,8 @@ function initRailsHero() {
   var hero = canvas.parentNode, shift = null;
   (function loop(now) {
     if (!document.contains(canvas)) return;   // page closed
-    if (visible) {
+    // on a landing page with a project open over it: nothing to see, so idle
+    if (visible && !(_landingCovered && canvas.closest('#landing'))) {
       var y = Math.round(Math.max(0, -hero.getBoundingClientRect().top) * 0.5);
       if (y !== shift) { shift = y; canvas.style.transform = 'translate3d(0,' + y + 'px,0)'; }
       // eased, so the bulge trails the cursor a little and fades in and out
@@ -1831,11 +1805,13 @@ jQuery(document).ready(function() {
 
   //-------------- menu -------------------------------
   
+    setActiveNav(null);   // home until a landing page says otherwise
     // Deep link: /atlas.html opens that project over the grid.
     if (!isRootPath()) {
     	var url = window.location.pathname.substr(1, window.location.pathname.length);
     	if (url.slice(-5) === '.html') url = url.slice(0, -5);
-    	setTimeout(function() {
+    	if (LANDINGS[url]) folio(url, 'content', false);   // a page: straight away
+    	else setTimeout(function() {
 	    	folio(url, 'content', false);
     	}, 500);
     }
@@ -1843,7 +1819,8 @@ jQuery(document).ready(function() {
     window.onpopstate = function (event) {
 	    var isRoot = isRootPath();
 	    if (isRoot) {
-		    close(false);
+		    if (document.getElementById('remove')) close(false);
+		    hideLanding();
 	    } else if (!isRoot && event.state.url) {
 		    folio(event.state.url, 'content', false);
 	    }
@@ -1892,6 +1869,10 @@ function enableScroll() {
 }
 
 function loadFolio(url, target) {
+  setTimeout(function() {
+    var open = document.getElementById('remove');
+    if (open && !open.dataset.closing) coverLanding(true);
+  }, 1000);
   $("body").append('<div id="remove"><div id="content"></div></div>');
   circleReveal();
   $("#overlay").fadeIn("fast", function() {
@@ -1901,38 +1882,173 @@ function loadFolio(url, target) {
     // so hiding it here doesn't shift the layout underneath.
     $("html").css("overflow", "hidden");
     $("#content").fadeIn("slow", function() {
-      //document.getElementById(target).innerHTML = 'sending...';
-      if (window.XMLHttpRequest) {
-        req = new XMLHttpRequest();
-        req.onreadystatechange = function() {
-          folioDone(target);
-        };
-        req.open("GET", url, true);
-        req.send(null);
-        // IE/Windows ActiveX version
-      } else if (window.ActiveXObject) {
-        req = new ActiveXObject("Microsoft.XMLHTTP");
-        if (req) {
-          req.onreadystatechange = function() {
-            folioDone(target);
-          };
-          req.open("GET", url, true);
-          req.send();
-        }
-      }
+      requestFolio(url, target);
     });
   });
 }
 
+// A page opened from inside another one (or back/forward between two pages)
+// replaces the open page rather than stacking a second overlay on top: the
+// overlay stays, the old #remove goes, and a fresh one fades in when loaded.
+function swapFolio(url, target) {
+  _clickPoint = null;
+  $("#content").stop(true).fadeTo(200, 0, function() {
+    $("#remove").remove();
+    $("body").append('<div id="remove"><div id="content" style="display:block;opacity:0"></div></div>');
+    requestFolio(url, target);
+  });
+}
+
+function requestFolio(url, target) {
+  //document.getElementById(target).innerHTML = 'sending...';
+  if (window.XMLHttpRequest) {
+    req = new XMLHttpRequest();
+    req.onreadystatechange = function() {
+      folioDone(target);
+    };
+    req.open("GET", url, true);
+    req.send(null);
+    // IE/Windows ActiveX version
+  } else if (window.ActiveXObject) {
+    req = new ActiveXObject("Microsoft.XMLHTTP");
+    if (req) {
+      req.onreadystatechange = function() {
+        folioDone(target);
+      };
+      req.open("GET", url, true);
+      req.send();
+    }
+  }
+}
+
 // LOAD PROJECT
 function folio(url, target, push = true) {
+  if (url === 'claude_code') url = 'ai';   // split into three pages, all linked from AI
+  if (LANDINGS[url]) { showLanding(url, push); return; }
   resetViewportZoom();
-  loadFolio('/projects/' + url + '/' + url + '.html?v=' + Date.now(), target);
+  var path = '/projects/' + url + '/' + url + '.html?v=' + Date.now();
+  if (document.getElementById('remove')) swapFolio(path, target);
+  else loadFolio(path, target);
   var title = 'Angelo Wellens | ' + url;
   document.title = title;
   if (push) {
 	  window.history.pushState({ title: title, url: url }, title, '/' + url + '.html');
   }
+}
+
+// ── Landing pages ──
+// AI and About me are pages, not projects: they replace the homepage under the
+// header (their pill shows as selected) instead of opening in the overlay. A
+// project opened from one opens on top of it as usual, and closing the project
+// steps back to it. Fragments come from the same projects/<name>/<name>.html.
+var LANDINGS = { ai: 'ai-link', about: 'about' };
+var _landing = null;
+
+function showLanding(url, push) {
+  var title = 'Angelo Wellens | ' + url;
+  document.title = title;
+  if (push) window.history.pushState({ title: title, url: url }, title, '/' + url + '.html');
+  var open = document.getElementById('remove');
+  if (open && !open.dataset.closing) close(false);   // a project on top: back to the page under it
+  if (_landing === url) return;
+  _landing = url;
+  setActiveNav(url);
+  document.body.classList.add('is-landing');
+  var box = document.getElementById('landing');
+  box.innerHTML = '';
+  window.scrollTo(0, 0);
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function() {
+    if (_landing !== url || xhr.status !== 200) return;
+    // the fragment's ids would clash with a project opened on top (folioDone
+    // looks them up by id), so the landing copy gets its own
+    box.innerHTML = xhr.responseText
+      .replace(/wrap_project/g, 'landing_wrap')
+      .replace(/<img id="loader2"[^>]*>/, '');
+    // and its styles only apply inside #landing, so they can't leak into a
+    // project opened on top (About's bare h4{} centred every project title)
+    box.querySelectorAll('style').forEach(function(st) {
+      st.textContent = scopeCss(st.textContent, '#landing');
+    });
+    initRailsHero();
+    initProfileMotion();
+    requestAnimationFrame(function() {
+      var w = document.getElementById('landing_wrap');
+      if (w) w.classList.add('project-alt');
+    });
+  };
+  xhr.open('GET', '/projects/' + url + '/' + url + '.html?v=' + Date.now(), true);
+  xhr.send(null);
+}
+
+function hideLanding() {
+  if (!_landing) return;
+  _landing = null;
+  setActiveNav(null);
+  document.body.classList.remove('is-landing');
+  document.getElementById('landing').innerHTML = '';
+  _pendingScrambles.splice(0).forEach(function(p) { scrambleText(p[0], p[1]); });
+  // the grid was display:none, so masonry has nothing to go on until now
+  $('.work-grid').each(function() {
+    if ($(this).hasClass('masonry')) $(this).masonry('reload');
+  });
+}
+
+// url null = the homepage grid, which "Product work" stands for
+function setActiveNav(url) {
+  var qf = document.querySelector('#quick-filter .qf-btn');
+  if (qf) qf.classList.toggle('is-active', !url);
+  Object.keys(LANDINGS).forEach(function(k) {
+    var a = document.querySelector('#' + LANDINGS[k] + ' a');
+    if (!a) return;
+    a.classList.toggle('is-active', k === url);
+    if (k === url) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+}
+
+// Prefix every selector in a stylesheet with `scope` (html/body selectors keep
+// their place in front: html.dark .x → html.dark #landing .x). @media and
+// @supports are scoped inside; @keyframes / @font-face are left alone.
+function scopeCss(css, scope) {
+  css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  var out = '', i = 0;
+  while (i < css.length) {
+    var open = css.indexOf('{', i);
+    if (open < 0) break;
+    var head = css.slice(i, open).trim();
+    var depth = 1, j = open + 1;
+    while (j < css.length && depth) {
+      if (css[j] === '{') depth++;
+      else if (css[j] === '}') depth--;
+      j++;
+    }
+    var body = css.slice(open + 1, j - 1);
+    if (/^@(media|supports)/.test(head)) out += head + '{' + scopeCss(body, scope) + '}\n';
+    else if (head.charAt(0) === '@') out += head + '{' + body + '}\n';
+    else out += head.split(',').map(function(sel) {
+      sel = sel.trim();
+      var m = sel.match(/^((?:html|body)[\w.:#-]*)(?:\s+|$)/);
+      if (!m) return scope + ' ' + sel;
+      var rest = sel.slice(m[0].length);
+      return m[1] + ' ' + scope + (rest ? ' ' + rest : '');
+    }).join(', ') + '{' + body + '}\n';
+    i = j;
+  }
+  return out;
+}
+
+// While a project covers a landing page, its animation (initRailsHero) idles.
+// Flagged only once the overlay has fully revealed (circleReveal runs 0.9s).
+// The project's own unscoped styles can still reflow the page underneath, so
+// its scroll position is put back on the way out.
+var _landingCovered = false, _landingScroll = 0;
+function coverLanding(on) {
+  on = !!(on && _landing);
+  if (on === _landingCovered) return;
+  if (on) _landingScroll = window.scrollY;
+  _landingCovered = on;
+  if (!on) window.scrollTo(0, _landingScroll);
 }
 
 // ── Fixed-width project pages ──
@@ -2082,6 +2198,7 @@ function folioDone(target) {
     if (req.status == 200) {
       results = req.responseText;
       document.getElementById(target).innerHTML = results;
+      $("#" + target).fadeTo(300, 1);   // a swapped-in page starts at 0 (swapFolio)
       setTimeout(function() {
         $(".scroll").fadeIn();
       }, 100);
@@ -2098,7 +2215,6 @@ function folioDone(target) {
         initCompareExpand();
         initGifVideos();
         initInPageAnchors();
-        initMiniNav();
         initProfileMotion();
         initRailsHero();
         // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
@@ -2134,7 +2250,7 @@ function folioDone(target) {
 
       $("#content img").on("click", function(e) {
         // An image inside a link is part of that link (e.g. the thumbnail
-        // cards on the Claude Code page) — cancelling the click here killed
+        // cards on the AI page) — cancelling the click here killed
         // the link and only its text label stayed clickable. Let it through;
         // the link's own handler (initInPageAnchors) stops it closing the page.
         if (this.closest('a[href]')) return;
@@ -2166,13 +2282,13 @@ function folioDone(target) {
 
       $("#content").on("click", function(e) {
         if (window.getSelection && window.getSelection().toString()) return;
-        // Pages marked data-no-click-close (Claude Code) close on a click
+        // Pages marked data-no-click-close (AI, Memeo, …) close on a click
         // *outside* the content column, like every other project, but not on
         // one inside it (cards, links, gaps between paragraphs). The page's
         // own Close button relies on this handler too, so it always gets through.
         if (this.querySelector('[data-no-click-close]') &&
             !e.target.closest('.cta-close') &&
-            e.target.closest('.project-details, .page-title, .mini-nav')) return;
+            e.target.closest('.project-details, .page-title')) return;
         close();
       });
       $("body").on("mousemove", function(e) {
@@ -2190,6 +2306,9 @@ function folioDone(target) {
 }
 
 function close(clear = true) {
+  var open = document.getElementById('remove');
+  if (open) open.dataset.closing = '1';
+  coverLanding(false);   // before the overlay fades, so the page is back underneath
   if (clear) {
     var title = 'Angelo Wellens | Product Work';
     if (window.history.state) {

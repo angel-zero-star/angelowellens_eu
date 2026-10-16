@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Mortgage calculator</title>
+<style>
+
+#wrap_project {
+  margin-left: auto;
+  margin-right: auto;
+  width: 84%;
+  max-width: 1200px;
+  opacity: 0;
+  -webkit-transform: translate3d(0, 60px, 0);
+          transform: translate3d(0, 60px, 0);
+  -webkit-transition: all 0.85s ease-out;
+          transition: all 0.85s ease-out;
+  padding-bottom: 120px;
+  font-family: 'Inter', sans-serif;
+}
+
+.project-alt {
+  opacity: 1 !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0) !important;
+}
+
+/* ── Breakout: one class, consistent width + spacing for all media ── */
+.breakout {
+  display: block;
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+/* Inside .project-details (780px column) → expand to fill #wrap_project */
+.project-details .breakout {
+  width: 154%;
+  margin-left: -27%;
+}
+
+.project-hero-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.project-video-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+}
+
+video.project-video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* These play like GIFs: hide any native overlay the browser adds anyway
+   (Safari's big play button when autoplay is held back, e.g. Low Power Mode). */
+video.project-video::-webkit-media-controls,
+video.project-video::-webkit-media-controls-start-playback-button,
+video.project-video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+.project-details {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  align-items: center;
+}
+
+.project-details h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  float: none;
+  position: static;
+  color: #191919;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+}
+
+.project-description {
+  font-size: 22px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  color: #191919;
+}
+
+.project-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.info-block h4 {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-content {
+  font-size: 15px;
+  line-height: 26px;
+  color: #191919;
+}
+
+.info-content p { margin: 0; }
+
+.info-content a {
+  color: #191919;
+  text-decoration: none;
+  border-bottom: 1px solid #191919;
+  transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+  margin-bottom: 44px;
+}
+
+.project-section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  position: static;
+  color: #191919;
+}
+
+.project-section p {
+  font-size: 18px;
+  line-height: 29px;
+  text-align: left;
+  color: #3d3d3d;
+  margin: 0 0 14px;
+}
+
+/* The three tool sections are jump targets from the thumbnails below;
+   offset the scroll stop so the sticky #filter-bar (~76px) doesn't cover
+   the heading. */
+#mortgage, #flashcards, #schools {
+  scroll-margin-top: 100px;
+}
+
+.page-title {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 14%;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.page-title h4 {
+  font-family: 'Inter', sans-serif;
+  color: #3c3c3c;
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.1;
+  text-decoration: none;
+  position: static;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0 0 20px;
+}
+
+.page-title .project-meta {
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+/* ── Scroll reveal (same as Atlas / Parco) ── initReveal() in angelo.js
+   tags sections (or their children, for tall ones) with .reveal and adds
+   .revealed as they scroll into view; without these rules nothing moved. */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Extra top margin for a section-level subhead, same pattern as Atlas's
+   "Part one" / "Part two" dividers — used here since every subhead in this
+   section (Offers, Estimation calculator, …) is its own top-level break,
+   not a minor heading nested under something bigger. */
+.case-study-subhead.case-study-part {
+  /* the caption above already leaves 24px, so this lands at ~64px total */
+  margin-top: 40px;
+}
+
+.code-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0 8px;
+}
+
+/* Phones in a row, same pattern as Parco's .phones-row — sized for three
+   screens instead of Parco's two (44% each), so the percentage per phone
+   and the gap are smaller here to still fit three across. */
+.phones-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+/* Four equal columns filling the (breakout) row, 15px apart */
+.phones-row img {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+/* Phones: two per row instead of one tall stack */
+@media screen and (max-width: 800px) {
+  .phones-row { flex-wrap: wrap; }
+  .phones-row img { flex: 0 0 calc(50% - 7.5px); }
+}
+
+/* Two screenshots side by side at their own natural aspect ratio, no
+   letterboxing — unlike .code-grid, these two aren't the same shape (a wide
+   table next to a narrow list), so forcing one ratio on both would just
+   shrink the narrow one down to nothing. */
+.design-grid {
+  display: grid;
+  /* Both screenshots are 958px tall at their native size, but very
+     different widths (a wide table vs. a narrow list) — sizing columns by
+     their actual pixel widths (not an even 1fr 1fr) means each image lands
+     at that same shared height once scaled, with no cropping or letterbox
+     needed. */
+  grid-template-columns: 1522fr 472fr;
+  gap: 24px;
+  align-items: start;
+  margin: 24px 0 8px;
+}
+
+.design-grid img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+@media screen and (max-width: 760px) {
+  .design-grid { grid-template-columns: 1fr; }
+}
+
+/* Two same-size store screenshots side by side */
+.store-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0 8px;
+}
+.store-grid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* The Google Play shot is white to its edges; a thin grey line keeps it
+   from bleeding into the page. */
+.store-grid img.store-outlined {
+  border: 1px solid #d6d6d6;
+  box-sizing: border-box;
+}
+html.dark .store-grid img.store-outlined { border-color: #3a3a3a; }
+/* the Offers demo is mostly white UI, so it gets an edge like the store shots */
+.project-video-wrap.video-outlined { border: 1px solid #d6d6d6; }
+html.dark .project-video-wrap.video-outlined { border-color: #3a3a3a; }
+@media screen and (max-width: 760px) {
+  .store-grid { grid-template-columns: 1fr; }
+}
+
+.code-grid img {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  /* Match the taller screenshot's ratio so both cards land at the same
+     height; the shorter one letterboxes on the editor's own dark background
+     instead of stretching or cropping code out of frame. */
+  aspect-ratio: 1470 / 800;
+  object-fit: contain;
+  background: #141414;
+}
+
+/* Smooth-scroll only within the actual scroll container (#content is
+   position:fixed / overflow-y:scroll; html/body don't scroll on project
+   pages), and only when the visitor hasn't asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  #content { scroll-behavior: smooth; }
+}
+
+/* Only clicks outside the content column close this page (data-no-click-close
+   on #wrap_project), so the site's "close" X cursor only shows out there. */
+#content .project-details, #content .page-title { cursor: auto; }
+
+@media screen and (max-width: 800px) {
+  .project-info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media screen and (max-width: 760px) {
+  /* no room to break out of the column on phones (same rule as Parco) */
+  .project-details .breakout {
+    width: 100%;
+    margin-left: 0;
+  }
+  .project-info-grid { grid-template-columns: 1fr; }
+  .code-grid { grid-template-columns: 1fr; }
+}
+
+html.dark .page-title h4 { color: #ececec; }
+html.dark .project-tag { background: #222; color: #8a8a8a; }
+html.dark .project-description { color: #ececec; }
+html.dark .project-section h2 { color: #ececec; }
+html.dark .project-section p { color: #c4c4c4; }
+
+</style>
+</head>
+<body>
+
+<div class="page-title" id="top">
+  <h4>Mortgage calculator</h4>
+  <div class="project-meta">
+    <span class="project-tag">Web app</span>
+    <span class="project-tag">AI workflows</span>
+    <span class="project-tag">Personal project</span>
+    <span class="project-tag">2026</span>
+  </div>
+</div>
+<img id="loader2" src="loading_good.gif" width="auto" height="auto" />
+
+<div id="wrap_project" data-no-click-close>
+
+  <div class="project-details">
+
+    <p class="project-description">Buying a house in Portugal means a broker's spreadsheet, ten banks moving at different speeds, and a layer of taxes and fees that is rarely explained in English. I built a dashboard with Claude Code to bring it all into one place.</p>
+
+    <div class="project-info-grid">
+      <div class="info-block">
+        <h4>Role</h4>
+        <div class="info-content">
+          <p>Design &amp; development</p>
+          <p>Personal project</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Built with</h4>
+        <div class="info-content">
+          <p>Claude Code</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <h4>Links</h4>
+        <div class="info-content">
+          <p><a href="https://angel-zero-star.github.io/mortgage-radar/" target="_blank">Mortgage calculator ↗</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-section">
+      <p>The first step was structure. Emails, offers, appointment notes and broker messages became one consistent schema, and Portugal's lending rules, such as the Banco de Portugal debt-to-income stress test, became code, so every offer is assessed the same way.</p>
+
+      <div class="code-grid breakout" style="margin-top:24px; margin-bottom:8px;">
+        <div>
+          <img src="projects/claude_code/assets/mortgage_code_banks.png?v=1" alt="A BANKS object in code: each bank's loan-to-value, term, rates, insurance and fees as one typed entry" />
+          <p class="img-caption">Each bank's offer as one structured entry</p>
+        </div>
+        <div>
+          <img src="projects/claude_code/assets/mortgage_code_incomecap.png?v=1" alt="Code implementing the Banco de Portugal debt-to-income stress test rule" />
+          <p class="img-caption">The regulator's lending rule, written as code</p>
+        </div>
+      </div>
+
+      <h4 class="case-study-subhead case-study-part">Offers</h4>
+
+      <p>The broker's comparison is re-priced against the house price and down payment I set. Each row is colour-coded, green for the best value and yellow-green for close behind, so the strongest offer stands out without reading every column.</p>
+
+      <div class="project-video-wrap video-outlined" style="margin: 24px 0 8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback poster="projects/claude_code/assets/mortgage_offers_poster.jpg?v=1">
+          <source src="projects/claude_code/assets/mortgage_offers_demo.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Every offer re-priced for the same house: cheapest per month against cheapest overall, with the best value on each row in green</p>
+
+      <h4 class="case-study-subhead case-study-part">Estimation calculator</h4>
+      <p>Using the offers and each bank's own lending rules, the calculator shows what is realistically within reach as you adjust house price, down payment and annual income.</p>
+
+      <div class="project-video-wrap" style="margin: 24px 0 8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/mortgage_demo_2.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Adjust income, price or down payment to see what it takes, and what it costs</p>
+
+      <h4 class="case-study-subhead case-study-part">Costs and timeline</h4>
+      <p>A full breakdown of the mortgage and every fee on top of it, alongside a timeline of when each payment falls due.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_cashflow.png?v=1" alt="Upfront costs, monthly payment breakdown and a timeline of when each payment is due" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Cash needed for the deal, the monthly payment, and when each amount is due</p>
+
+      <h4 class="case-study-subhead case-study-part">Buy vs rent</h4>
+      <p>A sanity check on the whole decision: over a given time horizon, does buying actually beat renting?</p>
+
+      <div class="project-video-wrap" style="margin: 24px 0 8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
+          <source src="projects/claude_code/assets/mortgage_demo_1.mp4?v=1" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Adjust rent, time horizon and growth assumptions to see which option comes out ahead</p>
+
+      <h4 class="case-study-subhead case-study-part">Status by bank</h4>
+      <p>An overview of where each application stands, and the next step with every bank.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_status.png?v=1" alt="Application status for ten banks with the next step for each" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Ten banks in one table: the stage each application has reached and what comes next</p>
+
+      <h4 class="case-study-subhead case-study-part">Deal roadmap</h4>
+      <p>Every step from choosing a house to getting the keys, with typical timings, so nothing in the process comes as a surprise.</p>
+
+      <img class="project-hero-img" src="projects/claude_code/assets/mortgage_roadmap.png?v=1" alt="Numbered roadmap from offer and reservation through valuation to final approval" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">The route from offer to keys, with typical timings for each step</p>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
+
+</body>
+</html>

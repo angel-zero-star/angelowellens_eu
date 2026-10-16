@@ -67,11 +67,11 @@ h4 {
 	margin-top: 20%;
 	color: #3c3c3c;
 	font-size: clamp(2.2rem, 11vw, 4rem);
-	text-align: center;
+	text-align: left;   /* lines up with the text column below */
 	font-style: normal;
 	font-weight: 400;
 	line-height: 100%;
-	padding: 0 24px;
+	padding: 0;
 	box-sizing: border-box;
 }
 
@@ -89,9 +89,11 @@ h4 {
 	font-weight: 700;
 	line-height: 100%;
 }
+/* same column as #wrap_project, so the title starts where the text does */
 .center{
-	width: 100%;
-	float: left;
+	width: 84%;
+	max-width: 940px;
+	margin: 0 auto;
 }
 
 /* About / Contact / Languages / Tools: heading left, content right. */

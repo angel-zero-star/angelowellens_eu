@@ -201,6 +201,15 @@ body {
 #about svg, #ai-link svg, #cv-link svg { flex-shrink: 0; }
 #about svg, #cv-link svg { width: 16px; height: 16px; }
 #ai-link .ai-spark { fill: currentColor; width: 18px; height: 16px; }
+/* selected: AI and About me are pages of their own (showLanding in angelo.js) */
+#about a.is-active, #ai-link a.is-active { background: #191919; border-color: #191919; color: #fff; }
+#about a.is-active:hover, #ai-link a.is-active:hover { border-color: #191919; }
+
+/* a landing page replaces the homepage intro and grid under the header */
+body.is-landing .top, body.is-landing #work { display: none; }
+#landing:empty { display: none; }
+#landing .cta-close, #landing #landing_wrap4 { display: none; }
+#landing_wrap:after { content: ''; display: table; clear: both; }
 
 /* phones: no room for the labelled pills, so About, AI and CV drop their
    labels and become 40px circles */
@@ -210,14 +219,18 @@ body {
 	/* five controls share the bar — tighten so the filter pill clears the logo */
 	#filter-bar .fb-left { flex-shrink: 0; }
 	#filter-bar .fb-actions { gap: 4px; }
-	#filter-bar .qf-btn { height: 40px; padding: 0 12px; gap: 6px; font-size: 12px; }
+	#filter-bar .qf-btn { height: 40px; font-size: 12px; }
+	#filter-bar .qf-main { padding: 0 9px 0 12px; }
+	#filter-bar .qf-toggle { padding: 0 11px 0 8px; }
 }
 /* small phones (up to 400px): 36px circles, a smaller logo and the tightest
    pill, so all five controls still clear the logo */
 @media (max-width: 400px) {
 	#about a, #ai-link a, #cv-link a { width: 36px; height: 36px; }
 	#filter-bar .fb-actions { gap: 3px; }
-	#filter-bar .qf-btn { height: 36px; padding: 0 10px; gap: 4px; font-size: 11px; }
+	#filter-bar .qf-btn { height: 36px; font-size: 11px; }
+	#filter-bar .qf-main { padding: 0 6px 0 10px; }
+	#filter-bar .qf-toggle { padding: 0 8px 0 6px; }
 	#filter-bar .fb-logo svg { width: 32px; height: 26px; }
 }
 
@@ -904,12 +917,14 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
 	z-index: 5;
 }
 
+/* split button: label (go to the work grid) | arrow (open the menu) */
 .qf-btn {
 	display: flex;
-	align-items: center;
-	gap: 10px;
+	align-items: stretch;
 	height: 44px;
-	padding: 0 16px;
+	padding: 0;
+	box-sizing: border-box;
+	overflow: hidden;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 22px;
 	background: #fff;
@@ -922,9 +937,29 @@ html.dark .kbd-tip kbd { color: #191919; background: rgba(0,0,0,0.07); border-co
 }
 
 .qf-btn:hover { border-color: rgba(0,0,0,0.3); transform: scale(1.08); }
-.qf-btn:focus-visible { outline: 2px solid #191919; outline-offset: 2px; }
+.qf-main, .qf-toggle {
+	display: flex;
+	align-items: center;
+	margin: 0;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+.qf-main { padding: 0 12px 0 16px; }
+.qf-toggle { padding: 0 14px 0 11px; border-left: 1px solid rgba(0,0,0,0.1); }
+.qf-main:hover, .qf-toggle:hover { background-color: rgba(0,0,0,0.04); }
+.qf-main:focus-visible, .qf-toggle:focus-visible { outline: 2px solid #191919; outline-offset: -4px; border-radius: 18px; }
 .qf-btn svg { flex-shrink: 0; transition: transform 0.2s ease; color: #666; }
 .quick-filter.is-open .qf-btn svg { transform: rotate(180deg); }
+/* selected while the homepage grid is showing, like the AI / About me pills */
+.qf-btn.is-active { background-color: #191919; border-color: #191919; color: #fff; }
+.qf-btn.is-active:hover { border-color: #191919; }
+.qf-btn.is-active svg { color: rgba(255,255,255,0.7); }
+.qf-btn.is-active .qf-toggle { border-left-color: rgba(255,255,255,0.22); }
+.qf-btn.is-active .qf-main:hover, .qf-btn.is-active .qf-toggle:hover { background-color: rgba(255,255,255,0.1); }
 
 .qf-menu {
 	position: absolute;
@@ -1909,9 +1944,16 @@ html.dark #intro a:after { border-bottom-color: #ececec; }
 html.dark .qf-btn { background-color: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
 html.dark .qf-btn:hover { border-color: rgba(255,255,255,0.4); }
 html.dark .qf-btn svg { color: #a3a3a3; }
+html.dark .qf-btn.is-active { background-color: #ececec; border-color: #ececec; color: #121212; }
+html.dark .qf-btn.is-active svg { color: rgba(0,0,0,0.6); }
+html.dark .qf-toggle { border-left-color: rgba(255,255,255,0.16); }
+html.dark .qf-main:hover, html.dark .qf-toggle:hover { background-color: rgba(255,255,255,0.06); }
+html.dark .qf-btn.is-active .qf-toggle { border-left-color: rgba(0,0,0,0.15); }
+html.dark .qf-btn.is-active .qf-main:hover, html.dark .qf-btn.is-active .qf-toggle:hover { background-color: rgba(0,0,0,0.06); }
 html.dark #about a, html.dark #ai-link a, html.dark #cv-link a { background: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
 html.dark #about a:hover, html.dark #ai-link a:hover, html.dark #cv-link a:hover { border-color: rgba(255,255,255,0.4); }
 html.dark #about a:focus-visible, html.dark #ai-link a:focus-visible, html.dark #cv-link a:focus-visible { outline-color: #ececec; }
+html.dark #about a.is-active, html.dark #ai-link a.is-active { background: #ececec; border-color: #ececec; color: #121212; }
 html.dark .qf-menu { background: #1c1c1c; border-color: rgba(255,255,255,0.14); box-shadow: 0 12px 28px rgba(0,0,0,0.4); }
 html.dark .qf-option { color: #a3a3a3; }
 html.dark .qf-option:hover { background: #2a2a2a; }

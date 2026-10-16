@@ -68,6 +68,16 @@ rows = '\n'.join(f'''      <div class="about-row">
         </div>
       </div>''' for ic,h,d,t in steps)
 
+tools_built = [
+ ('memeo', 'flashcards_thumb.png?v=1', 'Memeo'),
+ ('mortgage_radar', 'mortgage_offers.png?v=2', 'Mortgage calculator'),
+ ('escolas', 'schools_thumb.png?v=2', 'Escolas do Porto'),
+]
+cards = '\n'.join(f'''        <a class="tool-card" href="{slug}.html" onclick="folio('{slug}', 'content'); return false;">
+          <span class="tool-card-thumb"><img src="projects/claude_code/assets/{img}" alt="" /></span>
+          <span class="tool-card-label">{label}</span>
+        </a>''' for slug, img, label in tools_built)
+
 html = f'''<!DOCTYPE html>
 <html>
 <head>
@@ -103,7 +113,7 @@ html = f'''<!DOCTYPE html>
   height: 100vh;
   height: 100svh;
   min-height: 560px;
-  background: #000;
+  background: #fff;   /* the canvas fades into white in light mode, black in dark */
   -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
           mask-image: linear-gradient(to bottom, #000 75%, transparent);
 }}
@@ -128,17 +138,18 @@ html = f'''<!DOCTYPE html>
 }}
 
 .page-title {{
+  width: 84%;
   max-width: 940px;
   margin: 0 auto;
-  text-align: center;
-  padding: 20% 24px 60px;
+  text-align: left;
+  padding: 0 0 60px;
   box-sizing: border-box;
 }}
 .page-title h4 {{
   font-family: 'Inter', sans-serif;
   color: #3c3c3c;
   font-size: clamp(2.2rem, 11vw, 4rem);
-  text-align: center;   /* the shared sheet sets h4 to left */
+  text-align: left;   /* lines up with the text column below */
   font-style: normal;
   font-weight: 400;
   line-height: 100%;
@@ -146,7 +157,7 @@ html = f'''<!DOCTYPE html>
   position: static;
   letter-spacing: normal;
   text-transform: none;
-  margin: 0;
+  margin: 20% 0 0;   /* same as the About title: 20% of the text column */
 }}
 
 .project-details {{
@@ -162,7 +173,8 @@ html = f'''<!DOCTYPE html>
 .project-note {{
   font-size: 15px;
   line-height: 24px;
-  color: #8a8a8a;
+  font-weight: 500;
+  color: #3d3d3d;   /* sits over the hero graphic, so body-copy contrast, not muted grey */
   margin: 24px 0 0;
 }}
 
@@ -244,15 +256,63 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   color: #8a8a8a;
 }}
 
+/* ── Built with Claude Code: thumbnails that open each tool's own page
+   on top of this page; closing it comes back here ── */
+.tool-grid {{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 32px;
+}}
+.tool-card {{
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+}}
+.tool-card:after, .tool-card:hover:after {{ display: none; }}
+.tool-card-thumb {{
+  display: block;
+  background: #ddd;
+  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}}
+.tool-card-thumb img {{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s;
+}}
+.tool-card:hover .tool-card-thumb img {{ opacity: 0.85; }}
+.tool-card:focus-visible {{
+  outline: 2px solid #191919;
+  outline-offset: 4px;
+}}
+.tool-card-label {{
+  display: block;
+  margin-top: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #191919;
+  text-align: center;
+}}
+#content .tool-card, #content .tool-card img {{ cursor: pointer; }}
+
 #content .project-details, #content .page-title {{ cursor: auto; }}
 
 @media screen and (max-width: 760px) {{
   .about-row {{ grid-template-columns: 1fr; gap: 12px; padding: 32px 0; }}
+  .tool-grid {{ grid-template-columns: 1fr; }}
   .project-section {{ margin-top: 80px; }}
 }}
 
+html.dark .ai-hero {{ background: #000; }}
 html.dark .page-title h4 {{ color: #ececec; }}
 html.dark .project-description {{ color: #ececec; }}
+html.dark .project-note {{ color: #c4c4c4; }}
 html.dark .project-section > h2 {{ color: #ececec; }}
 html.dark .project-section > p,
 html.dark .about-row-body p {{ color: #c4c4c4; }}
@@ -261,6 +321,9 @@ html.dark #wrap_project .about-row h2 {{ color: #ececec; }}
 html.dark .about-row {{ border-top-color: rgba(255, 255, 255, 0.12); }}
 html.dark .ai-tile-dark {{ border: 1px solid rgba(255,255,255,0.16); }}
 html.dark .ai-tile-light {{ border-color: transparent; }}
+html.dark .tool-card-label {{ color: #ececec; }}
+html.dark .tool-card-thumb {{ background: #262626; }}
+html.dark .tool-card:focus-visible {{ outline-color: #ececec; }}
 
 </style>
 </head>
@@ -278,7 +341,15 @@ html.dark .ai-tile-light {{ border-color: transparent; }}
 
     <p class="project-description">AI has changed how I design and build. I still lead with the problem, the user and the details, but I can now take an idea <strong>from first sketch to a launched product</strong> on my own.</p>
     <p class="project-description">Here's how AI fits into each stage of my workflow.</p>
-    <p class="project-note">This portfolio was built with AI.</p>
+    <p class="project-note">This portfolio and the projects on this page were built entirely with AI.</p>
+
+    <div class="project-section">
+      <h2>Built with Claude Code</h2>
+      <p>When I moved to Porto, I used Claude Code to build small tools for settling in: learning Portuguese, understanding what a mortgage really costs, and finding a home near a good school.</p>
+      <div class="tool-grid">
+{cards}
+      </div>
+    </div>
 
     <div class="project-section">
       <h2>AI-native workflow</h2>
