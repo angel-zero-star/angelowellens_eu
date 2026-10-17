@@ -75,7 +75,7 @@ tools_built = [
 ]
 cards = '\n'.join(f'''        <a class="tool-card" href="{slug}.html" onclick="folio('{slug}', 'content'); return false;">
           <span class="tool-card-thumb"><img src="projects/claude_code/assets/{img}" alt="" /></span>
-          <span class="tool-card-label">{label}</span>
+          <span class="tool-card-label"><span>{label}</span></span>
         </a>''' for slug, img, label in tools_built)
 
 html = f'''<!DOCTYPE html>
@@ -277,27 +277,66 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   border-radius: 12px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
+  position: relative;
+  transform: translateZ(0);   /* keeps the radius clipping the zoomed image in Safari */
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }}
 .tool-card-thumb img {{
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.2s;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }}
-.tool-card:hover .tool-card-thumb img {{ opacity: 0.85; }}
+/* Border + light white wash, both faded in on hover */
+.tool-card-thumb:after {{
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0);
+  pointer-events: none;
+  transition: background 0.4s, border-color 0.4s;
+}}
+/* Hover: the card lifts onto a soft shadow, the screenshot drifts in a
+   touch, and an arrow slides in after the label */
+@media (hover: hover) {{
+  .tool-card:hover .tool-card-thumb {{
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,0.22);
+  }}
+  .tool-card:hover .tool-card-thumb img {{ transform: scale(1.04); }}
+  .tool-card:hover .tool-card-thumb:after {{
+    border-color: #d6d6d6;
+    background: rgba(255,255,255,0.15);
+  }}
+  .tool-card:hover .tool-card-label > span:after {{ opacity: 1; transform: translateX(0); }}
+}}
 .tool-card:focus-visible {{
   outline: 2px solid #191919;
   outline-offset: 4px;
 }}
 .tool-card-label {{
   display: block;
-  margin-top: 12px;
+  margin-top: 14px;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
   font-weight: 500;
   color: #191919;
   text-align: center;
+}}
+/* Arrow hangs off the right of the text, so the label stays centred */
+.tool-card-label > span {{ position: relative; }}
+.tool-card-label > span:after {{
+  content: '→';
+  position: absolute;
+  left: 100%;
+  margin-left: 6px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.3s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }}
 #content .tool-card, #content .tool-card img {{ cursor: pointer; }}
 
@@ -323,6 +362,10 @@ html.dark .ai-tile-dark {{ border: 1px solid rgba(255,255,255,0.16); }}
 html.dark .ai-tile-light {{ border-color: transparent; }}
 html.dark .tool-card-label {{ color: #ececec; }}
 html.dark .tool-card-thumb {{ background: #262626; }}
+@media (hover: hover) {{
+  html.dark .tool-card:hover .tool-card-thumb {{ box-shadow: 0 18px 40px -12px rgba(0,0,0,0.7); }}
+  html.dark .tool-card:hover .tool-card-thumb:after {{ border-color: #3a3a3a; background: rgba(0,0,0,0.15); }}
+}}
 html.dark .tool-card:focus-visible {{ outline-color: #ececec; }}
 
 </style>
