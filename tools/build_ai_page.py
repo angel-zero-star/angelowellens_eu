@@ -71,7 +71,7 @@ rows = '\n'.join(f'''      <div class="about-row">
 tools_built = [
  ('memeo', 'flashcards_thumb.png?v=1', 'Memeo'),
  ('mortgage_radar', 'mortgage_offers.png?v=2', 'Mortgage calculator'),
- ('escolas', 'schools_thumb.png?v=2', 'Escolas do Porto'),
+ ('escolas', 'schools_thumb.png?v=3', 'Escolas do Porto'),
 ]
 cards = '\n'.join(f'''        <a class="tool-card" href="{slug}.html" onclick="folio('{slug}', 'content'); return false;">
           <span class="tool-card-thumb"><img src="projects/claude_code/assets/{img}" alt="" /></span>
