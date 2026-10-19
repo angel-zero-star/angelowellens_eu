@@ -69,8 +69,8 @@ rows = '\n'.join(f'''      <div class="about-row">
       </div>''' for ic,h,d,t in steps)
 
 tools_built = [
- ('memeo', 'flashcards_thumb.png?v=1', 'Memeo'),
  ('mortgage_radar', 'mortgage_offers.png?v=2', 'Mortgage calculator'),
+ ('memeo', 'flashcards_thumb.png?v=1', 'Memeo'),
  ('escolas', 'schools_thumb.png?v=3', 'Escolas do Porto'),
 ]
 cards = '\n'.join(f'''        <a class="tool-card" href="{slug}.html" onclick="folio('{slug}', 'content'); return false;">
