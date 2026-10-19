@@ -147,7 +147,7 @@ html = f'''<!DOCTYPE html>
 }}
 .page-title h4 {{
   font-family: 'Inter', sans-serif;
-  color: #3c3c3c;
+  color: #191919;
   font-size: clamp(2.2rem, 11vw, 4rem);
   text-align: left;   /* lines up with the text column below */
   font-style: normal;
@@ -237,7 +237,7 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   font-size: 20px;
   font-weight: 700;
   line-height: 1.3;
-  color: #3c3c3c;
+  color: #191919;
   margin: 0;
   float: none;
   text-decoration: none;
