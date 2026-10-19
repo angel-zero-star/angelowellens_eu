@@ -392,22 +392,39 @@ html.dark .project-section p { color: #c4c4c4; }
     </div>
 
     <div class="project-section">
-      <p>Whenever a promising listing came up, we pasted in the address and could immediately see which schools served it and whether the area met our criteria.</p>
+      <p>Whenever a promising listing came up, we typed in the street and could immediately see which school served it, how good that school is, and how long the trip would take by bike, on foot or by car.</p>
 
       <div class="project-video-wrap breakout" style="margin-top:24px; margin-bottom:8px;">
-        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback>
-          <source src="projects/claude_code/assets/schools_demo.mp4?v=2" type="video/mp4">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback poster="projects/claude_code/assets/escolas_search.jpg?v=3">
+          <source src="projects/claude_code/assets/escolas_search.mp4?v=3" type="video/mp4">
         </video>
       </div>
-      <p class="img-caption">Paste in an address to see the schools nearby and how each one ranks</p>
-
+      <p class="img-caption">Type an address: the pin drops on the house, its four signals appear, and the schools nearby are listed with route times and scores</p>
       <p>Our criteria were distance to a good school, to the beach and to Porto, and access to public transport. Each has an adjustable tolerance, so we could tighten or relax them until the best areas stood out.</p>
 
       <p>The order is deliberate: school first, then the beach. A zone with a strong school and a distant beach still ranks above an average school by the sea. Train access and the drive to Porto appear as supporting hints rather than changing the colour.</p>
-      <p>Rankings come from Público's national table of 9th-grade exam results. Because a school can move a hundred places in a single year, the map uses the weaker of the last two results. It also only counts the school a zone is actually assigned to, which reflects how enrolment works in Portugal. Every zone links directly to the homes for sale within it.</p>
 
-      <img class="project-hero-img" src="projects/claude_code/assets/schools_zone.png?v=2" alt="Zone detail for Silvalde, Espinho: school ranking, minutes to the beach, the train station and Porto, and the nearby private schools" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
-      <p class="img-caption">One zone in detail: its schools and rankings, the nearest beach and station, and the drive into Porto</p>
+      <div class="project-video-wrap breakout" style="margin-top:24px; margin-bottom:8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback poster="projects/claude_code/assets/escolas_thresholds.jpg?v=3">
+          <source src="projects/claude_code/assets/escolas_thresholds.mp4?v=3" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Moving a threshold recolours the map; “Public only” ignores private schools and shows how many zones drop</p>
+    </div>
+
+    <div class="project-section">
+      <h2 class="case-study-subhead case-study-part">Schools nearby</h2>
+      <p>For an address, the map lists the closest schools with real route times by bike, on foot or by car, and a public transport link for each. The public school the address is assigned to always comes first, because that is where a child gets enrolment priority.</p>
+      <p>Every Portuguese-curriculum school, public or private, gets one score from 1 to 10 based on where it stands in Público's national exam ranking. A school can move a hundred places in a single year, so the score uses the weaker of the last two results. International schools sit different exams, so instead of a number they show what they are recognised by, such as IB, Cambridge or the German schools-abroad network, and any results they publish.</p>
+
+      <p>For public schools the map only counts the one a zone is actually assigned to, which reflects how enrolment works in Portugal. By default a strong private school nearby counts too; “Public only” switches that off. Every zone links directly to the homes for sale within it.</p>
+
+      <div class="project-video-wrap breakout" style="margin-top:24px; margin-bottom:8px;">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback poster="projects/claude_code/assets/escolas_layers.jpg?v=3">
+          <source src="projects/claude_code/assets/escolas_layers.mp4?v=3" type="video/mp4">
+        </video>
+      </div>
+      <p class="img-caption">Layers for each school type, and every zone in one table, sortable by any signal</p>
     </div>
 
   </div>
