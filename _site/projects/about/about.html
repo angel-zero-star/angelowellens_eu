@@ -264,6 +264,139 @@ html.dark #links { border-top-color: rgba(255,255,255,0.35); }
 	}
 }
 
+/* ── Process carousel (a real horizontal scroller, not a pinned vertical
+   hijack) ── */
+/* Full-bleed so peeking neighbours extend to the screen edges, but the active
+   image + caption stay sized/aligned to the content column. */
+.process-stack {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 8px;                  /* sits right under the Design process row */
+  margin-bottom: 40px;
+}
+
+.stack-pin {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.stack-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  /* No scroll-snap-type here on purpose: positioning is fully custom in JS
+     (breakout-aligned, not centered — see targetLeft() in initProcessStack),
+     and the browser's own snap enforcement was fighting that. Confirmed by
+     measurement: a rapid second click could settle the scroll at exactly
+     what scroll-snap-align:center would compute (viewport-centered) instead
+     of the JS target, ~200px off from the intended alignment. */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;            /* the arrows are the visible control */
+}
+.stack-viewport::-webkit-scrollbar { display: none; }
+
+.stack-track {
+  position: relative;
+  display: flex;
+  gap: 26px;
+}
+
+.stack-card {
+  flex: 0 0 auto;
+  /* width set by JS = 82% of the content column (same size as before) */
+  opacity: 0.4;
+  transition: opacity 0.45s ease;
+}
+
+.stack-card.active { opacity: 1; }
+
+.stack-card-img {
+  border-radius: 20px;
+  overflow: hidden;
+}
+.stack-card img { width: 100%; height: auto; display: block; }
+
+.stack-card-caption {
+  margin-top: 18px;
+  font-size: 16px;
+  line-height: 26px;
+  color: #3d3d3d;
+}
+.stack-card-caption strong { color: #191919; }
+
+html.dark .stack-card-caption { color: #c4c4c4; }
+html.dark .stack-card-caption strong { color: #ececec; }
+html.dark .compare-item .compare-caption { color: #999; }
+
+.stack-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+}
+.stack-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 34px;
+  border-radius: 999px;
+  background: #f0f0f0;
+}
+.stack-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #c2c2c2;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+.stack-dot.active {
+  width: 20px;
+  background: #191919;
+}
+html.dark .stack-dots { background: #2a2a2a; }
+html.dark .stack-dot { background: #5c5c5c; }
+html.dark .stack-dot.active { background: #fff; }
+.stack-arrows {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+/* Filled, not outlined: a thin-bordered white circle read fine in dark mode
+   purely by accident (it happened to contrast against the dark page), but
+   was nearly invisible white-on-white in light mode. Both modes now get a
+   deliberate filled circle instead — dark-on-light here, and the reverse
+   (formalized, not accidental) below. The icon uses currentColor so it
+   follows suit as color/background swap per mode. */
+.stack-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #191919;
+  background: #191919;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.stack-arrow:hover { background: #333; border-color: #333; }
+.stack-arrow:disabled { background: #e2e2e2; border-color: #e2e2e2; color: #999; opacity: 1; cursor: default; }
+.stack-arrow svg { display: block; }
+
+html.dark .stack-arrow { background: #fff; border-color: #fff; color: #191919; }
+html.dark .stack-arrow:hover { background: #d8d8d8; border-color: #d8d8d8; }
+html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; color: #888; }
+
 </STYLE>
 
 </head>
@@ -326,6 +459,53 @@ html.dark #links { border-top-color: rgba(255,255,255,0.35); }
 						<p class="about-dim">Jira, Notion, Slack, Miro, FigJam</p>
 					</div>
 				</div>
+
+				<div class="about-row">
+					<h2>Design process</h2>
+					<div class="about-row-body">
+						<p>I start close to the people who'll use the product: their pressures, their workarounds, the moments where things go wrong. That research becomes one clear problem the whole team agrees on before any screens exist. Then it's structure and flows first, wireframes second, and prototypes tested with real users last, with design reviews along the way so decisions get made once and stick. The shape changes with every team and product; the order rarely does.</p>
+					</div>
+				</div>
+
+	    <div class="process-stack">
+	      <div class="stack-pin">
+	        <div class="stack-viewport">
+	          <div class="stack-track">
+	            <div class="stack-card active" data-n="0">
+	              <div class="stack-card-img"><img src="/projects/atlas/assets/process_1.png" alt=""></div>
+	              <div class="stack-card-caption"><strong>Discover / Empathize.</strong> Getting close to the people who'd use it: empathy mapping to understand the real pressures, workflows and user journey behind the problem.</div>
+	            </div>
+	            <div class="stack-card" data-n="1">
+	              <div class="stack-card-img"><img src="/projects/atlas/assets/process_2.png" alt=""></div>
+	              <div class="stack-card-caption"><strong>Define.</strong> Organizing that research into a clear problem statement, then narrowing and prioritizing features and defining requirements, so the whole team was solving the same problem.</div>
+	            </div>
+	            <div class="stack-card" data-n="2">
+	              <div class="stack-card-img"><img src="/projects/atlas/assets/process_3.png" alt=""></div>
+	              <div class="stack-card-caption"><strong>Develop.</strong> Shaping the information architecture and user flows: an end-to-end service blueprint connecting roles, data and touchpoints across the whole system.</div>
+	            </div>
+	            <div class="stack-card" data-n="3">
+	              <div class="stack-card-img"><img src="/projects/atlas/assets/process_4.png" alt=""></div>
+	              <div class="stack-card-caption"><strong>Iterate.</strong> Wireframing early ideas, then iterating on flows and layout through ongoing feedback and design reviews.</div>
+	            </div>
+	            <div class="stack-card" data-n="4">
+	              <div class="stack-card-img"><img src="/projects/atlas/assets/process_5.png" alt=""></div>
+	              <div class="stack-card-caption"><strong>Deliver.</strong> Creating prototypes and testing ideas with users, making adjustments through live design reviews, finalizing decisions before each release.</div>
+	            </div>
+	          </div>
+	        </div>
+	        <div class="stack-footer">
+	          <div class="stack-dots"></div>
+	          <div class="stack-arrows">
+	            <button class="stack-arrow stack-prev" type="button" aria-label="Previous">
+	              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+	            </button>
+	            <button class="stack-arrow stack-next" type="button" aria-label="Next">
+	              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+	            </button>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
 
 	  <!-- specialised in design . concept . motion . direction. with a love for digital and innovative technologies. Crafter of interactive experiences, creating high quality work with the eye for detail, as well online as offline. I'm not afraid of a challenge, I like pushing boundaries and love working with talented people. I'm always looking for exciting projects. -->
 

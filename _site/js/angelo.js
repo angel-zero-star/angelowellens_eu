@@ -803,20 +803,33 @@ function initApproachScroll() {
 // arrow buttons move the cards. Firefox is the one browser that redirects a
 // plain vertical wheel into horizontal scroll on an overflow-x element, so
 // that case is caught and re-issued as a normal page scroll instead.
-function initProcessStack() {
-  var section = document.querySelector('.process-stack');
+// root: where to look — #content for a project, #landing for the About
+// landing (the two can be in the DOM at once, so nothing here is looked up
+// document-wide). On the landing the page itself scrolls, not #content, and
+// the card column is About's .left instead of .project-details.
+var _stackResize = {};
+function initProcessStack(root) {
+  root = root || document.getElementById('content');
+  if (!root) return;
+  var key = root.id;
+  if (_stackResize[key]) {
+    window.removeEventListener('resize', _stackResize[key]);
+    delete _stackResize[key];
+  }
+  var section = root.querySelector('.process-stack');
   if (!section) return;
   var viewport = section.querySelector('.stack-viewport');
   var cards = Array.from(section.querySelectorAll('.stack-card'));
   var n = cards.length;
-  var content = document.getElementById('content');
-  var wrap = document.getElementById('wrap_project');
+  var onLanding = key === 'landing';
+  var content = onLanding ? null : document.getElementById('content');
+  var wrap = root.querySelector('#wrap_project, #landing_wrap');
   var current = -1;
 
-  var prevBtn = document.getElementById('stack-prev');
-  var nextBtn = document.getElementById('stack-next');
+  var prevBtn = section.querySelector('.stack-prev');
+  var nextBtn = section.querySelector('.stack-next');
 
-  var dotsWrap = document.getElementById('stack-dots');
+  var dotsWrap = section.querySelector('.stack-dots');
   var dots = [];
   if (dotsWrap) {
     dotsWrap.innerHTML = '';
@@ -832,7 +845,7 @@ function initProcessStack() {
 
   // Card width = text column width (.project-details, max-width 780px).
   function sizeCards() {
-    var details = document.querySelector('.project-details');
+    var details = root.querySelector(onLanding ? '.left' : '.project-details');
     var cw = details ? details.clientWidth : (wrap ? wrap.clientWidth : viewport.clientWidth);
     cards.forEach(function(c) { c.style.width = Math.round(cw) + 'px'; });
   }
@@ -864,7 +877,8 @@ function initProcessStack() {
   // reads as consistent with the rest of the page rather than looking
   // arbitrarily narrower or wider than everything else that breaks out.
   function contentInset() {
-    var ref = document.querySelector('.breakout') || document.querySelector('.project-details');
+    var ref = onLanding ? root.querySelector('.left')
+      : (root.querySelector('.breakout') || root.querySelector('.project-details'));
     if (!ref) return 0;
     return Math.max(0, ref.getBoundingClientRect().left - viewport.getBoundingClientRect().left);
   }
@@ -995,11 +1009,13 @@ function initProcessStack() {
     else window.scrollBy(0, e.deltaY);
   });
 
-  window.addEventListener('resize', function() {
+  _stackResize[key] = function() {
+    if (!section.isConnected) return;
     sizeCards();
     padTrack();
     viewport.scrollLeft = targetLeft(current < 0 ? 0 : current);
-  });
+  };
+  window.addEventListener('resize', _stackResize[key]);
 
   sizeCards();
   padTrack();
@@ -1972,6 +1988,7 @@ function showLanding(url, push) {
     });
     initRailsHero();
     initProfileMotion();
+    initProcessStack(box);
     requestAnimationFrame(function() {
       var w = document.getElementById('landing_wrap');
       if (w) w.classList.add('project-alt');
@@ -2227,7 +2244,7 @@ function folioDone(target) {
         initReveal();
         initStaggerRows();
         initApproachScroll();
-        initProcessStack();
+        initProcessStack(document.getElementById('content'));
         initScrollProgress();
         initCloseTip();
         fitFixedWidthProject();
