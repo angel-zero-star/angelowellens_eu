@@ -236,21 +236,12 @@ body.is-landing .top, body.is-landing #work { display: none; }
 
 /* ── Phone menu: AI, About me, CV and the theme switch fold into a burger
    panel; Product work stays out. On wider screens .fb-menu is display:contents,
-   so the pills sit in the bar exactly as before and the burger, the name and
-   the theme row stay hidden. ── */
+   so the pills sit in the bar exactly as before and the burger and the theme
+   row stay hidden. ── */
 .fb-menu { display: contents; }
-.fb-burger, .fb-theme-row, .fb-name { display: none; }
+.fb-burger, .fb-theme-row { display: none; }
 
 @media (max-width: 500px) {
-	.fb-name {
-		display: inline;
-		margin-left: 8px;
-		font-family: 'Inter', sans-serif;
-		font-size: 14px;
-		font-weight: 600;
-		color: #191919;
-		white-space: nowrap;
-	}
 	.fb-burger {
 		display: flex;
 		align-items: center;
@@ -323,8 +314,9 @@ body.is-landing .top, body.is-landing #work { display: none; }
 	html body #theme-toggle { display: none; }   /* the corner theme button moves into the menu */
 	html body #filter-bar { padding-right: calc(24px - (100vw - 100%)); }   /* beats the theme-button room reserved further down */
 	#filter-bar .fb-actions { gap: 6px; }
+	/* the Product work dropdown lines up with the button's right edge, not its left */
+	html body .qf-menu { left: auto; right: 0; }
 
-	html.dark .fb-name { color: #ececec; }
 	html.dark .fb-burger { background: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
 	html.dark .fb-burger[aria-expanded="true"] { background: #ececec; border-color: #ececec; color: #121212; }
 	html.dark .fb-menu { background: #1c1c1c; border-color: rgba(255,255,255,0.12); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
@@ -334,10 +326,6 @@ body.is-landing .top, body.is-landing #work { display: none; }
 }
 @media (max-width: 400px) {
 	.fb-burger { width: 36px; height: 36px; }
-	.fb-name { font-size: 13px; margin-left: 6px; }
-}
-@media (max-width: 359px) {
-	.fb-name { display: none; }
 }
 
 #m {
