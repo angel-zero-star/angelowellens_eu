@@ -234,6 +234,112 @@ body.is-landing .top, body.is-landing #work { display: none; }
 	#filter-bar .fb-logo svg { width: 32px; height: 26px; }
 }
 
+/* ── Phone menu: AI, About me, CV and the theme switch fold into a burger
+   panel; Product work stays out. On wider screens .fb-menu is display:contents,
+   so the pills sit in the bar exactly as before and the burger, the name and
+   the theme row stay hidden. ── */
+.fb-menu { display: contents; }
+.fb-burger, .fb-theme-row, .fb-name { display: none; }
+
+@media (max-width: 500px) {
+	.fb-name {
+		display: inline;
+		margin-left: 8px;
+		font-family: 'Inter', sans-serif;
+		font-size: 14px;
+		font-weight: 600;
+		color: #191919;
+		white-space: nowrap;
+	}
+	.fb-burger {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		padding: 0;
+		border: 1px solid rgba(0,0,0,0.1);
+		border-radius: 50%;
+		background: #fff;
+		color: #191919;
+		cursor: pointer;
+		flex-shrink: 0;
+	}
+	.fb-burger[aria-expanded="true"] { background: #191919; border-color: #191919; color: #fff; }
+	.fb-actions { position: relative; }
+	.fb-menu {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		position: absolute;
+		top: calc(100% + 8px);
+		right: 0;
+		min-width: 200px;
+		padding: 6px;
+		box-sizing: border-box;
+		background: #fff;
+		border: 1px solid rgba(0,0,0,0.08);
+		border-radius: 16px;
+		box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+		z-index: 400;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-6px);
+		transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+	}
+	.fb-menu.is-open {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+		transition: opacity 0.18s ease, transform 0.18s ease;
+	}
+	/* the pills become full-width rows with their labels back */
+	.fb-menu #about a, .fb-menu #ai-link a, .fb-menu #cv-link a, .fb-theme-row {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12px;
+		width: 100%;
+		height: 44px;
+		padding: 0 14px;
+		border: none;
+		border-radius: 10px;
+		background: transparent;
+		font-family: 'Inter', sans-serif;
+		font-size: 15px;
+		font-weight: 600;
+		color: #191919;
+		box-sizing: border-box;
+		transform: none;
+		cursor: pointer;
+	}
+	.fb-menu #about a span, .fb-menu #ai-link a span, .fb-menu #cv-link a span { display: inline; }
+	.fb-menu #about a:hover, .fb-menu #ai-link a:hover, .fb-menu #cv-link a:hover, .fb-theme-row:hover { background: #f2f2f2; transform: none; }
+	.fb-menu #about a.is-active, .fb-menu #ai-link a.is-active { background: #191919; color: #fff; }
+	.fb-theme-row .fb-theme-light { display: none; }
+	html.dark .fb-theme-row .fb-theme-dark { display: none; }
+	html.dark .fb-theme-row .fb-theme-light { display: inline; }
+	/* the corner theme button moves into the menu */
+	html body #theme-toggle { display: none; }   /* the corner theme button moves into the menu */
+	html body #filter-bar { padding-right: calc(24px - (100vw - 100%)); }   /* beats the theme-button room reserved further down */
+	#filter-bar .fb-actions { gap: 6px; }
+
+	html.dark .fb-name { color: #ececec; }
+	html.dark .fb-burger { background: #1c1c1c; border-color: rgba(255,255,255,0.16); color: #ececec; }
+	html.dark .fb-burger[aria-expanded="true"] { background: #ececec; border-color: #ececec; color: #121212; }
+	html.dark .fb-menu { background: #1c1c1c; border-color: rgba(255,255,255,0.12); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+	html.dark .fb-menu #about a, html.dark .fb-menu #ai-link a, html.dark .fb-menu #cv-link a, html.dark .fb-theme-row { background: transparent; color: #ececec; }
+	html.dark .fb-menu #about a:hover, html.dark .fb-menu #ai-link a:hover, html.dark .fb-menu #cv-link a:hover, html.dark .fb-theme-row:hover { background: #2a2a2a; }
+	html.dark .fb-menu #about a.is-active, html.dark .fb-menu #ai-link a.is-active { background: #ececec; color: #121212; }
+}
+@media (max-width: 400px) {
+	.fb-burger { width: 36px; height: 36px; }
+	.fb-name { font-size: 13px; margin-left: 6px; }
+}
+@media (max-width: 359px) {
+	.fb-name { display: none; }
+}
+
 #m {
 	display:none;
 	position: relative;

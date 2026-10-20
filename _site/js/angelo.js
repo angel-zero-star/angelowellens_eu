@@ -194,6 +194,27 @@ function initIntroScramble(duration) {
   scrambleText(b, duration);
 }
 
+// ── Phone menu (burger) ──
+function toggleNavMenu(e, force) {
+  if (e) e.stopPropagation();
+  var menu = document.getElementById('fb-menu');
+  var btn = document.querySelector('.fb-burger');
+  if (!menu || !btn) return;
+  var open = force !== undefined ? force : !menu.classList.contains('is-open');
+  menu.classList.toggle('is-open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+// closes on a tap outside, on Escape, and after choosing a link (the theme
+// row keeps it open so the switch can be seen)
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('fb-menu');
+  if (!menu || !menu.classList.contains('is-open')) return;
+  if (!menu.contains(e.target) || e.target.closest('a')) toggleNavMenu(null, false);
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') toggleNavMenu(null, false);
+});
+
 // ── Night mode ──
 var _themingT = null;
 function toggleTheme() {
