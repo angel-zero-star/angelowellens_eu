@@ -30,4 +30,4 @@ python3 tools/build_static_copy.py
 python3 tools/build_ai_page.py tools/ai_icons _site/projects/ai/ai.html && python3 tools/build_static_copy.py
 ```
 
-The AI page hero animation is drawn by `initRailsHero()` in `js/angelo.js`.
+The AI page hero (isometric tile grid, Three.js loaded on demand) is drawn by `initTilesHero()` in `js/angelo.js`.

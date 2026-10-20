@@ -106,14 +106,13 @@ html = f'''<!DOCTYPE html>
           transform: translate3d(0, 0, 0) !important;
 }}
 
-/* Light-rails animation (WebGL, drawn by initRailsHero in angelo.js). Fades
-   into the page at the bottom. */
+/* Tile grid (Three.js, drawn by initTilesHero in angelo.js). Fades into the
+   page at the bottom. */
 .ai-hero {{
   position: relative;
   height: 100vh;
   height: 100svh;
   min-height: 560px;
-  background: #fff;   /* the canvas fades into white in light mode, black in dark */
   -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
           mask-image: linear-gradient(to bottom, #000 75%, transparent);
 }}
@@ -122,6 +121,9 @@ html = f'''<!DOCTYPE html>
   display: block;
   width: 100%;
   height: 100%;
+  /* the grid spills in from the top-left corner and dissolves toward the bottom right */
+  -webkit-mask-image: radial-gradient(130% 115% at 0% 0%, #000 28%, rgba(0,0,0,0.55) 52%, transparent 80%);
+          mask-image: radial-gradient(130% 115% at 0% 0%, #000 28%, rgba(0,0,0,0.55) 52%, transparent 80%);
 }}
 /* Sits behind the top of the page so the title keeps the About page's
    position (.page-title's 20% top padding) instead of starting below it. */
@@ -348,7 +350,6 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   .project-section {{ margin-top: 80px; }}
 }}
 
-html.dark .ai-hero {{ background: #000; }}
 html.dark .page-title h4 {{ color: #ececec; }}
 html.dark .project-description {{ color: #ececec; }}
 html.dark .project-note {{ color: #c4c4c4; }}
@@ -372,7 +373,7 @@ html.dark .tool-card:focus-visible {{ outline-color: #ececec; }}
 </head>
 <body>
 
-<div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas rails-canvas" data-rails="horn"></canvas></div>
+<div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas tiles-canvas"></canvas></div>
 <div class="page-title" id="top">
   <h4>AI-enabled designer</h4>
 </div>

@@ -1557,179 +1557,233 @@ function initCounters() {
   grids.forEach(function(grid) { observer.observe(grid); });
 }
 
-// ── Light-rails hero (AI page) ──
-// Recreations of "light-rails" exports, one fragment shader per shape, on a
-// <canvas class="rails-canvas" data-rails="…"> at the top of a page.
-//   horn (AI)  colour bands converging on a point at the right edge; only
-//              the lower half shows, cropped by the top of the page
-// Each runs in once, then stays on while the blurred colours drift and streaks
-// of light shoot along the horn. The loop stops once the page is closed and idles
-// while scrolled out of view.
-// Mouse: uMouse = (x, y, strength) in the canvas's 0–1 space, y down. The
-// lines bend toward the cursor (the sample point is pulled toward it), a
-// denser set of faster streaks joins in around it and the area glows a
-// little; strength eases to 0 when the pointer leaves, so it all settles back.
-var MOUSE_WARP = [
-  '  vec2 md=(uv-uMouse.xy)*vec2(asp,1.0);',
-  '  float near=exp(-dot(md,md)/0.05)*uMouse.z;',
-  '  float halo=exp(-dot(md,md)/0.07)*uMouse.z;',
-  '  float glow=exp(-dot(md,md)/0.12)*uMouse.z;',
-  '  uv-=(uv-uMouse.xy)*near*0.4;'
-].join('\n');
-var MOUSE_LIGHT = "  col=mix(col,vec3(1.0,0.82,0.95),glow*0.15);";
+// ── Tile hero (AI page) ──
+// An isometric grid of cubes (Three.js, loaded on demand from cdnjs only when
+// the hero is on the page). Flat at rest; a pond ripple eases out from a random
+// spot every ~10s and runs out until the grid is perfectly flat again, and the
+// cursor raises a smooth hill that glides after it. A lifted cube's sides show a
+// liquid gradient that's shared across the whole grid, so neighbours match;
+// every edge carries one hairline. Follows the theme (eased), idles off-screen
+// or while a project covers the landing, and holds a flat frame for reduced motion.
+var THREE_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+var _threeWaiting = null;
+function loadThree(cb) {
+  if (window.THREE) return cb();
+  if (_threeWaiting) return _threeWaiting.push(cb);
+  _threeWaiting = [cb];
+  var s = document.createElement('script');
+  s.src = THREE_SRC;
+  s.onload = function() { var q = _threeWaiting; _threeWaiting = null; q.forEach(function(f) { f(); }); };
+  s.onerror = function() { _threeWaiting = null; };
+  document.head.appendChild(s);
+}
 
-var RAILS_SHADERS = {
-  horn: [
-    'precision highp float;',
-    'uniform vec2 uRes;uniform float uTime;uniform vec3 uMouse;uniform float uLight;',
-    'const vec3 ORANGE=vec3(0.93,0.36,0.16);',
-    'const vec3 VIOLET=vec3(0.62,0.45,1.0);',
-    'const vec3 BLUE=vec3(0.20,0.32,1.0);',
-    'const vec3 PINK=vec3(1.0,0.58,1.0);',
-    'const float PERIOD=3.6;const float LINES=3.4;',
-    'float hash(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}',
-    'float h1(float n){return fract(sin(n*91.345)*47453.5453);}',
-    'vec3 pal(float v){v=fract(v)*3.0;',
-    '  vec3 a=v<1.0?ORANGE:(v<2.0?VIOLET:BLUE);',
-    '  vec3 b=v<1.0?VIOLET:(v<2.0?BLUE:ORANGE);',
-    '  return mix(a,b,smoothstep(0.0,1.0,fract(v)));}',
-    'void main(){',
-    '  vec2 uv=gl_FragCoord.xy/uRes; uv.y=1.0-uv.y;',
-    '  float asp=uRes.x/uRes.y;',
-    MOUSE_WARP,
-    // d: distance back from the tip, in units of hero height
-    '  float d=(1.0-uv.x)*asp*1.6;',
-    '  float y=uv.y+0.02;',   // centre line just above the top edge: only the lower half shows
-    '  float t=uTime; float ph=t/PERIOD;',
-    // horn: narrow at the tip, flaring out so its outer edge runs down into
-    // the bottom-left corner whatever the hero's shape, breathing a little
-    '  float w=0.12+0.75*pow(1.0-uv.x,1.3)+0.01*sin(t*0.9);',
-    '  float s=y/w;',
-    '  float as=abs(s);',
-    // bands, gently twisting along the horn
-    '  float b=as*LINES+0.5+0.12*sin(d*0.8-t*0.7)+0.06*sin(s*2.0+t*0.5);',
-    // base: the colours blur into each other across the bands and drift slowly
-    '  vec3 col=pal(b*0.3+t*0.03);',
-    '  col*=0.9+0.1*cos(b*6.2832);',
-    // streaks: thin soft lanes along the horn, each with light shooting
-    // out of the tip toward the bottom left, a sharp head and a long tail
-    '  float L=b*3.0; float lk=floor(L); float lf=fract(L);',
-    '  float lane=exp(-pow((lf-0.5)*3.6,2.0));',
-    '  float head=1.4-fract(t*(0.12+0.16*h1(lk))+h1(lk+7.0))*1.8;',
-    '  float dx=uv.x-head;',
-    '  float tr=dx>0.0?exp(-dx*2.5):exp(dx*28.0);',
-    '  vec3 sc=mix(pal(lk*0.37+0.5+t*0.05),PINK,0.25)*1.3;',
-    '  col=mix(col,sc,clamp(tr*lane*(0.8+glow),0.0,1.0));',
-    // near the cursor: twice as many lanes, streaking about three times as fast
-    '  float L2=b*7.0; float k2=floor(L2);',
-    '  float lane2=exp(-pow((fract(L2)-0.5)*4.0,2.0));',
-    '  float head2=1.4-fract(t*(0.45+0.4*h1(k2+3.0))+h1(k2+11.0))*1.8;',
-    '  float dx2=uv.x-head2;',
-    '  float tr2=dx2>0.0?exp(-dx2*5.0):exp(dx2*40.0);',
-    '  vec3 sc2=mix(pal(k2*0.29+t*0.05),PINK,0.35)*1.35;',
-    '  col=mix(col,sc2,clamp(tr2*lane2*halo*1.3,0.0,1.0));',
-    // a few crisp hairlines among the blur, about a pixel wide, fading in and
-    // out along their length
-    '  float px=abs(b-1.0)*w*uRes.y/LINES;',
-    '  float hl=1.0-smoothstep(0.4,1.4,min(px,min(abs(b-2.4),abs(b-3.15))*w*uRes.y/LINES));',
-    '  hl*=0.35+0.4*smoothstep(-0.2,0.8,sin(uv.x*5.0+b*1.7-t*0.6));',
-    '  col=mix(col,vec3(1.0,0.9,1.0),hl*0.6);',
-    // soft outer edge, softer where the horn is wide
-    '  float e=0.08+0.1*min(d,2.0);',
-    '  float m=1.0-smoothstep(1.0-e,1.0+e,as);',
-    // sweeps in from the tip once, then stays on
-    '  float front=ph/0.12*1.6-0.3;',
-    '  float inA=smoothstep(front+0.25,front-0.05,1.0-uv.x)*smoothstep(0.0,0.03,ph);',
-    '  inA=ph<0.12?inA*(1.0-step(1.0,as/(0.15+ph/0.12))):1.0;',
-    '  float life=t<PERIOD*0.12?inA:1.0;',
-    MOUSE_LIGHT,
-    // fades out into the page: black in dark mode, white in light (uLight)
-    '  col=mix(vec3(uLight),col,m*life);',
-    '  col+=(hash(gl_FragCoord.xy+fract(t)*91.7)-0.5)*0.06;',
-    '  gl_FragColor=vec4(max(col,0.0),1.0);',
-    '}'
-  ]
-};
-var RAILS_FALLBACK = {
-  // fades to the hero's own background (white or black, per theme)
-  horn: 'radial-gradient(ellipse 90% 40% at 100% 45%, #ff4a00, #8a63ff 40%, #214aff 65%, rgba(33,74,255,0) 90%)'
-};
-
-function initRailsHero() {
-  var canvas = document.querySelector('#landing .rails-canvas, #content .rails-canvas');
+function initTilesHero() {
+  var canvas = document.querySelector('#landing .tiles-canvas, #content .tiles-canvas');
   if (!canvas || canvas.dataset.ready) return;
   canvas.dataset.ready = '1';
-  var kind = RAILS_SHADERS[canvas.dataset.rails] ? canvas.dataset.rails : 'horn';
-  var gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
-  if (!gl) {
-    canvas.parentNode.style.backgroundImage = RAILS_FALLBACK[kind];
-    return;
-  }
+  var probe = document.createElement('canvas');
+  if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;  // plain page background instead
+  loadThree(function() { if (document.contains(canvas)) runTilesHero(canvas); });
+}
 
-  var vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  var fs = RAILS_SHADERS[kind].join('\n');
+function runTilesHero(canvas) {
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  var scene = new THREE.Scene();
 
-  function sh(type, src) {
-    var o = gl.createShader(type);
-    gl.shaderSource(o, src);
-    gl.compileShader(o);
-    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn('rails-hero', gl.getShaderInfoLog(o));
-    return o;
-  }
-  var prog = gl.createProgram();
-  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
-  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-  var loc = gl.getAttribLocation(prog, 'p');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  var uRes = gl.getUniformLocation(prog, 'uRes');
-  var uTime = gl.getUniformLocation(prog, 'uTime');
-  var uLight = gl.getUniformLocation(prog, 'uLight');
-  // follows the theme, eased so a toggle crossfades instead of flashing
-  var light = document.documentElement.classList.contains('dark') ? 0 : 1;
+  // tile: a plain box, top face at y = 0 when resting; no gap, so neighbouring
+  // edges meet in a single hairline
+  var SIZE = 1, H = 1.5;
+  var geo = new THREE.BoxGeometry(SIZE, H, SIZE);
+  geo.translate(0, -H / 2, 0);
 
-  function draw(t) {
-    // capped: it's all soft gradients, full retina buys nothing
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w; canvas.height = h;
-      gl.viewport(0, 0, w, h);
-    }
-    gl.uniform2f(uRes, w, h);
-    gl.uniform1f(uTime, t);
-    var target = document.documentElement.classList.contains('dark') ? 0 : 1;
-    light += (target - light) * 0.1;
-    if (Math.abs(target - light) < 0.002) light = target;
-    gl.uniform1f(uLight, light);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  }
+  var mat = new THREE.ShaderMaterial({
+    uniforms: { uDark: { value: 0 }, uTime: { value: 0 }, uHalf: { value: new THREE.Vector3(SIZE / 2, H / 2, SIZE / 2) } },
+    extensions: { derivatives: true },
+    vertexShader: [
+      'attribute float aLift;',
+      'varying vec3 vN; varying vec3 vW; varying float vLift; varying float vLocalY; varying vec3 vP;',
+      'void main(){',
+      '  vP = position;',
+      '  vec4 w = modelMatrix * instanceMatrix * vec4(position, 1.0);',
+      '  vN = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * normal);',
+      '  vW = w.xyz; vLift = aLift; vLocalY = position.y;',
+      '  gl_Position = projectionMatrix * viewMatrix * w;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform float uDark; uniform float uTime; uniform vec3 uHalf;',
+      'varying vec3 vN; varying vec3 vW; varying float vLift; varying float vLocalY; varying vec3 vP;',
+      /* violet → ultramarine → cyan → hot pink → orange → back to violet */
+      'vec3 pal(float t){',
+      '  vec3 c0 = vec3(0.47,0.20,1.00);',   /* electric violet */
+      '  vec3 c1 = vec3(0.10,0.30,1.00);',   /* ultramarine */
+      '  vec3 c2 = vec3(0.00,0.78,1.00);',   /* cyan */
+      '  vec3 c3 = vec3(1.00,0.20,0.62);',   /* hot pink */
+      '  vec3 c4 = vec3(1.00,0.42,0.08);',   /* orange */
+      '  t = fract(t) * 5.0; float f = smoothstep(0.0, 1.0, fract(t));',
+      '  if (t < 1.0) return mix(c0, c1, f);',
+      '  if (t < 2.0) return mix(c1, c2, f);',
+      '  if (t < 3.0) return mix(c2, c3, f);',
+      '  if (t < 4.0) return mix(c3, c4, f);',
+      '  return mix(c4, c0, f);',
+      '}',
+      'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+      'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
+      '  return mix(mix(hash(i), hash(i+vec2(1,0)), f.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y); }',
+      'void main(){',
+      '  vec3 N = normalize(vN);',
+      '  vec3 L = normalize(vec3(-0.45, 1.0, 0.35));',
+      '  float diff = clamp(dot(N, L), 0.0, 1.0);',
+      '  float seed = vW.x * 0.045 - vW.z * 0.03;',
+      /* top: soft, slightly tinted, lit like felt */
+      '  vec3 topL = mix(vec3(0.985,0.982,0.995), pal(seed + uTime*0.02), 0.06);',
+      '  vec3 topD = mix(vec3(0.11,0.11,0.13), pal(seed + uTime*0.02), 0.08);',
+      '  vec3 top = mix(topL, topD, uDark);',
+      '  vec3 col;',
+      '  if (N.y > 0.5) {',
+      '    col = top;',
+      '    col = mix(col, pal(seed + uTime*0.03), vLift * 0.12);',
+      '  } else {',
+      /* sides: one shared gradient field across the grid (so neighbours stay
+         coordinated) with a slow liquid flow running through it */
+      '    float depth = -vLocalY;',
+      '    float field = (vW.x - vW.z) * 0.035 + noise(vW.xz * 0.12 + uTime * 0.05) * 0.18;',
+      '    vec2 q = vec2(vW.x + vW.z, depth * 2.4);',
+      '    float flow = noise(q * 0.9 + vec2(uTime * 0.25, -uTime * 0.4)) * 0.7',
+      '               + noise(q * 2.2 - vec2(uTime * 0.2, uTime * 0.15)) * 0.3;',
+      '    vec3 g = pal(field + depth * 0.45 + flow * 0.55 + uTime * 0.025);',
+      '    float side = abs(N.x) > 0.5 ? 0.9 : 1.0;',
+      '    vec3 lit = g * side;',
+      '    vec3 rest = top * mix(0.82, 1.7, uDark);',
+      '    float show = smoothstep(0.02, 0.25, vLift) * (1.0 - smoothstep(0.0, 0.9, depth - vLift * 1.2));',
+      '    col = mix(rest, lit, clamp(show, 0.0, 1.0));',
+      '    col = mix(col, top, (1.0 - smoothstep(0.0, 0.06, depth)) * 0.6);',
+      '  }',
+      /* hairline on every cube edge: distance to the nearest edge of this face */
+      '  vec3 e = uHalf - abs(vP - vec3(0.0, -uHalf.y, 0.0));',
+      '  float m1 = min(e.x, min(e.y, e.z));',
+      '  float m2 = e.x + e.y + e.z - m1 - max(e.x, max(e.y, e.z));',
+      '  float px = fwidth(m2);',
+      '  float edge = 1.0 - smoothstep(px * 0.35, px * 1.05, m2);',
+      '  vec3 stroke = N.y > 0.5 ? mix(vec3(0.76), vec3(0.34), uDark) : mix(col, vec3(1.0), 0.65);',
+      '  col = mix(col, stroke, edge * mix(0.9, 1.0, vLift));',
+      '  gl_FragColor = vec4(col, 1.0);',
+      '}'
+    ].join('\n')
+  });
 
-  // reduced motion: one full, held frame
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    draw(1.2);
-    window.addEventListener('resize', function() { draw(1.2); });
-    return;
+  // grid: big enough to fill the frame in isometric view
+  var COLS = 30, ROWS = 30, N = COLS * ROWS;
+  var mesh = new THREE.InstancedMesh(geo, mat, N);
+  var lift = new Float32Array(N), liftAttr = new THREE.InstancedBufferAttribute(lift, 1);
+  geo.setAttribute('aLift', liftAttr);
+  scene.add(mesh);
+  var cur = new Float32Array(N), vel = new Float32Array(N);
+  var ox = -COLS / 2 + 0.5, oz = -ROWS / 2 + 0.5;
+
+  // isometric camera (orthographic, 45° around, ~35° down)
+  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -100, 100);
+  function resize() {
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    var tilePx = w < 760 ? 84 : 120;         // roughly how wide one tile reads on screen
+    var half = w / tilePx / 2 * 1.2;
+    camera.left = -half; camera.right = half;
+    camera.top = half * h / w; camera.bottom = -half * h / w;
+    camera.position.set(10, 8.165, 10);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
   }
-  var visible = true, start = performance.now();
-  var uMouse = gl.getUniformLocation(prog, 'uMouse');
-  var mouse = { x: 0.5, y: 0.5, s: 0, tx: 0.5, ty: 0.5, ts: 0 };
-  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+  window.addEventListener('resize', resize);
+  resize();
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // hover: the point on the grid under the cursor
+  var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  var hit = new THREE.Vector3(), hover = null;
+  if (!reduced && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
     var onMove = function(e) {
       if (!document.contains(canvas)) { window.removeEventListener('pointermove', onMove); return; }
       var r = canvas.getBoundingClientRect();
       var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      var inside = x >= 0 && x <= 1 && y >= 0 && y <= 1;
-      if (inside) { mouse.tx = x; mouse.ty = y; }
-      mouse.ts = inside ? 1 : 0;
+      if (x < 0 || x > 1 || y < 0 || y > 1) { hover = null; return; }
+      ndc.set(x * 2 - 1, -(y * 2 - 1));
+      ray.setFromCamera(ndc, camera);
+      hover = ray.ray.intersectPlane(plane, hit) ? { x: hit.x, z: hit.z } : null;
     };
     window.addEventListener('pointermove', onMove, { passive: true });
-    document.documentElement.addEventListener('pointerleave', function() { mouse.ts = 0; });
+    document.documentElement.addEventListener('pointerleave', function() { hover = null; });
   }
+
+  var m4 = new THREE.Matrix4(), t0 = performance.now();
+  var dark = document.documentElement.classList.contains('dark') ? 1 : 0;
+  var sh = { x: 0, z: 0 }, hs = 0;   // smoothed hover point and hill strength
+  // pond ripple: one at a time; the next waits until this one has run out
+  var drops = [], nextDrop = 0.6, LIFE = 8, PAUSE = 1.2;
+  function smooth(a, b, v) { v = Math.max(0, Math.min(1, (v - a) / (b - a))); return v * v * (3 - 2 * v); }
+  function ripple(x, z, t) {
+    var h = 0;
+    for (var i = 0; i < drops.length; i++) {
+      var dr = drops[i], age = t - dr.t;
+      if (age < 0) continue;
+      var d = Math.hypot(x - dr.x, z - dr.z) - age * 1.8;   // ring spreads 1.8 tiles/s
+      // eases in, then fades all the way to zero by the end of its life
+      var env = smooth(0, 0.8, age) * (1 - smooth(LIFE * 0.35, LIFE, age));
+      h += 0.3 * env * Math.exp(-(d * d) / (2 * 0.8 * 0.8));
+    }
+    return h;
+  }
+
+  function step(t) {
+    dark += ((document.documentElement.classList.contains('dark') ? 1 : 0) - dark) * 0.08;
+    mat.uniforms.uDark.value = dark;
+    mat.uniforms.uTime.value = t;
+    if (hover) {
+      if (hs < 0.01) { sh.x = hover.x; sh.z = hover.z; }
+      sh.x += (hover.x - sh.x) * 0.12; sh.z += (hover.z - sh.z) * 0.12;
+    }
+    hs += ((hover ? 1 : 0) - hs) * 0.06;
+    if (t > nextDrop) {
+      drops.push({ x: -8 + Math.random() * 8, z: -8 + Math.random() * 8, t: t });
+      nextDrop = t + LIFE + PAUSE + Math.random();
+    }
+    drops = drops.filter(function(dr) { return t - dr.t < LIFE; });
+
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var k = r * COLS + c, x = ox + c, z = oz + r;
+      var target = ripple(x, z, t);
+      if (hs > 0.001) {
+        var dx = x - sh.x, dz = z - sh.z;
+        target += hs * 1.3 * Math.exp(-(dx * dx + dz * dz) / (2 * 0.8 * 0.8));
+      }
+      // spring: cubes rise with a soft bounce, then settle exactly flat
+      vel[k] += (target - cur[k]) * 0.1;
+      vel[k] *= 0.76;
+      cur[k] += vel[k];
+      if (target === 0 && Math.abs(cur[k]) < 0.002 && Math.abs(vel[k]) < 0.002) { cur[k] = 0; vel[k] = 0; }
+      lift[k] = Math.max(0, Math.min(1, cur[k] / 1.1));
+      m4.makeTranslation(x, Math.max(-0.2, cur[k]), z);
+      mesh.setMatrixAt(k, m4);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    liftAttr.needsUpdate = true;
+    renderer.render(scene, camera);
+  }
+
+  // reduced motion: one flat, held frame (redrawn on resize / theme change)
+  if (reduced) {
+    var still = function() { dark = document.documentElement.classList.contains('dark') ? 1 : 0; step(0); };
+    still();
+    window.addEventListener('resize', still);
+    new MutationObserver(still).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return;
+  }
+
+  var visible = true;
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function(e) { visible = e[0].isIntersecting; }).observe(canvas);
   }
@@ -1737,20 +1791,15 @@ function initRailsHero() {
   // the hero's overflow:hidden, so the page slides up over it
   var hero = canvas.parentNode, shift = null;
   (function loop(now) {
-    if (!document.contains(canvas)) return;   // page closed
+    if (!document.contains(canvas)) { window.removeEventListener('resize', resize); renderer.dispose(); return; }
     // on a landing page with a project open over it: nothing to see, so idle
     if (visible && !(_landingCovered && canvas.closest('#landing'))) {
       var y = Math.round(Math.max(0, -hero.getBoundingClientRect().top) * 0.5);
       if (y !== shift) { shift = y; canvas.style.transform = 'translate3d(0,' + y + 'px,0)'; }
-      // eased, so the bulge trails the cursor a little and fades in and out
-      mouse.x += (mouse.tx - mouse.x) * 0.08;
-      mouse.y += (mouse.ty - mouse.y) * 0.08;
-      mouse.s += (mouse.ts - mouse.s) * 0.05;
-      gl.uniform3f(uMouse, mouse.x, mouse.y, mouse.s);
-      draw((now - start) / 1000);
+      step((now - t0) / 1000);
     }
     requestAnimationFrame(loop);
-  })(start);
+  })(t0);
 }
 
 // ── Video autoplay on scroll ──
@@ -1986,7 +2035,7 @@ function showLanding(url, push) {
     box.querySelectorAll('style').forEach(function(st) {
       st.textContent = scopeCss(st.textContent, '#landing');
     });
-    initRailsHero();
+    initTilesHero();
     initProfileMotion();
     initProcessStack(box);
     requestAnimationFrame(function() {
@@ -2055,7 +2104,7 @@ function scopeCss(css, scope) {
   return out;
 }
 
-// While a project covers a landing page, its animation (initRailsHero) idles.
+// While a project covers a landing page, its animation (initTilesHero) idles.
 // Flagged only once the overlay has fully revealed (circleReveal runs 0.9s).
 // The project's own unscoped styles can still reflow the page underneath, so
 // its scroll position is put back on the way out.
@@ -2233,7 +2282,7 @@ function folioDone(target) {
         initGifVideos();
         initInPageAnchors();
         initProfileMotion();
-        initRailsHero();
+        initTilesHero();
         // fadeTo, not fadeOut: fadeOut ends in display:none, which collapses
         // this in-flow element's space and jolts the content below it
         // upward right as #wrap_project is animating in.
