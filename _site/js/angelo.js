@@ -2159,7 +2159,86 @@ function coverLanding(on) {
 // outside #wrap_project, stayed full size. So the container goes fluid and
 // each run of legacy siblings is wrapped in its own fixed-width box that is
 // scaled down as a unit, preserving the overlaps between them.
-var LEGACY_SKIP = ['project-details', 'kuva-feature', 'page-title'];
+// Kuva page: the Kuvacash 2024 flows section. Each button swaps the phone to that flow's
+// looping recording; the next clip loads in the hidden <video> and fades in once it can play.
+// Plays only while the section is on screen, and waits for a tap under reduced motion.
+function initKuvaFlows() {
+  var root = document.querySelector('.kuva-flows');
+  if (!root) return;
+  var screen = root.querySelector('.kuva-flows-screen');
+  var vids = screen.querySelectorAll('video');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-clip]'));
+  var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var base = 'projects/kuva/assets/flows/', ver = '?v=2';
+  var on = vids[0], want = null, visible = false, started = false;
+
+  // a click in #content closes the project; this section is for clicking
+  root.addEventListener('click', function(e) { e.stopPropagation(); });
+
+  function play(v) {
+    if (still || !visible) return;
+    var p = v.play();
+    if (p && p.catch) p.catch(function() { screen.classList.add('is-paused'); });
+  }
+
+  function show(id) {
+    want = id;
+    var btn = buttons.filter(function(b) { return b.dataset.clip === id; })[0];
+    buttons.forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
+    var next = started ? (on === vids[0] ? vids[1] : vids[0]) : on;
+    next.poster = base + id + '.jpg' + ver;
+    next.setAttribute('aria-label', 'Recording of the ' + btn.querySelector('b').textContent + ' flow');
+    next.removeAttribute('aria-hidden');
+    next.addEventListener('loadeddata', function() {
+      if (want !== id) return;
+      next.classList.add('is-on');
+      if (next !== on) {
+        on.classList.remove('is-on');
+        on.pause();
+        on.setAttribute('aria-hidden', 'true');
+      }
+      on = next;
+      play(next);
+    }, { once: true });
+    next.preload = 'auto';
+    next.src = base + id + '.mp4' + ver;
+    next.load();
+    started = true;
+  }
+
+  buttons.forEach(function(b) {
+    b.addEventListener('click', function() { if (b.dataset.clip !== want) show(b.dataset.clip); });
+  });
+  root.querySelector('.kuva-flows-play').addEventListener('click', function() {
+    screen.classList.remove('is-paused');
+    var p = on.play();
+    if (p && p.catch) p.catch(function() {});
+  });
+
+  // the playing flow's progress line fills as its loop plays
+  (function tick() {
+    if (!document.body.contains(root)) return;   // project closed
+    var bar = root.querySelector('[aria-pressed="true"] .loop i');
+    if (bar && on.duration) bar.style.transform = 'scaleX(' + (on.currentTime / on.duration) + ')';
+    requestAnimationFrame(tick);
+  })();
+
+  vids[0].classList.add('is-on');
+  if (still) screen.classList.add('is-paused');
+
+  // load the first clip when the section comes near, and play only while it's on screen
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      visible = entry.isIntersecting;
+      if (visible && !started) show(buttons[0].dataset.clip);
+      else if (visible) play(on);
+      else on.pause();
+    });
+  }, { rootMargin: '200px 0px', threshold: 0 });
+  io.observe(screen);
+}
+
+var LEGACY_SKIP = ['project-details', 'kuva-feature', 'kuva-flows', 'page-title'];
 
 function fitFixedWidthProject() {
   var wrap = document.getElementById('wrap_project');
@@ -2277,6 +2356,42 @@ window.addEventListener('resize', (function() {
   };
 })());
 
+// Calls cb once every image and video starting within the first ~1.2
+// screens of root has loaded (videos: enough buffered to play), but not
+// before minMs and at the latest after maxMs, so a slow connection or a
+// video Safari won't preload never leaves the loader hanging. Unloaded
+// images have no height yet, so everything first measures as "near the
+// top"; each load re-measures and drops whatever has been pushed below.
+function whenTopMediaReady(root, minMs, maxMs, cb) {
+  var start = Date.now(), done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    setTimeout(cb, Math.max(0, minMs - (Date.now() - start)));
+  }
+  if (!root) { finish(); return; }
+  function ready(el) {
+    if (el.dataset.loadFailed) return true;
+    return el.tagName === 'IMG' ? el.complete : el.readyState >= 3;
+  }
+  function waiting() {
+    var cutoff = window.innerHeight * 1.2;
+    var rootTop = root.getBoundingClientRect().top;
+    return Array.prototype.filter.call(root.querySelectorAll('img, video'), function(el) {
+      return el.id !== 'loader2' && !ready(el) &&
+        el.getBoundingClientRect().top - rootTop <= cutoff;
+    });
+  }
+  function check() { if (!done && !waiting().length) finish(); }
+  waiting().forEach(function(el) {
+    var ev = el.tagName === 'IMG' ? 'load' : 'canplay';
+    el.addEventListener(ev, check, { once: true });
+    el.addEventListener('error', function() { el.dataset.loadFailed = '1'; check(); }, { once: true });
+  });
+  check();
+  setTimeout(finish, maxMs);
+}
+
 function folioDone(target) {
 	console.log('--- folio done', target);
   // only if req is "loaded"
@@ -2285,12 +2400,24 @@ function folioDone(target) {
     if (req.status == 200) {
       results = req.responseText;
       document.getElementById(target).innerHTML = results;
+      // The fragment's own <style> sets #wrap_project's hidden start state
+      // (opacity 0, pushed down) along with transition: all. If the browser
+      // paints the markup once before that style applies (Safari does), the
+      // transition animates visible → hidden: the page slides down and fades
+      // out before the real reveal. Hold transitions off until the reveal.
+      var wraps = ['wrap_project', 'wrap_project2', 'wrap_project3', 'wrap_project4']
+        .map(function(id) { return document.getElementById(id); })
+        .filter(Boolean);
+      wraps.forEach(function(w) { w.style.transition = 'none'; });
       $("#" + target).fadeTo(300, 1);   // a swapped-in page starts at 0 (swapFolio)
       setTimeout(function() {
         $(".scroll").fadeIn();
       }, 100);
 
-      setTimeout(function() {
+      // Keep the loader up until the media at the top of the page has
+      // loaded, so it doesn't reveal on empty boxes or GIFs still crawling
+      // in; never sooner than the usual 1.5s, never later than 5s.
+      whenTopMediaReady(document.getElementById(target), 1500, 5000, function() {
         /* 				window.location.hash='#test'; */
         var $sliders = $(".twentytwenty-container[data-orientation!='vertical']");
         $sliders.not(".twentytwenty-centered")
@@ -2311,6 +2438,7 @@ function folioDone(target) {
         initParallax();
         initCounters();
         initVideoObserver();
+        initKuvaFlows();
         initReveal();
         initStaggerRows();
         initApproachScroll();
@@ -2321,6 +2449,8 @@ function folioDone(target) {
         // again once the collage's images have decoded — their height feeds
         // the scaled box, and the first pass can land before they resolve
         setTimeout(fitFixedWidthProject, 1200);
+        // transitions back on, flushed, so only the reveal itself animates
+        wraps.forEach(function(w) { w.style.transition = ''; void w.offsetWidth; });
         $("#wrap_project")
           .delay()
           .addClass("project-alt");
@@ -2333,7 +2463,7 @@ function folioDone(target) {
         $("#wrap_project4")
           .delay()
           .addClass("project-alt");
-      }, 1500);
+      });
 
       $("#content img").on("click", function(e) {
         // An image inside a link is part of that link (e.g. the thumbnail
