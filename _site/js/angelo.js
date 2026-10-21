@@ -1101,7 +1101,8 @@ function initReveal() {
     '#wrap_project .project-section, ' +
     '#wrap_project .results-section, ' +
     '#wrap_project .project-info-grid, ' +
-    '#wrap_project .parallax-section'
+    '#wrap_project .parallax-section, ' +
+    '#wrap_project .kuva-flows-phone'
   ).forEach(revealBlockOrChildren);
 
   var grid = document.querySelector('.gif-grid');
@@ -1126,7 +1127,7 @@ function initReveal() {
 // two-up code and design-system shots) come in one by one, left to right,
 // instead of the whole row fading in as a block. initReveal has already
 // tagged the row itself; take that off and reveal its items instead.
-var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid, .store-grid';
+var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid, .store-grid, .kuva-flows-list';
 var STAGGER_STEP = 140;   // ms between items
 
 // A row that's already on screen when the project opens (the thumbnails)
@@ -2160,7 +2161,7 @@ function coverLanding(on) {
 // each run of legacy siblings is wrapped in its own fixed-width box that is
 // scaled down as a unit, preserving the overlaps between them.
 // Kuva page: the Kuvacash 2024 flows section. Each button swaps the phone to that flow's
-// looping recording; the next clip loads in the hidden <video> and fades in once it can play.
+// recording, and each one plays on into the next; the next clip loads in the hidden <video> and fades in once it can play.
 // Plays only while the section is on screen, and waits for a tap under reduced motion.
 function initKuvaFlows() {
   var root = document.querySelector('.kuva-flows');
@@ -2208,6 +2209,16 @@ function initKuvaFlows() {
 
   buttons.forEach(function(b) {
     b.addEventListener('click', function() { if (b.dataset.clip !== want) show(b.dataset.clip); });
+  });
+
+  // when a flow finishes, play the next one (back to the first after the last)
+  Array.prototype.forEach.call(vids, function(v) {
+    v.loop = false;
+    v.addEventListener('ended', function() {
+      if (v !== on) return;
+      var i = buttons.findIndex(function(b) { return b.dataset.clip === want; });
+      show(buttons[(i + 1) % buttons.length].dataset.clip);
+    });
   });
   root.querySelector('.kuva-flows-play').addEventListener('click', function() {
     screen.classList.remove('is-paused');

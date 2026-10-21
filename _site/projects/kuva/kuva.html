@@ -213,6 +213,8 @@ p {
 	height: 100%;
 	object-fit: cover;
 	display: block;
+	float: none;
+	background: none;   /* the generic video rule above paints #fff + a loader gif; it showed at the rounded edges */
 }
 .kuva-demo-frame video::-webkit-media-controls,
 .kuva-demo-frame video::-webkit-media-controls-start-playback-button,
@@ -241,6 +243,8 @@ p {
 	height: 100%;
 	object-fit: cover;
 	display: block;
+	float: none;
+	background: none;   /* the generic video rule above paints #fff + a loader gif; it showed at the rounded edges */
 }
 .kuva-banner video::-webkit-media-controls,
 .kuva-banner video::-webkit-media-controls-start-playback-button,
@@ -295,6 +299,19 @@ p {
    across it horizontally instead, same as panning a wide image. */
 #content { overflow-x: auto !important; }
 
+/* ── Scroll reveal (same as the other case studies; driven by initReveal / initStaggerRows) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 /* ── Kuvacash 2024 flows: looping recordings of the prototype in a white clay phone ──
    Styled after the prototype's own flow list (Exo 2 titles, Roboto subtitles). Fluid
    (listed in LEGACY_SKIP in angelo.js), so on a phone it reflows rather than being
@@ -303,9 +320,7 @@ p {
 	/* the 780px reading column, like the web app demo below it */
 	box-sizing: border-box;
 	margin: 40px 0 56px;
-	padding: 48px 40px;
-	border-radius: 16px;
-	background: #fff;   /* fixed, like .kuva-feature, in light and dark mode */
+	padding: 0;   /* no panel: the list and phone sit straight on the page */
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -331,6 +346,8 @@ p {
 }
 .kuva-flows-list button { padding-right: 52px; transition: border-color 200ms ease, background-color 200ms ease, transform 160ms ease; }
 .kuva-flows-list button:hover { border-color: #C9CFDF; background: #F8FAFE; }
+.kuva-flows-list button.reveal { transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, background-color 200ms ease; }
+.kuva-flows-list button.revealed:active { transition-duration: 0.8s, 160ms, 200ms, 200ms; }
 .kuva-flows-list button:active { transform: scale(0.985); }
 .kuva-flows-list button[aria-pressed="true"] { border-color: #1F55D6; background: #fff; }
 .kuva-flows-list button:focus-visible { outline: 2px solid #1F55D6; outline-offset: 2px; }
@@ -360,7 +377,6 @@ p {
 .kuva-flows-phone {
 	flex: none;
 	width: 280px;
-	aspect-ratio: 390 / 844;
 	padding: 14px;
 	border-radius: 41px;
 	background: linear-gradient(150deg, #ffffff 0%, #f7f8fb 55%, #eceff5 100%);
@@ -375,9 +391,11 @@ p {
 		24px 48px 70px -24px rgba(31, 45, 110, 0.32);
 }
 /* screen corners concentric with the app's cards: card radius 26px and 12px inset, scaled from 390 to 280 */
-.kuva-flows-screen { position: relative; height: 100%; overflow: hidden; border-radius: 27px; background: #005FF7; box-shadow: 0 0 0 3px #eef0f5, 0 0 0 4px rgba(31, 45, 110, 0.08); }
+/* the screen takes the recordings' exact shape itself (not height:100% of the phone, which
+   Safari can resolve taller, so cover cropped the sides); contain can never crop */
+.kuva-flows-screen { position: relative; width: 100%; aspect-ratio: 390 / 844; overflow: hidden; border-radius: 27px; background: #005FF7; box-shadow: 0 0 0 3px #eef0f5, 0 0 0 4px rgba(31, 45, 110, 0.08); }
 .kuva-flows-screen video {
-	position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; float: none;
+	position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; float: none; margin: 0; max-width: none;
 	background: none; opacity: 0; transition: opacity 260ms ease;
 }
 .kuva-flows-screen video.is-on { opacity: 1; }
@@ -385,8 +403,20 @@ p {
 .kuva-flows-play svg { width: 72px; height: 72px; }
 .kuva-flows-screen.is-paused .kuva-flows-play { display: grid; }
 
+/* dark mode: the flow cards follow the site's dark tokens; the phone stays white clay */
+html.dark .kuva-flows { color: #ececec; }
+html.dark .kuva-flows-label { color: #8a8a8a; }
+html.dark .kuva-flows-list button { background: #232323; border-color: rgba(255, 255, 255, 0.12); }
+html.dark .kuva-flows-list button:hover { border-color: rgba(255, 255, 255, 0.28); }
+html.dark .kuva-flows-list button[aria-pressed="true"] { border-color: #4D7CFF; }
+html.dark .kuva-flows-list b { color: #ececec; }
+html.dark .kuva-flows-list span { color: #9a9a9a; }
+html.dark .kuva-flows-go { fill: #7FA2FF; }
+html.dark .kuva-flows-list .loop { background: rgba(255, 255, 255, 0.08); }
+html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
+
 @media screen and (max-width: 900px) {
-	.kuva-flows { width: auto; left: 0; transform: none; flex-direction: column; gap: 32px; padding: 32px 16px 40px; margin: 32px 0 48px; }
+	.kuva-flows { flex-direction: column; gap: 32px; margin: 32px 0 48px; }
 	.kuva-flows-pick { flex: none; width: 100%; }
 	.kuva-flows-list button { padding: 13px 16px 14px; }
 	.kuva-flows-list b { font-size: 16px; }
@@ -499,14 +529,14 @@ p {
 				<button type="button" data-clip="pay" aria-pressed="false"><b>Pay a shop</b><span>Amount, scan, check, passcode</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
 				<button type="button" data-clip="getpaid" aria-pressed="false"><b>Get paid</b><span>Type the amount, show your QR code</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
 				<button type="button" data-clip="convert" aria-pressed="false"><b>Convert USDT to KUVA</b><span>Amount, check, passcode, settlement</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
-				<button type="button" data-clip="bitcoin" aria-pressed="false"><b>Bitcoin</b><span>Price chart with ranges</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="bitcoin" aria-pressed="false"><b>Markets</b><span>Coin prices, Bitcoin over a day, month, year</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
 				<button type="button" data-clip="agents" aria-pressed="false"><b>Find agent</b><span>Cash Kuvacoin in and out in US dollars</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
 			</div>
 		</div>
 		<div class="kuva-flows-phone">
 			<div class="kuva-flows-screen">
-				<video muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback poster="projects/kuva/assets/flows/wallet.jpg?v=2"></video>
-				<video muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true"></video>
+				<video muted playsinline preload="none" disablepictureinpicture disableremoteplayback poster="projects/kuva/assets/flows/wallet.jpg?v=2"></video>
+				<video muted playsinline preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true"></video>
 				<button type="button" class="kuva-flows-play" aria-label="Play">
 					<svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="35" fill="rgba(31,45,110,.55)"/><path d="M30 24v24l19-12z" fill="#fff"/></svg>
 				</button>
@@ -553,35 +583,6 @@ p {
 			<video playsinline webkit-playsinline class="lazy" width="100%" height="auto" loop autoplay muted poster="0.png">
 			<source src="/projects/kuva/assets/intro.mp4" type="video/mp4">
 		</video>	
-	<img class="lazy" style="margin-top: -1%"; src="projects/kuva/assets/kuva1.jpg" width="100%" height="auto">
-	
-
-	
-	<div class="kuva-feature">
-		<div class="kuva-feature-video">
-			<video class="lazy" autoplay loop muted playsinline poster="0.png">
-				<source src="/projects/kuva/assets/Export 2.mp4" type="video/mp4">
-			</video>
-		</div>
-		<div class="kuva-feature-text">
-			<p class="kuva-feature-heading">The power in your pocket</p>
-			<p class="kuva-feature-copy">Banking without a bank.</p>
-		</div>
-	</div>
-
-	<div class="kuva-feature kuva-feature-reverse">
-		<div class="kuva-feature-video">
-			<video class="lazy" autoplay loop muted playsinline poster="0.png">
-				<source src="/projects/kuva/assets/Export 1.mp4" type="video/mp4">
-			</video>
-		</div>
-		<div class="kuva-feature-text">
-			<p class="kuva-feature-heading">Instant, liquid, yours</p>
-			<p class="kuva-feature-copy">Move pennies or billions in an instant. Every person on Earth gets their own private 'bank', for free.</p>
-		</div>
-	</div>
-	
-	<img class="lazy" style="" src="projects/kuva/assets/kuva4.jpg" width="100%" height="auto">
 	<img class="lazy" style="" src="projects/kuva/assets/kuva5.jpg" width="100%" height="auto">
 
 	
