@@ -2447,6 +2447,73 @@ function whenTopMediaReady(root, minMs, maxMs, cb) {
   setTimeout(finish, maxMs);
 }
 
+// Horizontal scroll-snap carousels (Kuva landing screens): the centred slide
+// gets .is-active, dots and arrows follow the scroll position, and clicking
+// an arrow, a dot or a dimmed neighbour scrolls that slide to the centre.
+// Swipe and trackpad scrolling are native.
+function initSnapCarousels(root) {
+  if (!root) return;
+  root.querySelectorAll('.kuva-landing').forEach(function(box) {
+    if (box.dataset.bound) return;
+    box.dataset.bound = '1';
+    var track = box.querySelector('.kl-track');
+    var slides = [].slice.call(track.querySelectorAll('.kl-slide'));
+    var dotsEl = box.querySelector('.kl-dots');
+    var prev = box.querySelector('.kl-prev');
+    var next = box.querySelector('.kl-next');
+    var current = -1;
+    // a click on empty project space closes the page; keep this one's clicks in
+    box.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    var dots = slides.map(function(sl, i) {
+      var d = document.createElement('button');
+      d.type = 'button';
+      d.setAttribute('role', 'tab');
+      d.setAttribute('aria-label', 'Screen ' + (i + 1));
+      d.addEventListener('click', function() { go(i); });
+      dotsEl.appendChild(d);
+      return d;
+    });
+
+    function go(i) {
+      i = Math.max(0, Math.min(slides.length - 1, i));
+      var sl = slides[i];
+      track.scrollTo({ left: sl.offsetLeft - (track.clientWidth - sl.offsetWidth) / 2, behavior: 'smooth' });
+    }
+
+    function sync() {
+      var mid = track.scrollLeft + track.clientWidth / 2, best = 0, bestD = Infinity;
+      slides.forEach(function(sl, i) {
+        var d = Math.abs(sl.offsetLeft + sl.offsetWidth / 2 - mid);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      if (best === current) return;
+      current = best;
+      slides.forEach(function(sl, i) { sl.classList.toggle('is-active', i === best); });
+      dots.forEach(function(d, i) { d.setAttribute('aria-selected', i === best ? 'true' : 'false'); });
+      prev.disabled = best === 0;
+      next.disabled = best === slides.length - 1;
+    }
+
+    var raf = null;
+    track.addEventListener('scroll', function() {
+      if (raf) return;
+      raf = requestAnimationFrame(function() { raf = null; sync(); });
+    }, { passive: true });
+    prev.addEventListener('click', function() { go(current - 1); });
+    next.addEventListener('click', function() { go(current + 1); });
+    slides.forEach(function(sl, i) {
+      sl.addEventListener('click', function(e) {
+        if (i === current) return;
+        e.preventDefault();
+        e.stopPropagation();
+        go(i);
+      }, true);   // capture: #content's img click handler stops propagation
+    });
+    sync();
+  });
+}
+
 function folioDone(target) {
 	console.log('--- folio done', target);
   // only if req is "loaded"
@@ -2498,6 +2565,7 @@ function folioDone(target) {
         initStaggerRows();
         initApproachScroll();
         initProcessStack(document.getElementById('content'));
+        initSnapCarousels(document.getElementById('content'));
         initScrollProgress();
         initCloseTip();
         fitFixedWidthProject();

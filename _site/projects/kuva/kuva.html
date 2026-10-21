@@ -187,6 +187,59 @@ p {
 	   as the original images did. */
 	background: #fff;
 }
+/* Landing page screens: a horizontal carousel on the page's navy, the
+   current screen centred with its neighbours peeking in; arrows, dots,
+   swipe/trackpad all move it (initSnapCarousels in angelo.js) */
+.kuva-landing {
+	float: left;
+	clear: both;
+	width: 100%;
+	box-sizing: border-box;
+	/* tucks up under the iPad like the image it replaced (margin-top: -7%),
+	   so no white band shows between the two; padding gives the 7% back */
+	position: relative;
+	z-index: -95;
+	margin-top: -7%;
+	padding: calc(7% + 72px) 0 56px;
+	background: rgb(2, 11, 27);
+}
+.kl-track {
+	display: flex;
+	gap: 28px;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	padding: 8px 11% 40px;
+	scrollbar-width: none;
+	overscroll-behavior-x: contain;
+}
+.kl-track::-webkit-scrollbar { display: none; }
+.kl-slide {
+	flex: 0 0 78%;
+	margin: 0;
+	scroll-snap-align: center;
+	border-radius: 10px;
+	overflow: hidden;
+	box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.75);
+	opacity: 0.4;
+	transform: scale(0.96);
+	transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kl-slide.is-active { opacity: 1; transform: none; }
+#wrap_project .kl-slide img { display: block; float: none; width: 100%; height: auto; user-select: none; }
+.kl-nav { display: flex; align-items: center; justify-content: center; gap: 22px; }
+.kl-nav button {
+	width: 44px; height: 44px; border-radius: 22px; padding: 0;
+	border: 1px solid rgba(255, 255, 255, 0.22); background: transparent; cursor: pointer;
+	display: grid; place-items: center; transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+.kl-nav button:hover { border-color: rgba(255, 255, 255, 0.6); }
+.kl-nav button:disabled { opacity: 0.3; cursor: default; }
+.kl-nav svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kl-dots { display: flex; gap: 10px; }
+.kl-dots button { width: 8px; height: 8px; border-radius: 4px; border: 0; background: rgba(255, 255, 255, 0.28); transition: width 0.3s ease, background 0.3s ease; }
+.kl-dots button[aria-selected="true"] { width: 26px; background: #fff; }
+
 /* Logo reveal + brand visual, side by side above the Problem section */
 .kuva-banner {
 	margin: 32px 0 12px;
@@ -225,18 +278,24 @@ p {
 
 /* Breaks out of the 780px text column, like .breakout on the other projects */
 .kuva-brand-row {
-	display: flex;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	gap: 24px;
 	width: 154%;
-	margin-left: -27%;
+	margin: 32px 0 0 -27%;
 }
 @media screen and (max-width: 800px) {
 	.kuva-brand-row { width: 100%; margin-left: 0; gap: 16px; }
 }
-.kuva-brand-cell { flex: 1; min-width: 0; margin: 0; }
+.kuva-brand-cell { min-width: 0; margin: 0; }
+.kuva-brand-cell .kuva-banner { margin: 0; }
 @media screen and (max-width: 560px) {
-	.kuva-brand-row { flex-direction: column; gap: 12px; }
+	.kuva-brand-row { grid-template-columns: 1fr; gap: 12px; }
 }
+/* white video on a white page: a hairline border keeps it a tile like the others */
+.kuva-banner--light { background: #fff; border: 1px solid #DCDFEA; box-sizing: border-box; }
+/* the splash is 16:9 with the logo small in the middle: zoom in on the beam and the mountains */
+.kuva-banner--splash video { transform: scale(1.4); transform-origin: 49% 70%; }
 .kuva-banner img,
 .kuva-banner video {
 	width: 100%;
@@ -494,13 +553,21 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
           <div class="kuva-banner">
             <img src="projects/kuva/assets/wallet_of_the_future.jpg" alt="Wallet of the future, Kuva brand visual" />
           </div>
-          <p class="img-caption">Key visual for the marketing campaign</p>
         </figure>
         <figure class="kuva-brand-cell">
           <div class="kuva-banner">
             <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Kuva logo reveal" poster="projects/kuva/assets/logo_reveal_banner_poster.jpg?v=2" src="projects/kuva/assets/logo_reveal_banner.mp4?v=2"></video>
           </div>
-          <p class="img-caption">Logo loading animation for the Kuva brand</p>
+        </figure>
+        <figure class="kuva-brand-cell">
+          <div class="kuva-banner kuva-banner--splash">
+            <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Kuva app splash: a butterfly turns into the Kuva logo" poster="projects/kuva/assets/intro_poster.jpg?v=1" src="projects/kuva/assets/intro.mp4"></video>
+          </div>
+        </figure>
+        <figure class="kuva-brand-cell">
+          <div class="kuva-banner kuva-banner--light">
+            <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Kuvacash logo being drawn on its construction grid" poster="projects/kuva/assets/kuva_logo_draw_poster.jpg?v=2" src="projects/kuva/assets/kuva_logo_draw.mp4?v=3"></video>
+          </div>
         </figure>
       </div>
     </div>
@@ -574,16 +641,25 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 		<div>
 		<img class="lazy" style="margin-top: 13%; z-index: 103; margin-left: 5%;" src="projects/kuva/assets/ipad.png" width="90%" height="auto">
 				<video playsinline webkit-playsinline class="lazy" style=" z-index: 102; margin-top: -52.2%; margin-left: 7.4%;" width="85%" height="auto" loop autoplay muted poster="0.png">
-		<source src="/projects/kuva/assets/landing_preview_v3.mp4" type="video/mp4"></video>	
+		<source src="/projects/kuva/assets/Landing_preview_1_1.mp4" type="video/mp4"></video>	
 		<img class="lazy" style="margin-top: -69%; z-index: -97;" src="projects/kuva/assets/kuva6.jpg" width="100%" height="auto">
 	
 		</div>
-	<img class="lazy" style="margin-top: -7%; z-index: -96;" src="projects/kuva/assets/kuva10.png" width="100%" height="auto">
-	<img class="lazy" style="" src="projects/kuva/assets/kuva9.png" width="100%" height="auto">
+	<section class="kuva-landing" aria-label="Kuva landing page screens">
+		<div class="kl-track">
+			<figure class="kl-slide"><img src="projects/kuva/assets/landing/instant.jpg" alt="Kuva landing page: Instant, liquid, yours: pay and get paid anywhere on the planet" loading="lazy" draggable="false"></figure>
+			<figure class="kl-slide"><img src="projects/kuva/assets/landing/app.jpg?v=3" alt="Kuva landing page: The money in your pocket is a superpower: the Kuvacash app" loading="lazy" draggable="false"></figure>
+			<figure class="kl-slide"><img src="projects/kuva/assets/landing/card.jpg" alt="Kuva landing page: Kuva Card: spend from your Kuva wallet at merchants and ATMs" loading="lazy" draggable="false"></figure>
+			<figure class="kl-slide"><img src="projects/kuva/assets/landing/knet.jpg" alt="Kuva landing page: KNET, the multi-coin blockchain behind Kuva" loading="lazy" draggable="false"></figure>
+		</div>
+		<div class="kl-nav">
+			<button type="button" class="kl-prev" aria-label="Previous screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+			<div class="kl-dots" role="tablist" aria-label="Screens"></div>
+			<button type="button" class="kl-next" aria-label="Next screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
+		</div>
+	</section>
+	<img class="lazy" style="" src="projects/kuva/assets/kuva9_photos.jpg?v=2" width="100%" height="auto">
 
-			<video playsinline webkit-playsinline class="lazy" width="100%" height="auto" loop autoplay muted poster="0.png">
-			<source src="/projects/kuva/assets/intro.mp4" type="video/mp4">
-		</video>	
 	<img class="lazy" style="" src="projects/kuva/assets/kuva_screens_2024.jpg?v=2" width="100%" height="auto" alt="Kuvacash 2024 screens: home, activity, request with QR code, passcode, markets">
 	<img class="lazy" style="" src="projects/kuva/assets/kuva5.jpg" width="100%" height="auto">
 

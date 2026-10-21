@@ -49,6 +49,13 @@
   box-shadow: 0 4px 40px rgba(0,0,0,0.12);
 }
 
+/* launch video: inside the text column, rounded, no shadow */
+.launch-video {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 24px;
+}
+
 video.project-video {
   display: block;
   width: 100%;
@@ -425,6 +432,15 @@ html.dark .project-section p { color: #c4c4c4; }
         </video>
       </div>
       <p class="img-caption">Layers for each school type, and every zone in one table, sortable by any signal</p>
+    </div>
+
+    <div class="project-section">
+      <h2 class="case-study-subhead case-study-part">Launch video</h2>
+      <div class="launch-video">
+        <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Escolas do Porto launch video" poster="projects/claude_code/assets/escolas_launch.jpg">
+          <source src="projects/claude_code/assets/escolas_launch.mp4" type="video/mp4">
+        </video>
+      </div>
     </div>
 
   </div>
