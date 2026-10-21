@@ -1908,53 +1908,45 @@ html.dark .project-section .img-caption { color: #999; }
 }
 #theme-toggle:hover { transform: scale(1.08); }
 
-/* sun (core + 8 ray dots) → moon (crescent) morph; rays retract into the core */
-.tt-dot {
-	width: 11px;
-	height: 11px;
-	border-radius: 50%;
-	background: #191919;
-	box-shadow:
-		inset 0 0 0 0 #ececec,
-		0 -9px 0 -4.2px #191919,
-		0 9px 0 -4.2px #191919,
-		-9px 0 0 -4.2px #191919,
-		9px 0 0 -4.2px #191919,
-		-6.4px -6.4px 0 -4.2px #191919,
-		6.4px -6.4px 0 -4.2px #191919,
-		-6.4px 6.4px 0 -4.2px #191919,
-		6.4px 6.4px 0 -4.2px #191919;
-	transform: rotate(0deg);
-	transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+/* sun → moon (svg built by initThemeIcon in angelo.js): a mask circle slides
+   in over the core to cut the crescent while the rays shrink away one by one;
+   back to light, the mask slides out and the rays pop back in turn */
+.tt-icon { display: block; width: 22px; height: 22px; overflow: visible; color: #191919; transition: color 0.45s ease; }
+.tt-core, .tt-cut, .tt-rays circle, .tt-rays {
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.tt-cut { transform: translate(9px, -9px); }
+.tt-rays circle { transition-delay: calc(0.12s + var(--i) * 0.035s); }
+html.dark .tt-icon { color: #ececec; }
+html.dark .tt-core { transform: scale(1.5); transition-delay: 0.08s; }
+html.dark .tt-cut { transform: translate(0, 0); transition-delay: 0.08s; }
+html.dark .tt-rays { transform: rotate(45deg); }
+html.dark .tt-rays circle { transform: scale(0); opacity: 0; transition-delay: calc(var(--i) * 0.035s); }
+@media (prefers-reduced-motion: reduce) {
+	.tt-icon, .tt-core, .tt-cut, .tt-rays, .tt-rays circle { transition: none; }
 }
 
 /* NOTE: no inverse hover here on purpose — inverting a light/dark toggle
    on hover makes it preview the opposite theme and reads as a broken switch */
 
 html.dark #theme-toggle { background: #1c1c1c; border-color: rgba(255,255,255,0.1); }
-html.dark .tt-dot {
-	width: 14px;
-	height: 14px;
-	background: transparent;
-	box-shadow:
-		inset -4.5px 3px 0 0 #ececec,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919,
-		0 0 0 -8px #191919;
-	transform: rotate(-25deg);
-}
-
 /* Smooth crossfade while switching themes.
    Colors only — forcing box-shadow/stroke transitions on every element
    makes the fade hitch on media-heavy project pages. */
 html.theming, html.theming *, html.theming *:before, html.theming *:after {
 	transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, fill 0.4s ease !important;
 }
+/* …except the theme icon's own sun/moon motion, which the rule above would
+   flatten (staggered delays are per direction: rays leave first going dark,
+   come back after the core going light) */
+html.theming .tt-core, html.theming .tt-cut, html.theming .tt-rays, html.theming .tt-rays circle {
+	transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease !important;
+}
+html.theming.dark .tt-core, html.theming.dark .tt-cut { transition-delay: 0.08s !important; }
+html.theming.dark .tt-rays circle { transition-delay: calc(var(--i) * 0.035s) !important; }
+html.theming:not(.dark) .tt-rays circle { transition-delay: calc(0.12s + var(--i) * 0.035s) !important; }
 
 /* ── Base surfaces ── */
 html.dark, html.dark body { background-color: #121212; }

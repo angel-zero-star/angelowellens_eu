@@ -356,11 +356,21 @@ video.project-video {
   overflow: hidden;
 }
 
-.gif-cell img {
+.gif-cell img,
+.gif-cell video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* These play like GIFs: hide Safari's big play button when autoplay is
+   held back (Low Power Mode). */
+.gif-cell video::-webkit-media-controls,
+.gif-cell video::-webkit-media-controls-start-playback-button,
+.gif-cell video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
 }
 
 @media screen and (max-width: 800px) {
@@ -487,12 +497,12 @@ video.project-video {
     </div>
 
     <div class="breakout gif-grid">
-      <div class="gif-cell"><img src="projects/parco/assets/anim_select.gif" alt="Select parking" /></div>
-      <div class="gif-cell"><img src="projects/parco/assets/anim_car.gif" alt="Car animation" /></div>
-      <div class="gif-cell"><img src="projects/parco/assets/anim_search.gif" alt="Search" /></div>
-      <div class="gif-cell"><img src="projects/parco/assets/anim_signin.gif" alt="Sign in" /></div>
-      <div class="gif-cell"><img src="projects/parco/assets/anim_drag.gif" alt="Drag" /></div>
-      <div class="gif-cell"><img src="projects/parco/assets/anim_geo.gif" alt="Geo" /></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Select parking" poster="projects/parco/assets/anim_select_poster.jpg" src="projects/parco/assets/anim_select.mp4"></video></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Car animation" poster="projects/parco/assets/anim_car_poster.jpg" src="projects/parco/assets/anim_car.mp4"></video></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Search" poster="projects/parco/assets/anim_search_poster.jpg" src="projects/parco/assets/anim_search.mp4"></video></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Sign in" poster="projects/parco/assets/anim_signin_poster.jpg" src="projects/parco/assets/anim_signin.mp4"></video></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Drag" poster="projects/parco/assets/anim_drag_poster.jpg" src="projects/parco/assets/anim_drag.mp4"></video></div>
+      <div class="gif-cell"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Geo" poster="projects/parco/assets/anim_geo_poster.jpg" src="projects/parco/assets/anim_geo.mp4"></video></div>
     </div>
 
     <div class="results-section">

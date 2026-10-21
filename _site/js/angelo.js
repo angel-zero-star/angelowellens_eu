@@ -216,6 +216,34 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ── Night mode ──
+// The corner button's icon: a sun core with 8 ray dots; in dark mode a mask
+// circle slides over the core to leave a crescent and the rays shrink away
+// (all CSS transitions on .tt-*, see style.css). Built here so the 43 page
+// shells keep their plain <span class="tt-dot"> placeholder.
+function initThemeIcon() {
+  var dot = document.querySelector('#theme-toggle .tt-dot');
+  if (!dot) return;
+  var rays = '';
+  for (var i = 0; i < 8; i++) {
+    var a = i * Math.PI / 4 - Math.PI / 2;
+    rays += '<circle style="--i:' + i + '" cx="' + (12 + 9 * Math.cos(a)).toFixed(2) + '" cy="' + (12 + 9 * Math.sin(a)).toFixed(2) + '" r="1.7"/>';
+  }
+  var wrap = document.createElement('span');
+  wrap.innerHTML =
+    '<svg class="tt-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<mask id="tt-moon-mask" maskUnits="userSpaceOnUse" x="-4" y="-4" width="32" height="32">' +
+        '<rect x="-4" y="-4" width="32" height="32" fill="#fff"/>' +
+        '<circle class="tt-cut" cx="16.6" cy="7.6" r="6.2" fill="#000"/>' +
+      '</mask>' +
+      // mask on a group, not the core: the core scales up and would scale its mask with it
+      '<g mask="url(#tt-moon-mask)"><circle class="tt-core" cx="12" cy="12" r="5" fill="currentColor"/></g>' +
+      '<g class="tt-rays" fill="currentColor">' + rays + '</g>' +
+    '</svg>';
+  dot.replaceWith(wrap.firstChild);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initThemeIcon);
+else initThemeIcon();
+
 var _themingT = null;
 function toggleTheme() {
   var root = document.documentElement;
@@ -548,10 +576,26 @@ function selectQuickFilter(cat, btn) {
 
 // Split button: the label goes to the work grid with the current choice, the
 // arrow beside it (toggleQuickFilter) opens the menu to change that choice.
+// Every click replays the tile entrance, like a reload: back to the top, then
+// the visible grids cascade in again (the second one staggered after the first,
+// as in setScope).
 function goToWork() {
   closeQuickFilter();
   if (_landing) leaveLanding();
-  else window.scrollTo({ top: 0, behavior: 'smooth' });
+  else window.scrollTo(0, 0);
+  replayWorkCascade();
+}
+
+function replayWorkCascade() {
+  var token = ++_scopeToken;   // a scope switch in flight shouldn't fight this
+  var $grids = $(_activeScope === 'product' ? '.work-scope-product' : '.work-scope-other').find('.work-grid');
+  requestAnimationFrame(function() {
+    if (token !== _scopeToken) return;
+    $grids.each(function(gi) {
+      var $g = $(this);
+      runCascade($g.find('.item').not('.showhide').filter(':visible'), $g, gi * 180);
+    });
+  });
 }
 
 function leaveLanding() {
