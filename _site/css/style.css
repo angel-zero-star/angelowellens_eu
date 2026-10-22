@@ -1814,19 +1814,19 @@ html.dark .project-section .img-caption { color: #999; }
 	display: inline-block;
 	padding: 13px 30px;
 	border-radius: 30px;
-	border: 1px solid rgba(0,0,0,0.07);
-	background: #fff;
+	border: 1px solid #191919;
+	background: #191919;   /* solid, like the active pills in the header */
 	font-family: 'Open Sans', sans-serif;
 	font-size: 10px;
 	line-height: 1;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: #191919;
+	color: #fff;
 	cursor: pointer;
 	transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
 }
 
-.cta-close:hover { transform: scale(1.06); background: #191919; color: #fff; }
+.cta-close:hover { transform: scale(1.06); background: #333; border-color: #333; }
 
 @media screen and (max-width: 800px) {
 	.project-info-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2005,8 +2005,8 @@ html.dark .info-content { color: #c4c4c4; }
 html.dark .info-content a { color: #ececec; border-bottom-color: #ececec; }
 html.dark .stack-caption-item { color: #8a8a8a; }
 html.dark .stack-caption-item strong { color: #ececec; }
-html.dark .cta-close { background: #1c1c1c; border-color: rgba(255,255,255,0.1); color: #ececec; }
-html.dark .cta-close:hover { background: #ececec; color: #191919; }
+html.dark .cta-close { background: #ececec; border-color: #ececec; color: #191919; }
+html.dark .cta-close:hover { background: #fff; border-color: #fff; }
 
 /* ── Progress ring ── */
 html.dark #scroll-progress .sp-arc { stroke: #ececec; }

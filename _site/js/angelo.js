@@ -1142,7 +1142,7 @@ function initReveal() {
 
   document.querySelectorAll(
     '#wrap_project .breakout:not(.gif-grid):not(.process-stack):not(.approach-scroll), ' +
-    '#wrap_project .project-section, ' +
+    '#wrap_project .project-section:not(.no-reveal), ' +
     '#wrap_project .results-section, ' +
     '#wrap_project .project-info-grid, ' +
     '#wrap_project .parallax-section, ' +
@@ -1171,7 +1171,7 @@ function initReveal() {
 // two-up code and design-system shots) come in one by one, left to right,
 // instead of the whole row fading in as a block. initReveal has already
 // tagged the row itself; take that off and reveal its items instead.
-var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid, .store-grid, .kuva-flows-list';
+var STAGGER_ROWS = '.tool-grid, .phones-row, .design-grid, .code-grid, .store-grid, .kuva-flows-list, .kuva-brand-row';
 var STAGGER_STEP = 140;   // ms between items
 
 // A row that's already on screen when the project opens (the thumbnails)
@@ -2362,18 +2362,32 @@ function fitFixedWidthProject() {
       run.forEach(function(el) { inner.appendChild(el); });
     });
     existing = wrap.querySelectorAll('.legacy-collage');
+    // The clip box's height is measured from the content, and images that
+    // finish loading later (lazy ones especially) make it taller, which
+    // clipped the bottom of the collage. Re-fit as each one comes in.
+    var refit = null;
+    Array.prototype.forEach.call(wrap.querySelectorAll('.legacy-collage img, .legacy-collage video'), function(m) {
+      m.addEventListener(m.tagName === 'IMG' ? 'load' : 'loadedmetadata', function() {
+        clearTimeout(refit);
+        refit = setTimeout(fitFixedWidthProject, 60);
+      });
+    });
   }
 
-  // scaled to the reading column, so the collage lines up with the copy and
-  // the title rather than bleeding past them
-  var scale = column / design;
+  // On a phone the collage is scaled to the reading column, so it lines up
+  // with the copy and the title. On anything wider it breaks out past the
+  // column like the visuals on every other project: as wide as the window
+  // allows with a 40px margin each side, never past its true design width.
+  var wide = avail > 800 ? Math.min(design, avail - 80) : column;
+  var scale = wide / design;
   Array.prototype.forEach.call(existing, function(box) {
     var inner = box.querySelector('.legacy-collage-inner');
     if (!inner) return;
     inner.style.transform = 'none';                 // measure unscaled
     var h = inner.offsetHeight;
     inner.style.transform = 'scale(' + scale + ')';
-    box.style.width = column + 'px';
+    box.style.width = wide + 'px';
+    box.style.marginLeft = Math.round((column - wide) / 2) + 'px';   // centred on the column
     box.style.height = Math.round(h * scale) + 'px';
   });
 }

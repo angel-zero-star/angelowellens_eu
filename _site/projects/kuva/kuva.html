@@ -187,6 +187,11 @@ p {
 	   as the original images did. */
 	background: #fff;
 }
+/* the iPad → carousel → photos → phones stack reads as one block with
+   rounded corners: top two on its first image, bottom two on its last */
+#wrap_project img[src*="kuva6.jpg"] { border-radius: 16px 16px 0 0; }
+#wrap_project img[src*="kuva_screens_2024"] { border-radius: 0 0 16px 16px; }
+
 /* Landing page screens: a horizontal carousel on the page's navy, the
    current screen centred with its neighbours peeking in; arrows, dots,
    swipe/trackpad all move it (initSnapCarousels in angelo.js) */
@@ -289,6 +294,9 @@ p {
 }
 .kuva-brand-cell { min-width: 0; margin: 0; }
 .kuva-brand-cell .kuva-banner { margin: 0; }
+/* the brand colour band runs across both columns under the four tiles */
+.kuva-brand-cell--wide { grid-column: 1 / -1; }
+.kuva-banner--band { aspect-ratio: 2800 / 498; }
 @media screen and (max-width: 560px) {
 	.kuva-brand-row { grid-template-columns: 1fr; gap: 12px; }
 }
@@ -547,7 +555,7 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
       <p class="results-note">Funded by the Dash treasury and licensed by the Reserve Bank of Zimbabwe.</p>
     </div>
 
-    <div class="project-section">
+    <div class="project-section no-reveal">   <!-- the tiles stagger in themselves -->
       <div class="kuva-brand-row">
         <figure class="kuva-brand-cell">
           <div class="kuva-banner">
@@ -567,6 +575,11 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
         <figure class="kuva-brand-cell">
           <div class="kuva-banner kuva-banner--light">
             <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Kuvacash logo being drawn on its construction grid" poster="projects/kuva/assets/kuva_logo_draw_poster.jpg?v=2" src="projects/kuva/assets/kuva_logo_draw.mp4?v=3"></video>
+          </div>
+        </figure>
+        <figure class="kuva-brand-cell kuva-brand-cell--wide">
+          <div class="kuva-banner kuva-banner--band">
+            <img src="projects/kuva/assets/kuva5.jpg" alt="Kuvacash: Making Money Better, in the four brand blues" />
           </div>
         </figure>
       </div>
@@ -612,13 +625,13 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 
     <div class="project-section">
       <ul class="feature-list">
-        <li><strong>Remittances.</strong> A web app for family abroad to send money straight into a Kuva wallet.</li>
+        <li><strong>Transfers abroad.</strong> A web app for sending money straight into an existing bank account overseas. Kept deliberately simple: clear steps, so you always see where you are in the process, what it costs and what happens next.</li>
       </ul>
       <figure class="kuva-demo">
         <div class="kuva-demo-frame">
           <video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback aria-label="Sending money with the Kuvacash web app" poster="projects/kuva/assets/kuva_send_demo_poster.jpg?v=3" src="projects/kuva/assets/kuva_send_demo.mp4?v=3"></video>
         </div>
-        <p class="img-caption">The remittance web app: from choosing a country to the deposit instructions</p>
+        <p class="img-caption">The transfer web app: from choosing a country to the deposit instructions</p>
       </figure>
     </div>
 
@@ -661,7 +674,6 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 	<img class="lazy" style="" src="projects/kuva/assets/kuva9_photos.jpg?v=2" width="100%" height="auto">
 
 	<img class="lazy" style="" src="projects/kuva/assets/kuva_screens_2024.jpg?v=2" width="100%" height="auto" alt="Kuvacash 2024 screens: home, activity, request with QR code, passcode, markets">
-	<img class="lazy" style="" src="projects/kuva/assets/kuva5.jpg" width="100%" height="auto">
 
 	
 									   
