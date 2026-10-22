@@ -1619,6 +1619,126 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ── Case study panel ──
+// Atlas's case-study cards open their page (projects/<slug>/<slug>.html,
+// still a standalone page at /<slug>.html) in a floating panel that slides
+// in from the right over the open project, instead of swapping it out.
+// Its styles live in the Atlas fragment. Full screen on phones (CSS).
+// Closes on its ← button, a click on the blurred overlay, or Escape.
+function openCasePanel(slug) {
+  clearTimeout(_casePanelTimer);   // reopened mid slide-out: keep it
+  var panel = document.getElementById('case-panel');
+  if (!panel) {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="case-panel-overlay" class="case-panel-overlay"></div>' +
+      '<aside id="case-panel" class="case-panel" role="dialog" aria-modal="true" tabindex="-1">' +
+        // same ring as #scroll-progress (initScrollProgress), with ← for ×
+        '<button type="button" class="case-panel-back" aria-label="Back to Atlas">' +
+          '<svg width="44" height="44" viewBox="0 0 44 44">' +
+            '<circle class="sp-bg" cx="22" cy="22" r="21" fill="#ffffff" stroke="rgba(0,0,0,0.1)" stroke-width="2" style="transition:fill 0.3s ease;"/>' +
+            '<circle class="sp-arc" cx="22" cy="22" r="21" fill="none" stroke="#191919" stroke-width="2" stroke-linecap="round" ' +
+              'stroke-dasharray="131.95" stroke-dashoffset="131.95" transform="rotate(-90 22 22)"/>' +
+            '<path class="sp-x" d="M29 22H15M20 17l-5 5 5 5" fill="none" stroke="#191919" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke 0.3s ease;"/>' +
+          '</svg>' +
+        '</button>' +
+        '<div class="case-panel-scroll"><div class="case-panel-inner"></div></div>' +
+      '</aside>');
+    panel = document.getElementById('case-panel');
+    document.getElementById('case-panel-overlay').addEventListener('click', closeCasePanel);
+    var back = panel.querySelector('.case-panel-back');
+    back.addEventListener('click', closeCasePanel);
+    // progress arc and fill, as initScrollProgress does for the ×
+    var arc = back.querySelector('.sp-arc'), bg = back.querySelector('.sp-bg'), arrow = back.querySelector('.sp-x');
+    var circ = 2 * Math.PI * 21, complete = false, hover = false;
+    var paint = function() {
+      var filled = complete || hover;
+      var dark = document.documentElement.classList.contains('dark');
+      var ink = dark ? '#ececec' : '#191919', paper = dark ? '#1c1c1c' : '#ffffff';
+      bg.style.fill = filled ? ink : paper;
+      arc.style.stroke = ink;
+      arrow.style.stroke = filled ? paper : ink;
+    };
+    panel._updateBack = function() {
+      var sc = panel.querySelector('.case-panel-scroll');
+      var max = sc.scrollHeight - sc.clientHeight;
+      var p = max > 0 ? Math.max(0, Math.min(1, sc.scrollTop / max)) : 0;
+      arc.style.strokeDashoffset = circ * (1 - p);
+      complete = p > 0.985;
+      paint();
+    };
+    panel.querySelector('.case-panel-scroll').addEventListener('scroll', panel._updateBack, { passive: true });
+    back.addEventListener('mouseenter', function() { hover = true; paint(); });
+    back.addEventListener('mouseleave', function() { hover = false; paint(); });
+    panel.addEventListener('click', function(e) {
+      // the other part's card swaps the panel's content
+      var card = e.target.closest('a.case-card');
+      if (card) {
+        e.preventDefault();
+        openCasePanel(card.getAttribute('href').replace(/\.html$/, ''));
+        return;
+      }
+      var img = e.target.closest('img.project-hero-img');
+      if (img) openLightbox(img.src, img.alt);
+    });
+  }
+  var inner = panel.querySelector('.case-panel-inner');
+  var scroller = panel.querySelector('.case-panel-scroll');
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function() {
+    if (xhr.status !== 200) return;
+    var doc = new DOMParser().parseFromString(xhr.responseText, 'text/html');
+    var title = doc.querySelector('.page-title');
+    var details = doc.querySelector('.project-details');
+    if (!details) return;
+    // the standalone page's back link, and the card back to the overview the
+    // panel sits on, have no job in here
+    details.querySelectorAll('.case-back, a.case-card[href="atlas.html"]').forEach(function(el) { el.remove(); });
+    details.querySelectorAll('a.case-card').forEach(function(a) { a.removeAttribute('onclick'); });
+    inner.innerHTML = '';
+    if (title) inner.appendChild(title);
+    inner.appendChild(details);
+    scroller.scrollTop = 0;
+    panel._updateBack();
+    var $sliders = $(inner).find('.twentytwenty-container');
+    $sliders.find('img').first().one('load', function() { $(window).trigger('resize'); });
+    $sliders.twentytwenty({ default_offset_pct: 0.2 });
+    initCompareExpand();
+    requestAnimationFrame(function() {
+      document.documentElement.classList.add('case-panel-open');
+      // focus the dialog itself, not its button: a programmatic focus on the
+      // button draws the focus ring even after a mouse click. Tab still lands on ←.
+      panel.focus({ preventScroll: true });
+    });
+  };
+  xhr.open('GET', '/projects/' + slug + '/' + slug + '.html?v=' + Date.now(), true);
+  xhr.send(null);
+}
+
+// The panel's styles live in the Atlas fragment, so it can't outlive it:
+// once closed (after its slide-out) it's removed, and built again on open.
+// immediate: the project itself is closing — remove it now.
+var _casePanelTimer = null;
+function closeCasePanel(immediate) {
+  document.documentElement.classList.remove('case-panel-open');
+  clearTimeout(_casePanelTimer);
+  function remove() {
+    if (document.documentElement.classList.contains('case-panel-open')) return;
+    ['case-panel', 'case-panel-overlay'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    });
+  }
+  if (immediate === true) remove();
+  else _casePanelTimer = setTimeout(remove, 600);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape' || !document.documentElement.classList.contains('case-panel-open')) return;
+  closeCasePanel();
+  // the project underneath stays open
+  e.stopImmediatePropagation();
+});
+
 // ── Counter animation ──
 function initCounters() {
   function animateCounter(el) {
@@ -3586,6 +3706,7 @@ function folioDone(target) {
 function close(clear = true) {
   var open = document.getElementById('remove');
   if (open) open.dataset.closing = '1';
+  closeCasePanel(true);  // a case study panel goes with the project it sits on
   coverLanding(false);   // before the overlay fades, so the page is back underneath
   if (clear) {
     var title = 'Angelo Wellens | Product Work';

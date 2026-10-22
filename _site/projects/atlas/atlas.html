@@ -760,6 +760,8 @@
 /* Figma tile: the panels run off the right and bottom edges, like a window onto the file */
 .dsb-tile[data-tile="figma"] { overflow: hidden; align-items: flex-start; justify-content: flex-start; padding: 72px 0 0 40px; }
 .dsb-tile[data-tile="figma"] .dsb-figwrap { flex: none; }
+/* colour & type styles sit at the top, level with the Figma panels next door */
+.dsb-tile[data-tile="found"] { align-items: flex-start; padding-top: 72px; }
 .dsb-tile[data-tile="figma"] .dsb-pagesp { height: 360px; overflow-y: auto; padding-bottom: 48px; scrollbar-width: thin; scrollbar-color: #555 transparent; cursor: auto; }
 .dsb-tile[data-tile="figma"] .dsb-vars { width: 800px; height: 560px; }
 .dsb-found { display: flex; flex-direction: column; gap: 16px; }
@@ -919,6 +921,74 @@
   .dsb-wrap { aspect-ratio: auto; height: auto !important; background: none; overflow: visible; }
   .dsb-wrap .dsb { display: none; }
   .dsb-wrap .dsb-fallback { display: block; margin-top: 0; }
+}
+
+/* ── Case study panel (openCasePanel in angelo.js): floats in from the right
+   over the project, as wide as the text column, on a blurred white wash ── */
+.case-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  /* the same × cursor as clicking outside a project (style.css #content) */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cline x1='4' y1='4' x2='16' y2='16' stroke='%23191919' stroke-width='1.25' stroke-linecap='round'/%3E%3Cline x1='16' y1='4' x2='4' y2='16' stroke='%23191919' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E") 10 10, auto;
+  transition: opacity 0.4s ease, visibility 0s 0.4s;
+}
+.case-panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1001;
+  width: min(876px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transform: translateX(calc(100% + 32px));
+  visibility: hidden;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s 0.55s;
+}
+.case-panel-open .case-panel-overlay { opacity: 1; visibility: visible; transition: opacity 0.4s ease; }
+.case-panel-open .case-panel { transform: none; visibility: visible; transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+.case-panel-back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+#case-panel:focus { outline: none; }
+.case-panel-back svg { display: block; }
+.case-panel-back:hover { transform: scale(1.08); }
+.case-panel-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.case-panel-inner { padding: 88px 48px 48px; }
+.case-panel .page-title { width: auto; max-width: none; padding: 0 0 32px; margin: 0; }
+.case-panel .page-title h4 { font-size: clamp(2rem, 5vw, 3rem); }
+.case-panel .project-details { max-width: none; margin: 0; }
+.case-panel .breakout { width: 100%; margin-left: 0; }
+.case-panel .case-cards { grid-template-columns: 1fr; max-width: 420px; }
+.case-panel img { cursor: default; }
+.case-panel img.project-hero-img { cursor: zoom-in; }
+html.dark .case-panel-overlay { background: rgba(0, 0, 0, 0.5); cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cline x1='4' y1='4' x2='16' y2='16' stroke='%23ececec' stroke-width='1.25' stroke-linecap='round'/%3E%3Cline x1='16' y1='4' x2='4' y2='16' stroke='%23ececec' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E") 10 10, auto; }
+html.dark .case-panel { background: #121212; border-color: rgba(255, 255, 255, 0.1); }
+html.dark .case-panel-back .sp-bg { stroke: rgba(255, 255, 255, 0.1); }
+@media screen and (max-width: 760px) {
+  .case-panel { inset: 0; width: 100%; border: 0; border-radius: 0; }
+  .case-panel-inner { padding: 80px 20px 40px; }
 }
 
 /* ── Case study thumbs (each part opens as its own page) ── */
@@ -1478,7 +1548,7 @@ html.dark .case-card-text { color: #c4c4c4; }
       <h3>Case study: Scaling past the consulting team</h3>
       <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
       <div class="case-cards">
-        <a class="case-card" href="atlas_inside.html" onclick="event.stopPropagation(); folio('atlas_inside', 'content'); return false;">
+        <a class="case-card" href="atlas_inside.html" onclick="event.stopPropagation(); openCasePanel('atlas_inside'); return false;">
           <div class="case-card-img"><img src="projects/atlas/assets/compare_home_after.png" alt="Atlas home with a What's next list" /></div>
           <div class="case-card-body">
             <div class="case-card-label">Part one</div>
@@ -1487,7 +1557,7 @@ html.dark .case-card-text { color: #c4c4c4; }
             <div class="case-card-cta"><span>Read case study</span></div>
           </div>
         </a>
-        <a class="case-card" href="atlas_outside.html" onclick="event.stopPropagation(); folio('atlas_outside', 'content'); return false;">
+        <a class="case-card" href="atlas_outside.html" onclick="event.stopPropagation(); openCasePanel('atlas_outside'); return false;">
           <div class="case-card-img"><img src="projects/atlas/assets/reports_setup_screen.png" alt="Atlas reports setup screen" /></div>
           <div class="case-card-body">
             <div class="case-card-label">Part two</div>
