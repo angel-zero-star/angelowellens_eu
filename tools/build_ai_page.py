@@ -69,14 +69,23 @@ rows = '\n'.join(f'''      <div class="about-row">
       </div>''' for ic,h,d,t in steps)
 
 tools_built = [
- ('mortgage_radar', 'mortgage_offers.png?v=2', 'Mortgage calculator'),
- ('memeo', 'flashcards_thumb.png?v=1', 'Memeo'),
- ('escolas', 'schools_thumb.png?v=3', 'Escolas do Porto'),
+ ('mortgage_radar', 'mortgage_offers.png?v=2', 'Web app', 'Mortgage calculator',
+  'Ten banks, taxes and fees in one dashboard, ranked by what a loan really costs.'),
+ ('memeo', 'flashcards_thumb.png?v=1', 'iOS / Android', 'Memeo',
+  'The flashcard app I use to practise Portuguese every day.'),
+ ('escolas', 'schools_thumb.png?v=3', 'Web app', 'Escolas do Porto',
+  'A map that scores neighbourhoods around Porto on schools and travel times.'),
 ]
+# Same card as the Atlas case-study thumbs (.case-card in projects/atlas/atlas.html)
 cards = '\n'.join(f'''        <a class="tool-card" href="{slug}.html" onclick="folio('{slug}', 'content'); return false;">
           <span class="tool-card-thumb"><img src="projects/claude_code/assets/{img}" alt="" /></span>
-          <span class="tool-card-label"><span>{label}</span></span>
-        </a>''' for slug, img, label in tools_built)
+          <span class="tool-card-body">
+            <span class="tool-card-label">{label}</span>
+            <span class="tool-card-title">{title}</span>
+            <span class="tool-card-text">{text}</span>
+            <span class="tool-card-cta"><span>Open project</span></span>
+          </span>
+        </a>''' for slug, img, label, title, text in tools_built)
 
 html = f'''<!DOCTYPE html>
 <html>
@@ -267,71 +276,55 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   margin-top: 32px;
 }}
 .tool-card {{
-  display: block;
+  display: flex;
+  flex-direction: column;
   text-decoration: none;
   color: inherit;
-  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.2s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }}
 .tool-card:after, .tool-card:hover:after {{ display: none; }}
+.tool-card:hover {{ border-color: rgba(0, 0, 0, 0.25); transform: translateY(-3px); }}
+.tool-card:focus-visible {{
+  outline: 2px solid #191919;
+  outline-offset: 4px;
+}}
 .tool-card-thumb {{
   display: block;
-  background: #ddd;
-  border-radius: 12px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
+  background: #f0f0f0;
   overflow: hidden;
-  position: relative;
-  transform: translateZ(0);   /* keeps the radius clipping the zoomed image in Safari */
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }}
 .tool-card-thumb img {{
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }}
-/* Border + light white wash, both faded in on hover */
-.tool-card-thumb:after {{
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid transparent;
-  background: rgba(255,255,255,0);
-  pointer-events: none;
-  transition: background 0.4s, border-color 0.4s;
-}}
-/* Hover: the card lifts onto a soft shadow, the screenshot drifts in a
-   touch, and an arrow slides in after the label */
-@media (hover: hover) {{
-  .tool-card:hover .tool-card-thumb {{
-    transform: translateY(-6px);
-    box-shadow: 0 18px 40px -12px rgba(0,0,0,0.22);
-  }}
-  .tool-card:hover .tool-card-thumb img {{ transform: scale(1.04); }}
-  .tool-card:hover .tool-card-thumb:after {{
-    border-color: #d6d6d6;
-    background: rgba(255,255,255,0.15);
-  }}
-  .tool-card:hover .tool-card-label > span:after {{ opacity: 1; transform: translateX(0); }}
-}}
-.tool-card:focus-visible {{
-  outline: 2px solid #191919;
-  outline-offset: 4px;
-}}
+.tool-card-body {{ display: flex; flex-direction: column; flex: 1; padding: 18px 20px 20px; text-align: left; }}
 .tool-card-label {{
-  display: block;
-  margin-top: 14px;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  color: #191919;
-  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  margin-bottom: 6px;
 }}
-/* Arrow hangs off the right of the text, so the label stays centred */
-.tool-card-label > span {{ position: relative; }}
-.tool-card-label > span:after {{
+.tool-card-title {{
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #191919;
+  margin-bottom: 6px;
+}}
+.tool-card-text {{ font-size: 15px; line-height: 1.5; color: #666; margin-bottom: 14px; }}
+.tool-card-cta {{ margin-top: auto; font-size: 15px; font-weight: 600; color: #191919; }}
+/* Arrow slides in after the call to action on hover */
+.tool-card-cta > span {{ position: relative; }}
+.tool-card-cta > span:after {{
   content: '→';
   position: absolute;
   left: 100%;
@@ -340,6 +333,7 @@ html.dark .ai-tile-fathom {{ border: 1px solid rgba(255,255,255,0.16); }}
   transform: translateX(-6px);
   transition: opacity 0.3s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }}
+.tool-card:hover .tool-card-cta > span:after, .tool-card:focus-visible .tool-card-cta > span:after {{ opacity: 1; transform: translateX(0); }}
 #content .tool-card, #content .tool-card img {{ cursor: pointer; }}
 
 #content .project-details, #content .page-title {{ cursor: auto; }}
@@ -361,12 +355,11 @@ html.dark #wrap_project .about-row h2 {{ color: #ececec; }}
 html.dark .about-row {{ border-top-color: rgba(255, 255, 255, 0.12); }}
 html.dark .ai-tile-dark {{ border: 1px solid rgba(255,255,255,0.16); }}
 html.dark .ai-tile-light {{ border-color: transparent; }}
-html.dark .tool-card-label {{ color: #ececec; }}
-html.dark .tool-card-thumb {{ background: #262626; }}
-@media (hover: hover) {{
-  html.dark .tool-card:hover .tool-card-thumb {{ box-shadow: 0 18px 40px -12px rgba(0,0,0,0.7); }}
-  html.dark .tool-card:hover .tool-card-thumb:after {{ border-color: #3a3a3a; background: rgba(0,0,0,0.15); }}
-}}
+html.dark .tool-card {{ background: #1c1c1c; border-color: rgba(255,255,255,0.14); }}
+html.dark .tool-card:hover {{ border-color: rgba(255,255,255,0.3); }}
+html.dark .tool-card-thumb {{ background: #242424; }}
+html.dark .tool-card-title, html.dark .tool-card-cta {{ color: #ececec; }}
+html.dark .tool-card-text {{ color: #c4c4c4; }}
 html.dark .tool-card:focus-visible {{ outline-color: #ececec; }}
 
 </style>
@@ -375,7 +368,7 @@ html.dark .tool-card:focus-visible {{ outline-color: #ececec; }}
 
 <div class="ai-hero" aria-hidden="true"><canvas class="ai-hero-canvas tiles-canvas"></canvas></div>
 <div class="page-title" id="top">
-  <h4>AI-enabled designer</h4>
+  <h4>AI-<br />Enabled<br />Designer</h4>
 </div>
 <img id="loader2" src="loading_good.gif" width="auto" height="auto" />
 

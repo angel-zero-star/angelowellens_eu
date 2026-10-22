@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Atlas, part one: Inside the app</title>
+<style>
+
+#wrap_project {
+  margin-left: auto;
+  margin-right: auto;
+  width: 84%;
+  max-width: 1200px;
+  opacity: 0;
+  -webkit-transform: translate3d(0, 60px, 0);
+          transform: translate3d(0, 60px, 0);
+  -webkit-transition: all 0.85s ease-out;
+          transition: all 0.85s ease-out;
+  padding-bottom: 120px;
+  font-family: 'Inter', sans-serif;
+}
+
+.project-alt {
+  opacity: 1 !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0) !important;
+}
+
+/* ── Breakout: one class, consistent width + spacing for all media ── */
+.breakout {
+  display: block;
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+/* Inside .project-details (780px column) → expand to fill #wrap_project */
+.project-details .breakout {
+  width: 154%;
+  margin-left: -27%;
+}
+
+.project-hero-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.project-details {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  align-items: center;
+}
+
+.project-details h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  float: none;
+  position: static;
+  color: #191919;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+}
+
+.project-description {
+  font-size: 22px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  color: #191919;
+}
+
+.results-section {
+  margin-bottom: 80px;
+}
+
+.results-note {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #191919;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* An inline supporting callout — same 3-column card treatment as the page's
+   headline stats grid, just spaced for sitting mid-paragraph. */
+.stats-grid-2 {
+  margin: 16px 0;
+}
+
+.stats-group-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.stats-grid + .stats-group-label {
+  margin-top: 32px;
+}
+
+.stat {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #191919;
+  line-height: 32px;
+}
+
+.project-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.info-block h4 {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #999;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-content {
+  font-size: 15px;
+  line-height: 26px;
+  color: #191919;
+}
+
+/* Scoped to the From/To/Outcome summary specifically — it's a few key
+   figures, not running prose, so it gets the same card treatment as .stat.
+   The Role/Scope/Links block above uses the same .info-block/.info-content
+   classes for plain metadata and stays untouched. */
+.info-grid-stat .info-block {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 17px;
+}
+.info-grid-stat .info-block h4 {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: #717182;
+}
+.info-grid-stat .info-content {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.info-content p { margin: 0; }
+
+.info-content a {
+  color: #191919;
+  text-decoration: none;
+  border-bottom: 1px solid #191919;
+  transition: opacity 0.2s;
+}
+
+.info-content a:hover { opacity: 0.5; }
+
+.project-section {
+  margin-bottom: 44px;
+}
+
+.project-section h3 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  position: static;
+  color: #191919;
+}
+
+.case-study-subhead {
+  font-size: 20px;
+  font-weight: 600;
+  color: #191919;
+  margin: 28px 0 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.case-study-subhead.case-study-part {
+  margin-top: 64px;
+}
+
+.case-study-subhead:first-of-type { margin-top: 0; }
+
+/* side inset (width:84%, matching #wrap_project) comes from the shared
+   .page-title rule in style.css — deliberately not repeated here */
+.page-title {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 14%;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.page-title h4 {
+  font-family: 'Inter', sans-serif;
+  color: #191919;
+  /* same clamp as the shared .page-title h4 rule in style.css; repeated only
+     because this local block would otherwise shadow it back to a flat 640% */
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.1;
+  text-decoration: none;
+  position: static;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0 0 20px;
+}
+
+.page-title .project-meta {
+  justify-content: flex-start;
+  margin-bottom: 30px;
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Close CTA ── */
+
+
+/* ── Image grid ── */
+.gif-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gif-row {
+  display: flex;
+  gap: 24px;
+}
+
+.gif-cell {
+  border-radius: 16px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.gif-cell.wide   { flex: 1500 1 0; }
+.gif-cell.narrow { flex: 722 1 0; }
+
+.gif-cell img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Before/after comparison sliders (twentytwenty) ── */
+/* Standalone (non-breakout) compare-items dropped inline between paragraphs
+   need their own vertical spacing — .compare-grid's gap only helps grouped ones. */
+.compare-item {
+  position: relative;
+  margin: 24px 0;
+}
+
+.compare-item .twentytwenty-container {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+/* the handle keeps its own drag cursor rather than inheriting zoom-in */
+.compare-item .twentytwenty-handle {
+  cursor: pointer;
+}
+
+/* Once open in the lightbox, clicking the image closes it rather than
+   opening it — flip the cursor to match (higher specificity than the
+   zoom-in rule above so it wins regardless of source order). */
+.img-lightbox .compare-item .twentytwenty-container {
+  cursor: zoom-out;
+}
+
+/* .compare-expand-btn / .img-expand-wrap now live in the shared
+   css/style.css so every project page gets the expand button, not just
+   this one. */
+
+/* Handle + divider stay the plugin's default white; the arrow carets get a
+   darker tint at rest so they're readable against the white handle. They
+   only flip back to white when the dark twentytwenty-overlay itself is
+   hovered — not just anywhere in the container, since the handle sits above
+   the overlay (z-index) and blocks it from darkening directly underneath.
+   The overlay is appended before the handle in the plugin's markup, so the
+   general sibling combinator can target the handle from the overlay's :hover. */
+.compare-item .twentytwenty-left-arrow { border-right-color: #767676; }
+.compare-item .twentytwenty-right-arrow { border-left-color: #767676; }
+.compare-item .twentytwenty-overlay:hover ~ .twentytwenty-handle .twentytwenty-left-arrow { border-right-color: #fff; }
+.compare-item .twentytwenty-overlay:hover ~ .twentytwenty-handle .twentytwenty-right-arrow { border-left-color: #fff; }
+
+/* .compare-caption alone loses to the shared ".project-section p" rule
+   (higher specificity, and it sets font-size/color too) since this is a <p>
+   tag nested inside .project-section — scope it through .compare-item so it
+   actually wins regardless of source order. */
+.compare-item .compare-caption {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* .img-caption now lives in the shared css/style.css. */
+
+
+/* ── Design approach: one stacked section per point (heading, text, image) ── */
+.approach-block { margin-top: 56px; }
+.approach-media {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 20px;
+  border-radius: 16px;
+  background: #f0f0f0;
+}
+
+@media screen and (max-width: 800px) {
+  .stats-grid, .project-info-grid { grid-template-columns: repeat(2, 1fr); }
+  .gif-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media screen and (max-width: 760px) {
+  /* .breakout's 154%/-27% math assumes .project-details is pinned at its
+     780px desktop max-width, so a breakout child can widen past it toward
+     #wrap_project's edges. Below that, .project-details just fluidly fills
+     #wrap_project — same width as its parent — so the same math massively
+     overflows the viewport instead. Nothing left to break out into, so it's
+     just 100% here. */
+  .project-details .breakout {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* .page-title h4 sizes itself fluidly via clamp() now — no step needed */
+
+  .stats-grid, .project-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* The hero cards stack instead of sitting side by side. .gif-cell sizes
+     itself with `flex: <grow> 1 0` — a flex-BASIS of 0, which is fine while
+     the row is horizontal (basis applies to width, and grow shares the row
+     out by the 1500/722 ratio). Turning the row vertical repoints that basis
+     at HEIGHT, and since .gif-grid has no height of its own there is no free
+     space for flex-grow to distribute — every cell collapsed to 0 tall and
+     the hero images disappeared entirely on phones. `flex: none` hands
+     sizing back to the images' own intrinsic height. */
+  .gif-row {
+    flex-direction: column;
+  }
+  .gif-cell,
+  .gif-cell.wide,
+  .gif-cell.narrow {
+    flex: none;
+  }
+
+  .approach-block { margin-top: 40px; }
+}
+
+/* ── Case study thumbs (each part opens as its own page) ── */
+.case-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 28px;
+}
+.case-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.2s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.case-card:hover { border-color: rgba(0, 0, 0, 0.25); transform: translateY(-3px); }
+.case-card-img {
+  aspect-ratio: 16 / 10;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+#content .case-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+  display: block;
+  cursor: pointer;
+}
+.case-card-body { padding: 18px 20px 20px; text-align: left; }
+.case-card-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #717182;
+  margin-bottom: 6px;
+}
+.case-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #191919;
+  margin-bottom: 6px;
+}
+.case-card-text { font-size: 15px; line-height: 1.5; color: #666; margin-bottom: 14px; }
+.case-card-cta { font-size: 15px; font-weight: 600; color: #191919; }
+/* Arrow slides in after the call to action on hover */
+.case-card-cta > span { position: relative; }
+.case-card-cta > span:after {
+  content: '→';
+  position: absolute;
+  left: 100%;
+  margin-left: 6px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.3s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.case-card:hover .case-card-cta > span:after, .case-card:focus-visible .case-card-cta > span:after { opacity: 1; transform: translateX(0); }
+/* Back to the overview: pinned top-left, mirroring the close ring
+   (#scroll-progress, 44px at top/right 26px) on the other side */
+.case-back {
+  position: fixed;
+  left: 26px;
+  top: 26px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px 0 16px;
+  box-sizing: border-box;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 22px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #191919;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s ease;
+}
+.case-back:hover { border-color: #191919; transform: scale(1.04); }
+html.dark .case-back { background: #191919; border-color: rgba(255,255,255,0.1); }
+html.dark .case-back:hover { border-color: #ececec; }
+html.dark .case-card { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .case-card:hover { border-color: rgba(255,255,255,0.3); }
+html.dark .case-card-img { background: #242424; }
+html.dark .case-card-title, html.dark .case-card-cta, html.dark .case-back { color: #ececec; }
+html.dark .case-card-text { color: #c4c4c4; }
+@media screen and (max-width: 760px) {
+  .case-cards { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h4>Part one: Inside the app</h4>
+  <div class="project-meta">
+    <span class="project-tag">Atlas Metrics</span>
+    <span class="project-tag">Case study</span>
+    <span class="project-tag">Research · UX</span>
+  </div>
+</div>
+<a class="case-back" href="atlas.html" onclick="event.stopPropagation(); folio('atlas', 'content'); return false;">← Atlas</a>
+<img id="loader2" src="loading_good.gif" width="auto" height="auto" />
+
+<div id="wrap_project">
+
+  <div class="project-details">
+
+
+    <div class="project-section">
+      <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
+
+      <h4 class="case-study-subhead">The assumed problem</h4>
+      <p>Our ESG consultants were consistently working over hours. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
+
+      <h4 class="case-study-subhead">What the research showed</h4>
+      <p>We ran user interviews and mapped the full customer journey as a service blueprint, from contract signature through preparation, onboarding, data collection, reporting, off season and into the next reporting year. Every step was marked as either in-platform or manual.</p>
+
+      <img class="project-hero-img" src="projects/atlas/assets/service_blueprint.png" alt="Service blueprint mapping the full customer journey, each step marked in-platform or manual" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Service blueprint of the full customer journey.</p>
+      <p>The map made the assumption look wrong. Only one phase of the journey happened inside the product. Everything before it (contract handover, the welcome call, collecting account information, the consulting and customisation workshops, account setup, invites to portfolio companies) ran on spreadsheets, decks, email and calls. Reporting partly left the platform too, with final reports filled in on official templates off-platform.</p>
+      <p>So the app had real problems. They just weren't the whole bill. The pain points sitting in the manual columns were things no interface change would touch: information collected from customers by hand and re-entered into Atlas, a fully human onboarding process that didn't scale, delays between contract and access, miscommunication between sales and CS, expectations set in sales negotiations that the product then had to meet.</p>
+
+      <img class="project-hero-img" src="projects/atlas/assets/pain_points.png" alt="Prioritized pain points grid, grouped by process-related and product-related issues, high-priority items flagged" style="width:100%; height:auto; display:block; margin: 24px 0 8px;" />
+      <p class="img-caption">Pain points prioritized by process-related and product-related issues</p>
+      <p>That split the work in two. Fix what was genuinely broken inside the app, and start moving the work that had never been in it.</p>
+
+      <h4 class="case-study-subhead">Principles</h4>
+      <p>I set principles to design against. Three drove this:</p>
+      <ul class="feature-list">
+        <li><strong>Foster a guided, continuous journey.</strong> One end-to-end reporting flow from onboarding to submission, not a set of disconnected modules.</li>
+        <li><strong>Encourage self-sufficiency.</strong> Common questions answerable inside the platform.</li>
+        <li><strong>Align offline and online.</strong> Workshops, consulting and documents are part of the real workflow. Design the platform to absorb them rather than pretend they don't exist.</li>
+      </ul>
+
+
+      <h4 class="case-study-subhead">A home page built around what to do next</h4>
+      <p>The entry point already existed. It was a Reporting Summary: completion dial, disclosure counts, progress bars, task counts by state. It reported status accurately and answered the wrong question. A user could see 57% complete and a lot of progress bars and still not know what to do that morning.</p>
+      <p>I replaced it with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_home_after.png" alt="Home, after" />
+          <img src="projects/atlas/assets/compare_home_before.png" alt="Home, before" />
+        </div>
+        <p class="compare-caption">Home, replacing the Reporting Summary with a What's next list</p>
+      </div>
+
+      <h4 class="case-study-subhead">Data collection</h4>
+      <p>Entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
+      <p>I rebuilt it as a single working surface. A whole task opens once, in one place, with the questions in one continuous flow. I condensed the secondary information into the margins, stripped out what wasn't needed at the point of entry, and moved the guidance next to the question that needed it.</p>
+      <p>Nobody wants to spend their week entering ESG data, so the goal was to make it quicker to get through and easier to digest: far fewer clicks, and a clear read at any moment on how far along you are and what's left before the deadline.</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_datacollection_after.png" alt="Data collection, after" />
+          <img src="projects/atlas/assets/compare_datacollection_before.png" alt="Data collection, before" />
+        </div>
+        <p class="compare-caption">Data collection, one continuous flow instead of a field at a time</p>
+      </div>
+
+      <h4 class="case-study-subhead">Framework dashboards</h4>
+      <p>As the app grew, the pieces stopped hanging together. Each new feature arrived as its own module, and nothing said how they related or which order to do them in. A framework could only be navigated through its own taxonomy, which is accurate to the regulation and useless if you don't already know the regulation.</p>
+      <p>I gave each framework its own dashboard and laid the work out as a sequence, so the order was stated rather than something you were expected to know. Numbered steps from setting up the base through to the final report, each with task counts, time estimates and an estimated completion date.</p>
+
+      <div class="compare-item">
+        <div class="twentytwenty-container">
+          <img src="projects/atlas/assets/compare_sfdr_after.png" alt="SFDR, after" />
+          <img src="projects/atlas/assets/compare_sfdr_before.png" alt="SFDR, before" />
+        </div>
+        <p class="compare-caption">SFDR, restructured into its own step-by-step journey</p>
+      </div>
+
+      <p>The sequence isn't shared. CSRD, SFDR and GRI ask for different things in a different order, so each gets its own path rather than one generic checklist. SFDR, for instance, needs data collected from every portfolio company, so its dashboard tracks progress per company inside the step. CSRD doesn't work that way. Same underlying pattern, shaped to what each standard actually demands.</p>
+
+    </div>
+
+    <div class="project-section">
+      <div class="case-cards">
+        <a class="case-card" href="atlas_outside.html" onclick="event.stopPropagation(); folio('atlas_outside', 'content'); return false;">
+          <div class="case-card-img"><img src="projects/atlas/assets/reports_setup_screen.png" alt="Atlas reports setup screen" /></div>
+          <div class="case-card-body">
+            <div class="case-card-label">Part two</div>
+            <div class="case-card-title">Outside the app</div>
+            <div class="case-card-text">Moving the new reporting year from consultants to customers: a contract model, an org tree and a self-serve setup flow.</div>
+            <div class="case-card-cta"><span>Read case study</span></div>
+          </div>
+        </a>
+        <a class="case-card" href="atlas.html" onclick="event.stopPropagation(); folio('atlas', 'content'); return false;">
+          <div class="case-card-img"><img src="projects/atlas/assets/card_1.png" alt="Atlas" /></div>
+          <div class="case-card-body">
+            <div class="case-card-label">Overview</div>
+            <div class="case-card-title">Atlas Metrics</div>
+            <div class="case-card-text">Back to the full project: design system, product chapters and impact.</div>
+            <div class="case-card-cta"><span>Back to Atlas</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="wrap_project4" style="float:none; width:100%; max-width:none; margin:0; text-align:center; padding:60px 0 80px;">
+  <div class="btn-tip-wrap">
+    <button onclick="close()" class="cta-close">Close</button>
+  </div>
+</div>
+
+</body>
+</html>

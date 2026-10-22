@@ -42,8 +42,18 @@ class Strip(HTMLParser):
         self.out = []
         self.skip = 0
         self.stack = []   # tags we emitted, so stray closers are ignored
+        self.nocopy = None   # [tag, depth] while inside a data-nocopy element
 
     def handle_starttag(self, tag, attrs):
+        # data-nocopy drops a whole subtree, e.g. a live UI demo whose
+        # button labels would read as noise in the text copy
+        if self.nocopy:
+            if tag == self.nocopy[0] and tag not in VOID:
+                self.nocopy[1] += 1
+            return
+        if any(k == 'data-nocopy' for k, _ in attrs) and tag not in VOID:
+            self.nocopy = [tag, 1]
+            return
         if tag in SKIP:
             self.skip += 1
             return
@@ -76,11 +86,19 @@ class Strip(HTMLParser):
         self.stack.append(tag)
 
     def handle_startendtag(self, tag, attrs):
+        if self.nocopy:
+            return
         self.handle_starttag(tag, attrs)
         if tag in SKIP and tag not in VOID:
             self.skip -= 1
 
     def handle_endtag(self, tag):
+        if self.nocopy:
+            if tag == self.nocopy[0]:
+                self.nocopy[1] -= 1
+                if not self.nocopy[1]:
+                    self.nocopy = None
+            return
         if tag in SKIP:
             self.skip = max(0, self.skip - 1)
             return
@@ -100,7 +118,7 @@ class Strip(HTMLParser):
                 return
 
     def handle_data(self, data):
-        if not self.skip:
+        if not self.skip and not self.nocopy:
             self.out.append(html.escape(re.sub(r'\s+', ' ', data), quote=False))
 
     def result(self):
