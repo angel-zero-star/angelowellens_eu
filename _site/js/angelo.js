@@ -1690,10 +1690,10 @@ function openCasePanel(slug) {
     var title = doc.querySelector('.page-title');
     var details = doc.querySelector('.project-details');
     if (!details) return;
-    // the standalone page's back link, and the card back to the overview the
-    // panel sits on, have no job in here
-    details.querySelectorAll('.case-back, a.case-card[href="atlas.html"]').forEach(function(el) { el.remove(); });
-    details.querySelectorAll('a.case-card').forEach(function(a) { a.removeAttribute('onclick'); });
+    // the standalone page's back link and its cards at the bottom (the other
+    // part, the overview) have no job in here: the panel ends with the story
+    details.querySelectorAll('.case-back').forEach(function(el) { el.remove(); });
+    details.querySelectorAll('.case-cards').forEach(function(el) { (el.closest('.project-section') || el).remove(); });
     inner.innerHTML = '';
     if (title) inner.appendChild(title);
     inner.appendChild(details);
