@@ -1700,7 +1700,11 @@ function openCasePanel(slug) {
     scroller.scrollTop = 0;
     panel._updateBack();
     var $sliders = $(inner).find('.twentytwenty-container');
-    $sliders.find('img').first().one('load', function() { $(window).trigger('resize'); });
+    // each slider sizes itself from its image, so re-measure as every image
+    // arrives, not just the first: on a cold cache the later ones collapsed to 0 tall
+    $sliders.find('img').each(function() {
+      if (!this.complete) $(this).one('load', function() { $(window).trigger('resize'); });
+    });
     $sliders.twentytwenty({ default_offset_pct: 0.2 });
     initCompareExpand();
     requestAnimationFrame(function() {
