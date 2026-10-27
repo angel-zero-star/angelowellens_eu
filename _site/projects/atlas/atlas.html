@@ -306,6 +306,144 @@
   display: block;
 }
 
+/* Process carousel, as on About (initProcessStack in angelo.js) */
+/* ── Process carousel (a real horizontal scroller, not a pinned vertical
+   hijack) ── */
+/* Full-bleed so peeking neighbours extend to the screen edges, but the active
+   image + caption stay sized/aligned to the content column. */
+.process-stack {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 8px;                  /* sits right under the Design process row */
+  margin-bottom: 40px;
+}
+
+.stack-pin {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.stack-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  /* No scroll-snap-type here on purpose: positioning is fully custom in JS
+     (breakout-aligned, not centered — see targetLeft() in initProcessStack),
+     and the browser's own snap enforcement was fighting that. Confirmed by
+     measurement: a rapid second click could settle the scroll at exactly
+     what scroll-snap-align:center would compute (viewport-centered) instead
+     of the JS target, ~200px off from the intended alignment. */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;            /* the arrows are the visible control */
+}
+.stack-viewport::-webkit-scrollbar { display: none; }
+
+.stack-track {
+  position: relative;
+  display: flex;
+  gap: 26px;
+}
+
+.stack-card {
+  flex: 0 0 auto;
+  /* width set by JS = 82% of the content column (same size as before) */
+  opacity: 0.4;
+  transition: opacity 0.45s ease;
+}
+
+.stack-card.active { opacity: 1; }
+
+.stack-card-img {
+  border-radius: 20px;
+  overflow: hidden;
+}
+.stack-card img { width: 100%; height: auto; display: block; }
+
+.stack-card-caption {
+  margin-top: 18px;
+  font-size: 16px;
+  line-height: 26px;
+  color: #3d3d3d;
+}
+.stack-card-caption strong { color: #191919; }
+
+html.dark .stack-card-caption { color: #c4c4c4; }
+html.dark .stack-card-caption strong { color: #ececec; }
+html.dark .compare-item .compare-caption { color: #999; }
+
+.stack-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+}
+.stack-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 34px;
+  border-radius: 999px;
+  background: #f0f0f0;
+}
+.stack-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #c2c2c2;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+.stack-dot.active {
+  width: 20px;
+  background: #191919;
+}
+html.dark .stack-dots { background: #2a2a2a; }
+html.dark .stack-dot { background: #5c5c5c; }
+html.dark .stack-dot.active { background: #fff; }
+.stack-arrows {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+/* Filled, not outlined: a thin-bordered white circle read fine in dark mode
+   purely by accident (it happened to contrast against the dark page), but
+   was nearly invisible white-on-white in light mode. Both modes now get a
+   deliberate filled circle instead — dark-on-light here, and the reverse
+   (formalized, not accidental) below. The icon uses currentColor so it
+   follows suit as color/background swap per mode. */
+.stack-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #191919;
+  background: #191919;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.stack-arrow:hover { background: #333; border-color: #333; }
+.stack-arrow:disabled { background: #e2e2e2; border-color: #e2e2e2; color: #999; opacity: 1; cursor: default; }
+.stack-arrow svg { display: block; }
+
+html.dark .stack-arrow { background: #fff; border-color: #fff; color: #191919; }
+html.dark .stack-arrow:hover { background: #d8d8d8; border-color: #d8d8d8; }
+html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; color: #888; }
+
+/* Atlas: data quality, sitting under its product chapter */
+.process-stack--dq { margin-top: 12px; margin-bottom: 36px; }
+.process-stack--dq .stack-card-img { border-radius: 16px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06); }
+
 /* ── Before/after comparison sliders (twentytwenty) ── */
 /* Standalone (non-breakout) compare-items dropped inline between paragraphs
    need their own vertical spacing — .compare-grid's gap only helps grouped ones. */
@@ -1103,7 +1241,7 @@ html.dark .case-card-text { color: #c4c4c4; }
 
 <div id="wrap_project">
 
-  <div class="project-details">
+  <div class="project-details" data-toc>
 
     <p class="project-description">Atlas Metrics is an ESG data infrastructure platform helping banks, funds, and businesses collect, analyze, and report non-financial data across complex regulatory frameworks like CSRD, SFDR, and the GHG Protocol.</p>
     <p class="project-description">The platform serves organizations navigating a landscape where compliance requirements evolve faster than most teams can keep up.</p>
@@ -1519,7 +1657,7 @@ html.dark .case-card-text { color: #c4c4c4; }
 
       <div class="approach-block">
         <h4 class="case-study-subhead">Enterprise data density, consumer clarity</h4>
-        <p>Complex metrics legible without oversimplifying.</p>
+        <p>Complex metrics legible without oversimplifying. Clear data tables, comprehensive graphs and statuses you can read at a glance.</p>
         <img class="project-hero-img approach-media" src="projects/atlas/assets/approach_3.png" alt="" />
       </div>
 
@@ -1535,6 +1673,47 @@ html.dark .case-card-text { color: #c4c4c4; }
       <p>Rather than a single feature, Atlas was built as a connected suite. Each chapter solves a distinct problem in the ESG data journey.</p>
       <ul class="feature-list">
         <li><strong>Data Collection &amp; Network.</strong> Connecting organizations and their value chains so data flows in without duplication or manual chasing. Suppliers, subsidiaries, and third parties can submit directly into the platform, with validation built into the collection layer.</li>
+      </ul>
+      <div class="process-stack process-stack--dq" data-align="column">
+        <div class="stack-pin">
+          <div class="stack-viewport">
+            <div class="stack-track">
+              <div class="stack-card" data-n="0">
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_1_scoping.png" alt="Sticky-note scoping board: which data types are considered, what GPs want, and which classes of issue exist" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Scope.</strong> Starting with the questions before any screens: which data types a check should cover, what counts as an issue, and what a GP actually wants to do about it.</div>
+              </div>
+              <div class="stack-card" data-n="1">
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_2_journey.png" alt="Swimlane journey across KfW, the GP and the portfolio company, from the quality run to republished data" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Map the journey.</strong> Following one flag from the LP’s quality run, through the GP resolving it, to the portfolio company republishing, with the open questions marked along the way.</div>
+              </div>
+              <div class="stack-card" data-n="2">
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_3_architecture.png" alt="Decision tree from the GP to GP-level, fund-level and portfolio company metrics, each branching into critical values, errors and omissions" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Data information structure.</strong> Splitting every flag by level (GP, fund, portfolio company) and by type (critical value, error or outlier, omission), with thresholds deciding when a company is told.</div>
+              </div>
+              <div class="stack-card" data-n="3">
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_4_wireframe.png" alt="Wireframe of GP, fund and portfolio company tables with Confirm, Resolve and Inform actions, statuses and notes on submitting" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Wireframe.</strong> One table per level, with Confirm, Resolve and Inform on every row and a status that follows the flag until the GP submits.</div>
+              </div>
+              <div class="stack-card" data-n="4">
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_5_design.png" alt="The GP's Data quality page: outlier counts, outliers by level with Confirm and Correct value, and companies over the critical omission rate" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Deliver.</strong> The GP’s Data quality page: everything flagged across their funds and companies, ready to confirm or correct, and the companies still missing critical data.</div>
+              </div>
+            </div>
+          </div>
+          <div class="stack-footer">
+            <div class="stack-dots"></div>
+            <div class="stack-arrows">
+              <button class="stack-arrow stack-prev" type="button" aria-label="Previous">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="stack-arrow stack-next" type="button" aria-label="Next">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="feature-list">
         <li><strong>Logic Builder &amp; Custom Metrics.</strong> Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li>
         <li><strong>Multi-standard Reporting.</strong> One dataset, any framework. Designed to eliminate the recurring rebuild that compliance reporting usually requires. CSRD, GRI, SFDR, and custom templates all draw from the same source, reducing both effort and inconsistency risk.</li>
         <li><strong>Carbon Accounting.</strong> Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review.</li>
@@ -1545,7 +1724,7 @@ html.dark .case-card-text { color: #c4c4c4; }
     </div>
 
     <div class="project-section">
-      <h3>Case study: Scaling past the consulting team</h3>
+      <h3 data-toc-label="Case study">Case study: Scaling past the consulting team</h3>
       <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
       <div class="case-cards">
         <a class="case-card" href="atlas_inside.html" onclick="event.stopPropagation(); openCasePanel('atlas_inside'); return false;">

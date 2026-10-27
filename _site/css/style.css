@@ -2054,3 +2054,133 @@ html.dark #loader2 {
 	filter: invert(1);
 	mix-blend-mode: screen;
 }
+
+/* ── Numbered sections + section rail ([data-toc], initSectionToc in angelo.js) ── */
+[data-toc] { counter-reset: toc; }
+[data-toc] .project-section > h3 { position: relative; counter-increment: toc; }
+[data-toc] .project-section > h3::before {
+	content: counter(toc, decimal-leading-zero);
+	position: absolute;
+	right: 100%;
+	top: 0;
+	margin-right: 0.6em;
+	font-weight: 300;   /* title size, light, grey: same baseline, less weight */
+	font-variant-numeric: tabular-nums;
+	color: #b3b3b3;
+}
+
+#section-toc {
+	position: fixed;
+	top: 88px;
+	right: 26px;
+	z-index: 998;   /* under the case panel (1000+) */
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	padding: 6px 0;
+	isolation: isolate;
+}
+/* the card: starts as a pill around the dot column and widens out of it
+   to the left, so the labels read as coming from the dots */
+#section-toc::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: calc(100% - 44px);
+	z-index: -1;
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 28px rgba(0,0,0,0.10);
+	opacity: 0;
+	transition: opacity 0.18s ease, left 0.22s ease;
+}
+/* a grid, not flex: Safari sizes a shrink-to-fit box from flex-basis, so a
+   flex:1 label left the card too narrow and the rows spilled out left */
+#section-toc button {
+	display: grid;
+	grid-template-columns: 2ch 1fr 44px;
+	align-items: center;
+	column-gap: 10px;
+	width: 100%;
+	height: 22px;
+	margin: 0;
+	padding: 0 0 0 14px;
+	-webkit-appearance: none;
+	appearance: none;
+	border: 0;
+	background: none;
+	font: 500 13px/1 'Inter', sans-serif;
+	color: #8a8a8a;
+	text-align: left;
+	cursor: pointer;
+}
+#section-toc .st-num,
+#section-toc .st-label {
+	opacity: 0;
+	transform: translateX(18px);
+	transition: opacity 0.12s ease, transform 0.12s ease, color 0.15s ease;
+	white-space: nowrap;
+	pointer-events: none;
+}
+#section-toc .st-num { font-variant-numeric: tabular-nums; color: #b5b5b5; }
+/* tick column sits centred under the 44px ring */
+#section-toc .st-tick {
+	display: flex;
+	justify-content: center;
+}
+#section-toc .st-tick::before {
+	content: '';
+	width: 5px;    /* a dot; the current section stretches into a line */
+	height: 5px;
+	border-radius: 3px;
+	background: rgba(0,0,0,0.16);
+	transition: width 0.25s ease, height 0.25s ease, background 0.2s ease;
+}
+#section-toc .is-read .st-tick::before { background: rgba(0,0,0,0.38); }
+#section-toc .is-on .st-tick::before { width: 20px; height: 2px; background: #191919; }
+#section-toc .is-on { color: #191919; }
+
+#section-toc:hover::before,
+#section-toc:focus-within::before {
+	opacity: 1;
+	left: 0;
+	transition: opacity 0.15s ease, left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* rows slide out of their dots, top to bottom (--i set per row in initSectionToc);
+   closing has no delay so it never lags the pointer */
+#section-toc:hover .st-num, #section-toc:hover .st-label,
+#section-toc:focus-within .st-num, #section-toc:focus-within .st-label {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
+	transition: opacity 0.3s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s ease;
+}
+#section-toc:hover .st-label,
+#section-toc:focus-within .st-label { transition-delay: calc(60ms + var(--i, 0) * 45ms), calc(60ms + var(--i, 0) * 45ms), 0s; }
+#section-toc:hover .st-num,
+#section-toc:focus-within .st-num { transition-delay: calc(110ms + var(--i, 0) * 45ms), calc(110ms + var(--i, 0) * 45ms), 0s; }
+#section-toc button:hover { color: #191919; }
+#section-toc button:focus-visible { outline: none; }
+#section-toc button:focus-visible .st-label { text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+	#section-toc::before { transition: opacity 0.15s ease !important; }
+	#section-toc .st-num, #section-toc .st-label { transform: none !important; transition-delay: 0s !important; }
+}
+html.dark [data-toc] .project-section > h3::before { color: #5e5e5e; }
+html.dark #section-toc .st-tick::before { background: rgba(255,255,255,0.16); }
+html.dark #section-toc .is-read .st-tick::before { background: rgba(255,255,255,0.42); }
+html.dark #section-toc .is-on .st-tick::before { background: #ececec; }
+html.dark #section-toc .is-on,
+html.dark #section-toc button:hover { color: #ececec; }
+html.dark #section-toc::before { background: #1c1c1c; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 28px rgba(0,0,0,0.5); }
+
+@media screen and (max-width: 760px) {
+	#section-toc { display: none; }
+	[data-toc] .project-section > h3::before {
+		position: static;
+		margin-right: 0.4em;
+	}
+}

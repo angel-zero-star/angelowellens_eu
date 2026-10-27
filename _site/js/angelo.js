@@ -805,6 +805,59 @@ function initScrollProgress() {
   update();
 }
 
+// ── Section rail (under the ring, top-right) ──
+// A [data-toc] page numbers its .project-section h3s (CSS counter) and gets
+// one tick per section here: read ones grey, the current one dark and long,
+// the rest faint. Hover/focus opens the labels; a click scrolls #content.
+// data-toc-label on an h3 gives it a shorter rail label.
+function initSectionToc() {
+  var content = document.getElementById('content');
+  if (!content) return;
+  var old = document.getElementById('section-toc');
+  if (old) old.remove();
+  var page = content.querySelector('[data-toc]');
+  if (!page) return;
+  var heads = [].slice.call(page.querySelectorAll('.project-section > h3'));
+  if (!heads.length) return;
+
+  var el = document.createElement('nav');
+  el.id = 'section-toc';
+  el.setAttribute('aria-label', 'Sections');
+  var rows = heads.map(function(h, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.style.setProperty('--i', i);   // cascade order for the reveal
+    b.innerHTML =
+      '<span class="st-num">' + (i < 9 ? '0' : '') + (i + 1) + '</span>' +
+      '<span class="st-label"></span><span class="st-tick"></span>';
+    b.querySelector('.st-label').textContent = h.dataset.tocLabel || h.textContent;
+    b.addEventListener('click', function() {
+      content.scrollTo({ top: content.scrollTop + h.getBoundingClientRect().top - 72, behavior: 'smooth' });
+      b.blur();
+    });
+    el.appendChild(b);
+    return b;
+  });
+  // a click on empty project space closes the page
+  el.addEventListener('click', function(e) { e.stopPropagation(); });
+  content.appendChild(el);   // removed with #content on close, like the ring
+
+  // live rects: the pinned approach scroll resizes its section at runtime
+  function update() {
+    if (!el.isConnected) return;
+    var line = content.clientHeight * 0.35, cur = -1;
+    heads.forEach(function(h, i) { if (h.getBoundingClientRect().top <= line) cur = i; });
+    if (content.scrollTop + content.clientHeight >= content.scrollHeight - 4) cur = heads.length - 1;
+    rows.forEach(function(b, i) {
+      b.classList.toggle('is-on', i === cur);
+      b.classList.toggle('is-read', i < cur);
+    });
+  }
+  content.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+}
+
 // ── Design approach scroll (pinned split: numbered items + crossfading image) ──
 function initApproachScroll() {
   var section = document.querySelector('.approach-scroll');
@@ -942,7 +995,9 @@ function initProcessStack(root) {
   // reads as consistent with the rest of the page rather than looking
   // arbitrarily narrower or wider than everything else that breaks out.
   function contentInset() {
+    // data-align="column" lines the cards up with the text instead
     var ref = onLanding ? root.querySelector('.left')
+      : section.dataset.align === 'column' ? root.querySelector('.project-details')
       : (root.querySelector('.breakout') || root.querySelector('.project-details'));
     if (!ref) return 0;
     return Math.max(0, ref.getBoundingClientRect().left - viewport.getBoundingClientRect().left);
@@ -3629,6 +3684,7 @@ function folioDone(target) {
         initSnapCarousels(document.getElementById('content'));
         initDsBento(document.getElementById('content'));
         initScrollProgress();
+        initSectionToc();
         initCloseTip();
         fitFixedWidthProject();
         // again once the collage's images have decoded — their height feeds
