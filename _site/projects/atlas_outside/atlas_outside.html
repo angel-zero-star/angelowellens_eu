@@ -510,6 +510,22 @@ html.dark .case-card-text { color: #c4c4c4; }
   .case-cards { grid-template-columns: 1fr; }
 }
 
+
+/* Case study brief: what it's about, before the story starts */
+.case-brief { border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 10px; background: #fff; padding: 20px; margin: 0 0 40px; }
+.case-brief-lede { font-size: 20px; font-weight: 500; line-height: 1.4; color: #191919; margin: 0 0 20px !important; }
+.case-brief-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px 32px; padding-top: 18px; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.case-brief-label { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: #717182; font-weight: 500; line-height: 16px; margin-bottom: 6px; }
+.case-brief-grid p { margin: 0 !important; font-size: 15px; line-height: 22px; }
+.case-brief-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.case-brief-tags span { font-size: 13px; line-height: 18px; padding: 4px 10px; border-radius: 999px; background: #f2f2f2; color: #191919; }
+@media (max-width: 640px) { .case-brief-grid { grid-template-columns: 1fr; } }
+html.dark .case-brief { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .case-brief-lede { color: #ececec !important; }
+html.dark .case-brief-grid { border-top-color: rgba(255,255,255,0.1); }
+html.dark .case-brief-label { color: #8a8a8a; }
+html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
+
 </style>
 </head>
 <body>
@@ -531,11 +547,30 @@ html.dark .case-card-text { color: #c4c4c4; }
 
 
     <div class="project-section">
+      <div class="case-brief">
+        <p class="case-brief-lede">Moving the yearly reporting setup from consultants to customers. What was pitched as a one-week clickthrough turned into a four-month project, and I made the case to stakeholders for doing it properly.</p>
+        <div class="case-brief-grid">
+          <div><div class="case-brief-label">My role</div><p>Product designer, and acting PM for stretches: scope, roadmap and stakeholders as well as design.</p></div>
+          <div><div class="case-brief-label">What this shows</div><div class="case-brief-tags"><span>Service design</span><span>Scoping & roadmap</span><span>Stakeholder alignment</span><span>Cross-team work: ops, legal, engineering</span><span>Systems thinking</span><span>Internal tools</span></div></div>
+        </div>
+      </div>
+
       <p>Part one fixed what was broken inside the app. But the research showed most of the consultants' hours went on work that had never been in the product at all: onboarding, account setup and the yearly rollover, all run on calls, spreadsheets and documents.</p>
 
 
       <h4 class="case-study-subhead">Picking where to start</h4>
       <p>Onboarding was the clearest case of work that had never been in the product. Every kind of setup ran on calls, spreadsheets and documents, handled by the consulting team one client at a time.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/onboarding_pain_points.png" alt="Journey board from contract handover to onboarding, each stage with its pain points on sticky notes: manual data entry, delays, off-platform consulting, lost activation links, confusion over credentials" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Pain points along the onboarding journey, from the signed deal to the customer's first login</p>
+      <p>Mapped end to end, almost every stage was manual, off-platform and waiting on someone. So before any screens we agreed what onboarding should do instead:</p>
+      <div class="value-prop">
+        <div class="value-prop-label">Value proposition</div>
+        <p>In just a few guided steps, new users, from ESG novices to multi-fund managers, set up their accounts, import or collect the data they need, invite their teams and see a clear path to compliance. Early wins and personalised guidance mean less confusion, fewer support tickets and a faster time to value.</p>
+        <p class="value-prop-goal">&rarr; Less manual work for the ESG and customer success teams</p>
+      </div>
+      <p>From there I sketched the full flow, step by step, and checked each step against products that already onboard people well.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/onboarding_flow_benchmark.png" alt="Onboarding flow from account creation to company account, personalisation, integrations, inviting collaborators and a success screen, each step with its fields and a reference screen from another product" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Onboarding flow, benchmarked: each step with what it asks, next to how 15Five, monday.com, Airtable and others handle the same moment</p>
       <p>We picked the new reporting year first because it looked like the quickest win. These are existing customers who are already set up. Nothing new to configure, just roll the previous year forward. It also came round for everyone at once, so automating it would take a predictable, repeating load off the team.</p>
       <p>I was the designer on this, and for stretches of it the PM as well. The interface turned out to be the last problem, not the first.</p>
 
@@ -547,7 +582,11 @@ html.dark .case-card-text { color: #c4c4c4; }
       <img class="project-hero-img" src="projects/atlas/assets/contract_service_table.png" alt="Service and contract configuration table mapping service types, metrics, and required platform features and modules" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
       <p class="img-caption">Contract terms, mapped to services, metrics, and the platform features and modules each one requires</p>
       <p>So the real first task wasn't the flow. It was getting to a standardised backend representation of every customer's setup, so the product could tell each one what applied to them and what didn't. That's the cost of moving work that was never designed to live in software: before you can build the screen, you have to make the thing behind it legible.</p>
-      <p>It took closer to six months, build included.</p>
+
+      <h4 class="case-study-subhead">Making the case</h4>
+      <p>A week had become months, and that needed a decision from the stakeholders. We put every obstacle on the table: contracts that weren't standardised, setups recorded nowhere the product could read, rights and ownership still to work out with legal. Then we showed what doing it properly would buy: customers setting up their own reporting year, consultants out of the yearly setup crunch, and a structure every later feature could build on.</p>
+      <p>The alternative was shipping the clickthrough and patching it later, another half-baked onboarding. We'd lived with one of those already, and we weren't going to ship a second. They agreed and gave us the time we asked for.</p>
+      <p>It took closer to four months, build included.</p>
 
       <h4 class="case-study-subhead">The flow</h4>
       <p>Four steps: org structure, reporting setup, data requirements, submit. It carries the customer's existing configuration forward and asks them to confirm what changed. Behind each step sat a problem the screen doesn't show.</p>

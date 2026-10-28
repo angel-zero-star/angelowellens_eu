@@ -35,7 +35,7 @@ try {
   }
 } catch (e) {}
 </script>
-<link rel="stylesheet" href="css/style.css?v=177" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/style.css?v=179" type="text/css" media="screen" />
 <link href="css/twentytwenty-no-compass.css?v=2" rel="stylesheet" type="text/css" />
 
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
@@ -126,9 +126,21 @@ function filter(check,category,category2,category3) {
 <div id="static-copy">
 <h4>Part two: Outside the app</h4>
 Atlas Metrics Case study Service design · Onboarding <a href="atlas.html">← Atlas</a>
+<p>Moving the yearly reporting setup from consultants to customers. What was pitched as a one-week clickthrough turned into a four-month project, and I made the case to stakeholders for doing it properly.</p>
+My role
+<p>Product designer, and acting PM for stretches: scope, roadmap and stakeholders as well as design.</p>
+What this shows
+Service designScoping &amp; roadmapStakeholder alignmentCross-team work: ops, legal, engineeringSystems thinkingInternal tools
 <p>Part one fixed what was broken inside the app. But the research showed most of the consultants' hours went on work that had never been in the product at all: onboarding, account setup and the yearly rollover, all run on calls, spreadsheets and documents.</p>
 <h4>Picking where to start</h4>
-<p>Onboarding was the clearest case of work that had never been in the product. Every kind of setup ran on calls, spreadsheets and documents, handled by the consulting team one client at a time.</p>
+<p>Onboarding was the clearest case of work that had never been in the product. Every kind of setup ran on calls, spreadsheets and documents, handled by the consulting team one client at a time.</p> <p>Journey board from contract handover to onboarding, each stage with its pain points on sticky notes: manual data entry, delays, off-platform consulting, lost activation links, confusion over credentials</p>
+<p>Pain points along the onboarding journey, from the signed deal to the customer's first login</p>
+<p>Mapped end to end, almost every stage was manual, off-platform and waiting on someone. So before any screens we agreed what onboarding should do instead:</p>
+Value proposition
+<p>In just a few guided steps, new users, from ESG novices to multi-fund managers, set up their accounts, import or collect the data they need, invite their teams and see a clear path to compliance. Early wins and personalised guidance mean less confusion, fewer support tickets and a faster time to value.</p>
+<p>→ Less manual work for the ESG and customer success teams</p>
+<p>From there I sketched the full flow, step by step, and checked each step against products that already onboard people well.</p> <p>Onboarding flow from account creation to company account, personalisation, integrations, inviting collaborators and a success screen, each step with its fields and a reference screen from another product</p>
+<p>Onboarding flow, benchmarked: each step with what it asks, next to how 15Five, monday.com, Airtable and others handle the same moment</p>
 <p>We picked the new reporting year first because it looked like the quickest win. These are existing customers who are already set up. Nothing new to configure, just roll the previous year forward. It also came round for everyone at once, so automating it would take a predictable, repeating load off the team.</p>
 <p>I was the designer on this, and for stretches of it the PM as well. The interface turned out to be the last problem, not the first.</p>
 <h4>The one week estimate</h4>
@@ -137,7 +149,10 @@ Atlas Metrics Case study Service design · Onboarding <a href="atlas.html">← A
 <p>Discovery killed that. To let a customer set up their own reporting year, the product needs to know what that customer actually has: which frameworks they report against, which funds, which features they pay for. None of that existed in a form the product could read. Contracts weren't standardised, and what had been agreed was recorded nowhere except in PDFs.</p> <p>Service and contract configuration table mapping service types, metrics, and required platform features and modules</p>
 <p>Contract terms, mapped to services, metrics, and the platform features and modules each one requires</p>
 <p>So the real first task wasn't the flow. It was getting to a standardised backend representation of every customer's setup, so the product could tell each one what applied to them and what didn't. That's the cost of moving work that was never designed to live in software: before you can build the screen, you have to make the thing behind it legible.</p>
-<p>It took closer to six months, build included.</p>
+<h4>Making the case</h4>
+<p>A week had become months, and that needed a decision from the stakeholders. We put every obstacle on the table: contracts that weren't standardised, setups recorded nowhere the product could read, rights and ownership still to work out with legal. Then we showed what doing it properly would buy: customers setting up their own reporting year, consultants out of the yearly setup crunch, and a structure every later feature could build on.</p>
+<p>The alternative was shipping the clickthrough and patching it later, another half-baked onboarding. We'd lived with one of those already, and we weren't going to ship a second. They agreed and gave us the time we asked for.</p>
+<p>It took closer to four months, build included.</p>
 <h4>The flow</h4>
 <p>Four steps: org structure, reporting setup, data requirements, submit. It carries the customer's existing configuration forward and asks them to confirm what changed. Behind each step sat a problem the screen doesn't show.</p>
 <p>Org structure had a database already, but every entity in it had been added by hand. Letting customers build their own meant representing a tree the product had never had to hold, and the hard part wasn't the shape. It was rights and ownership: who can see which branch, who can edit it, what a group-level user is entitled to across entities they don't directly own. That took a few rounds with legal on GDPR.</p> <p>Planning notes, Slack thread, and diagram mapping org tree requirements and permission cascades</p>

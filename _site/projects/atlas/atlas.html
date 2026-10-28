@@ -359,7 +359,7 @@
   border-radius: 20px;
   overflow: hidden;
 }
-.stack-card img { width: 100%; height: auto; display: block; }
+.stack-card img, .stack-card video { width: 100%; height: auto; display: block; }
 
 .stack-card-caption {
   margin-top: 18px;
@@ -443,6 +443,13 @@ html.dark .stack-arrow:disabled { background: #3a3a3a; border-color: #3a3a3a; co
 /* Atlas: data quality, sitting under its product chapter */
 .process-stack--dq { margin-top: 12px; margin-bottom: 36px; }
 .process-stack--dq .stack-card-img { border-radius: 16px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06); }
+
+/* Looping demo videos: play like GIFs, so hide the native overlay Safari adds
+   when autoplay is held back (Low Power Mode). */
+video.project-video { display: block; width: 100%; height: auto; }
+video.project-video::-webkit-media-controls,
+video.project-video::-webkit-media-controls-start-playback-button,
+video.project-video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; }
 
 /* ── Before/after comparison sliders (twentytwenty) ── */
 /* Standalone (non-breakout) compare-items dropped inline between paragraphs
@@ -1223,6 +1230,21 @@ html.dark .case-card-text { color: #c4c4c4; }
   .case-cards { grid-template-columns: 1fr; }
 }
 
+
+/* Case study brief: what it's about, before the story starts */
+.case-brief { border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 10px; background: #fff; padding: 20px; margin: 0 0 40px; }
+.case-brief-lede { font-size: 20px; font-weight: 500; line-height: 1.4; color: #191919; margin: 0 0 20px !important; }
+.case-brief-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px 32px; padding-top: 18px; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.case-brief-label { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: #717182; font-weight: 500; line-height: 16px; margin-bottom: 6px; }
+.case-brief-grid p { margin: 0 !important; font-size: 15px; line-height: 22px; }
+.case-brief-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.case-brief-tags span { font-size: 13px; line-height: 18px; padding: 4px 10px; border-radius: 999px; background: #f2f2f2; color: #191919; }
+@media (max-width: 640px) { .case-brief-grid { grid-template-columns: 1fr; } }
+html.dark .case-brief { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .case-brief-lede { color: #ececec !important; }
+html.dark .case-brief-grid { border-top-color: rgba(255,255,255,0.1); }
+html.dark .case-brief-label { color: #8a8a8a; }
+html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
 </style>
 </head>
 <body>
@@ -1679,24 +1701,24 @@ html.dark .case-card-text { color: #c4c4c4; }
           <div class="stack-viewport">
             <div class="stack-track">
               <div class="stack-card" data-n="0">
-                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_1_scoping.png" alt="Sticky-note scoping board: which data types are considered, what GPs want, and which classes of issue exist" loading="lazy"></div>
-                <div class="stack-card-caption"><strong>Scope.</strong> Starting with the questions before any screens: which data types a check should cover, what counts as an issue, and what a GP actually wants to do about it.</div>
+                <div class="stack-card-img"><video class="project-video" autoplay playsinline loop muted preload="auto" disablepictureinpicture disableremoteplayback poster="projects/atlas/assets/data_library_demo_poster.jpg?v=1" src="projects/atlas/assets/data_library_demo_zoom.mp4?v=2" aria-label="Data library demo: filtering by fund, searching, opening a flagged data point, then confirming, correcting and notifying in the Quality check tab"></video></div>
+                <div class="stack-card-caption"><strong>The result.</strong> The quality check lives inside the Data library, as a tab next to every data point. Filter by fund, search, open a value to see its history and source, then confirm, correct or ask the company, without leaving the library.</div>
               </div>
               <div class="stack-card" data-n="1">
-                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_2_journey.png" alt="Swimlane journey across KfW, the GP and the portfolio company, from the quality run to republished data" loading="lazy"></div>
-                <div class="stack-card-caption"><strong>Map the journey.</strong> Following one flag from the LP’s quality run, through the GP resolving it, to the portfolio company republishing, with the open questions marked along the way.</div>
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_1_scoping.png?v=3" alt="Sticky-note scoping board: which data types are considered, what GPs want, and which classes of issue exist" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Scope.</strong> Starting with the questions before any screens: which data types a check should cover, what counts as an issue, and what a GP actually wants to do about it.</div>
               </div>
               <div class="stack-card" data-n="2">
-                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_3_architecture.png" alt="Decision tree from the GP to GP-level, fund-level and portfolio company metrics, each branching into critical values, errors and omissions" loading="lazy"></div>
-                <div class="stack-card-caption"><strong>Data information structure.</strong> Splitting every flag by level (GP, fund, portfolio company) and by type (critical value, error or outlier, omission), with thresholds deciding when a company is told.</div>
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_2_journey.png?v=2" alt="Swimlane journey across KfW, the GP and the portfolio company, from the quality run to republished data" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Map the journey.</strong> Following one flag from the LP’s quality run, through the GP resolving it, to the portfolio company republishing, with the open questions marked along the way.</div>
               </div>
               <div class="stack-card" data-n="3">
-                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_4_wireframe.png" alt="Wireframe of GP, fund and portfolio company tables with Confirm, Resolve and Inform actions, statuses and notes on submitting" loading="lazy"></div>
-                <div class="stack-card-caption"><strong>Wireframe.</strong> One table per level, with Confirm, Resolve and Inform on every row and a status that follows the flag until the GP submits.</div>
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_3_architecture.png?v=2" alt="Decision tree from the GP to GP-level, fund-level and portfolio company metrics, each branching into critical values, errors and omissions" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Data information structure.</strong> Splitting every flag by level (GP, fund, portfolio company) and by type (critical value, error or outlier, omission), with thresholds deciding when a company is told.</div>
               </div>
               <div class="stack-card" data-n="4">
-                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_5_design.png" alt="The GP's Data quality page: outlier counts, outliers by level with Confirm and Correct value, and companies over the critical omission rate" loading="lazy"></div>
-                <div class="stack-card-caption"><strong>Deliver.</strong> The GP’s Data quality page: everything flagged across their funds and companies, ready to confirm or correct, and the companies still missing critical data.</div>
+                <div class="stack-card-img"><img class="project-hero-img" src="projects/atlas/assets/dq_4_wireframe.png?v=2" alt="Wireframe of GP, fund and portfolio company tables with Confirm, Resolve and Inform actions, statuses and notes on submitting" loading="lazy"></div>
+                <div class="stack-card-caption"><strong>Wireframe.</strong> One table per level, with Confirm, Resolve and Inform on every row and a status that follows the flag until the GP submits.</div>
               </div>
             </div>
           </div>

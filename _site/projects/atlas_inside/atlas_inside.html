@@ -510,6 +510,21 @@ html.dark .case-card-text { color: #c4c4c4; }
   .case-cards { grid-template-columns: 1fr; }
 }
 
+
+/* Case study brief: what it's about, before the story starts */
+.case-brief { border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 10px; background: #fff; padding: 20px; margin: 0 0 40px; }
+.case-brief-lede { font-size: 20px; font-weight: 500; line-height: 1.4; color: #191919; margin: 0 0 20px !important; }
+.case-brief-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px 32px; padding-top: 18px; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.case-brief-label { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: #717182; font-weight: 500; line-height: 16px; margin-bottom: 6px; }
+.case-brief-grid p { margin: 0 !important; font-size: 15px; line-height: 22px; }
+.case-brief-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.case-brief-tags span { font-size: 13px; line-height: 18px; padding: 4px 10px; border-radius: 999px; background: #f2f2f2; color: #191919; }
+@media (max-width: 640px) { .case-brief-grid { grid-template-columns: 1fr; } }
+html.dark .case-brief { background: #1c1c1c; border-color: rgba(255,255,255,0.14); }
+html.dark .case-brief-lede { color: #ececec !important; }
+html.dark .case-brief-grid { border-top-color: rgba(255,255,255,0.1); }
+html.dark .case-brief-label { color: #8a8a8a; }
+html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
 </style>
 </head>
 <body>
@@ -531,10 +546,18 @@ html.dark .case-card-text { color: #c4c4c4; }
 
 
     <div class="project-section">
+      <div class="case-brief">
+        <p class="case-brief-lede">Everyone thought the app was confusing. Research showed the real problem was work the product never did. I reframed the brief and rebuilt the core of the app around what customers need to do next.</p>
+        <div class="case-brief-grid">
+          <div><div class="case-brief-label">My role</div><p>Product designer: research, service design and UI, from interviews to shipped screens.</p></div>
+          <div><div class="case-brief-label">What this shows</div><div class="case-brief-tags"><span>User research</span><span>Service blueprinting</span><span>Reframing the problem</span><span>Prioritisation</span><span>Complex data UX</span><span>Measurable outcome</span></div></div>
+        </div>
+      </div>
+
       <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
 
       <h4 class="case-study-subhead">The assumed problem</h4>
-      <p>Our ESG consultants were consistently working over hours. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
+      <p>Our ESG consultants were consistently working overtime. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
 
       <h4 class="case-study-subhead">What the research showed</h4>
       <p>We ran user interviews and mapped the full customer journey as a service blueprint, from contract signature through preparation, onboarding, data collection, reporting, off season and into the next reporting year. Every step was marked as either in-platform or manual.</p>
@@ -559,6 +582,18 @@ html.dark .case-card-text { color: #c4c4c4; }
 
       <h4 class="case-study-subhead">A home page built around what to do next</h4>
       <p>The entry point already existed. It was a Reporting Summary: completion dial, disclosure counts, progress bars, task counts by state. It reported status accurately and answered the wrong question. A user could see 57% complete and a lot of progress bars and still not know what to do that morning.</p>
+      <p>So before redrawing it, I wrote down what Home was for:</p>
+      <div class="value-prop">
+        <div class="value-prop-label">Home purpose</div>
+        <p>The first screen users land on. It should give them a clear overview of their progress, upcoming tasks and critical data requests.</p>
+        <ul class="value-prop-list">
+          <li><strong>Progress overview.</strong> Simple indicators, like progress bars and percentages, for the key tasks.</li>
+          <li><strong>Upcoming deadlines.</strong> The most pressing tasks, their due dates and reminders.</li>
+          <li><strong>Notifications.</strong> Alerts for overdue or pending actions and data requests.</li>
+          <li><strong>Atlas Academy.</strong> A way into the learning material.</li>
+        </ul>
+        <p class="value-prop-goal">&rarr; Self-service: guide customers through complex flows. Solves stop-and-go work: pick up a task where you left it, with the whole process in view.</p>
+      </div>
       <p>I replaced it with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
 
       <div class="compare-item">
@@ -570,7 +605,24 @@ html.dark .case-card-text { color: #c4c4c4; }
       </div>
 
       <h4 class="case-study-subhead">Data collection</h4>
-      <p>Entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
+      <p>Data collection starts at the Tasks list, and that's where it first broke down. Every row was accurate, and none of it answered the questions users actually came with: are these for my reports or my network's, which ones are mine, who asked for them and by when, and what a status like "New data" or "Awaiting data" wants me to do.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/tasks_audit.png" alt="The old Tasks list with a company tag, a group header, an empty comment icon and an Open status circled, its two long status menus, and sticky notes with the questions users couldn't answer from it" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">The old Tasks list, annotated with the questions it left users asking</p>
+      <p>Almost every one of those questions is about people: who a task is for, who asked, who is waiting on it. A task is one piece of the data a report needs, and it passes through several hands on the way. So I mapped that path role by role: collectors enter the data, reviewers validate it, managers consolidate it and admins sign off and share the report. The grey cards marked new are the steps the product didn't support yet, like seeing what's left to do, setting due dates and sending reminders.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/role_data_journey.png" alt="Role journey grid: phases (setup, task distribution, data collection, review, consolidation, reporting) and steps down the side, with what the admin, manager, collector and reviewer each do at every step and the system touchpoints, new steps marked in grey" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">How ESG data flows across roles, from the first task to the final report</p>
+      <p>With the roles clear, I set out what data collection had to do:</p>
+      <div class="value-prop">
+        <div class="value-prop-label">Data collection purpose</div>
+        <p>Guide the user through complex flows by completing tasks in sequence.</p>
+        <ul class="value-prop-list">
+          <li><strong>Sequential task management.</strong> One step unlocks the next.</li>
+          <li><strong>Deadlines.</strong> Every task carries its due date.</li>
+          <li><strong>Gamification.</strong> Completing a task should feel like progress.</li>
+        </ul>
+        <p class="value-prop-goal">&rarr; Get through the work faster, and always know what&rsquo;s left before the deadline</p>
+      </div>
+      <p>Once a task was open, entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
       <p>I rebuilt it as a single working surface. A whole task opens once, in one place, with the questions in one continuous flow. I condensed the secondary information into the margins, stripped out what wasn't needed at the point of entry, and moved the guidance next to the question that needed it.</p>
       <p>Nobody wants to spend their week entering ESG data, so the goal was to make it quicker to get through and easier to digest: far fewer clicks, and a clear read at any moment on how far along you are and what's left before the deadline.</p>
 

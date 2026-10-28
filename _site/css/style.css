@@ -2184,3 +2184,36 @@ html.dark #section-toc::before { background: #1c1c1c; box-shadow: 0 0 0 1px rgba
 		margin-right: 0.4em;
 	}
 }
+
+/* Value proposition block (Atlas case study part two), set as text rather than a screenshot.
+   Lives here, not in the fragment: the case panel loads only the content, not its <style>. */
+.value-prop {
+	margin: 24px 0 28px;
+	padding: 4px 0 4px 22px;
+	border-left: 3px solid #4538d6;
+}
+.value-prop-label {
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #4538d6;
+	margin-bottom: 8px;
+}
+.project-section .value-prop p {
+	font-size: 20px;
+	line-height: 1.5;
+	font-weight: 500;
+	color: #191919;
+	margin: 0;
+}
+.project-section .value-prop p.value-prop-goal { font-size: 18px; font-weight: 600; margin-top: 14px; }
+html.dark .value-prop { border-left-color: #8f88f0; }
+html.dark .value-prop-label { color: #a39df5; }
+html.dark .project-section .value-prop p { color: #ececec; }
+
+.value-prop-list { margin: 14px 0 0; padding-left: 20px; }
+.project-section .value-prop-list li { font-size: 17px; line-height: 1.5; color: #3d3d3d; margin: 0 0 6px; text-align: left; }
+.project-section .value-prop-list li strong { color: #191919; font-weight: 600; }
+html.dark .project-section .value-prop-list li { color: #c4c4c4; }
+html.dark .project-section .value-prop-list li strong { color: #ececec; }

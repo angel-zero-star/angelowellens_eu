@@ -35,7 +35,7 @@ try {
   }
 } catch (e) {}
 </script>
-<link rel="stylesheet" href="css/style.css?v=177" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/style.css?v=179" type="text/css" media="screen" />
 <link href="css/twentytwenty-no-compass.css?v=2" rel="stylesheet" type="text/css" />
 
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
@@ -126,9 +126,14 @@ function filter(check,category,category2,category3) {
 <div id="static-copy">
 <h4>Part one: Inside the app</h4>
 Atlas Metrics Case study Research · UX <a href="atlas.html">← Atlas</a>
+<p>Everyone thought the app was confusing. Research showed the real problem was work the product never did. I reframed the brief and rebuilt the core of the app around what customers need to do next.</p>
+My role
+<p>Product designer: research, service design and UI, from interviews to shipped screens.</p>
+What this shows
+User researchService blueprintingReframing the problemPrioritisationComplex data UXMeasurable outcome
 <p>Atlas grew from an early-stage product into a platform serving hundreds of organisations across banks, funds and portfolio companies. The gap between what the product did and what customers needed was absorbed by people: an in-house ESG consulting team who ran workshops, set up accounts, answered questions and did by hand whatever the app didn't do yet. It worked, but it didn't scale. Every new customer meant more consultant hours, and the team couldn't keep growing in step.</p>
 <h4>The assumed problem</h4>
-<p>Our ESG consultants were consistently working over hours. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
+<p>Our ESG consultants were consistently working overtime. Support tickets were high, the same questions kept arriving, and there was a backlog of features customers wanted on top of it. Internally the explanation was bad UX: the app was confusing, so people called us instead.</p>
 <h4>What the research showed</h4>
 <p>We ran user interviews and mapped the full customer journey as a service blueprint, from contract signature through preparation, onboarding, data collection, reporting, off season and into the next reporting year. Every step was marked as either in-platform or manual.</p> <p>Service blueprint mapping the full customer journey, each step marked in-platform or manual</p>
 <p>Service blueprint of the full customer journey.</p>
@@ -144,10 +149,31 @@ Atlas Metrics Case study Research · UX <a href="atlas.html">← Atlas</a>
 <li><strong>Align offline and online.</strong> Workshops, consulting and documents are part of the real workflow. Design the platform to absorb them rather than pretend they don't exist.</li> </ul>
 <h4>A home page built around what to do next</h4>
 <p>The entry point already existed. It was a Reporting Summary: completion dial, disclosure counts, progress bars, task counts by state. It reported status accurately and answered the wrong question. A user could see 57% complete and a lot of progress bars and still not know what to do that morning.</p>
+<p>So before redrawing it, I wrote down what Home was for:</p>
+Home purpose
+<p>The first screen users land on. It should give them a clear overview of their progress, upcoming tasks and critical data requests.</p>
+<ul>
+<li><strong>Progress overview.</strong> Simple indicators, like progress bars and percentages, for the key tasks.</li>
+<li><strong>Upcoming deadlines.</strong> The most pressing tasks, their due dates and reminders.</li>
+<li><strong>Notifications.</strong> Alerts for overdue or pending actions and data requests.</li>
+<li><strong>Atlas Academy.</strong> A way into the learning material.</li> </ul>
+<p>→ Self-service: guide customers through complex flows. Solves stop-and-go work: pick up a task where you left it, with the whole process in view.</p>
 <p>I replaced it with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
 <p>Home, replacing the Reporting Summary with a What's next list</p>
 <h4>Data collection</h4>
-<p>Entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
+<p>Data collection starts at the Tasks list, and that's where it first broke down. Every row was accurate, and none of it answered the questions users actually came with: are these for my reports or my network's, which ones are mine, who asked for them and by when, and what a status like "New data" or "Awaiting data" wants me to do.</p> <p>The old Tasks list with a company tag, a group header, an empty comment icon and an Open status circled, its two long status menus, and sticky notes with the questions users couldn&#x27;t answer from it</p>
+<p>The old Tasks list, annotated with the questions it left users asking</p>
+<p>Almost every one of those questions is about people: who a task is for, who asked, who is waiting on it. A task is one piece of the data a report needs, and it passes through several hands on the way. So I mapped that path role by role: collectors enter the data, reviewers validate it, managers consolidate it and admins sign off and share the report. The grey cards marked new are the steps the product didn't support yet, like seeing what's left to do, setting due dates and sending reminders.</p> <p>Role journey grid: phases (setup, task distribution, data collection, review, consolidation, reporting) and steps down the side, with what the admin, manager, collector and reviewer each do at every step and the system touchpoints, new steps marked in grey</p>
+<p>How ESG data flows across roles, from the first task to the final report</p>
+<p>With the roles clear, I set out what data collection had to do:</p>
+Data collection purpose
+<p>Guide the user through complex flows by completing tasks in sequence.</p>
+<ul>
+<li><strong>Sequential task management.</strong> One step unlocks the next.</li>
+<li><strong>Deadlines.</strong> Every task carries its due date.</li>
+<li><strong>Gamification.</strong> Completing a task should feel like progress.</li> </ul>
+<p>→ Get through the work faster, and always know what’s left before the deadline</p>
+<p>Once a task was open, entering data had been one datapoint at a time. Open a modal, fill in a field, submit, close, find the next one. A task that was really a hundred small answers became a hundred separate trips through the same interface.</p>
 <p>I rebuilt it as a single working surface. A whole task opens once, in one place, with the questions in one continuous flow. I condensed the secondary information into the margins, stripped out what wasn't needed at the point of entry, and moved the guidance next to the question that needed it.</p>
 <p>Nobody wants to spend their week entering ESG data, so the goal was to make it quicker to get through and easier to digest: far fewer clicks, and a clear read at any moment on how far along you are and what's left before the deadline.</p>
 <p>Data collection, after</p> <p>Data collection, before</p>
