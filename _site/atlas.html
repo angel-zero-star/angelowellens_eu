@@ -221,7 +221,19 @@ Design System Components
 <p>PCAF summary: financed emissions per asset class split by data-quality score, and a detailed summary table flagging missing inputs</p>
 <strong>Financed emissions.</strong> PCAF results per asset class, split by data-quality score so a bank sees how much of a number is estimated, with the summary table flagging missing or inconsistent inputs.
 <ul>
-<li><strong>Risk Engine.</strong> Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li>
+<li><strong>Risk Engine.</strong> Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li> </ul>
+<strong>The result.</strong> From portfolio to a single site. Counterparties are counted by risk level and sorted by what needs attention, each company gets a profile across five risk types, and physical risk updates live as you switch the climate scenario or the year, with mitigation measures only where a hazard is high.
+<p>Spec for the physical risk dashboard: level 1 scope, score, summary, and year and scenario drop-downs</p>
+<strong>Spec the dashboard.</strong> What every element means and how it aggregates across years, scenarios and locations, starting from what the data could support: level 1, three hazards.
+<p>Flow for GPT-based reputational reassessments with open questions on data storage, combining outputs and visualisation</p>
+<strong>Design the reassessment.</strong> Reputational risk is reassessed on a schedule from the latest news articles about the company. Mapping the flow surfaced the real questions: what to store, how to weigh old against new, and how to show a change.
+<p>Estimation board with work packages, assumptions and FTE-day estimates, summing to 23 to 41 days, or 18 with scope reduction</p>
+<strong>Estimate and cut.</strong> Sizing every work package with engineering, then trimming scope to land the first release at 18 FTE days instead of up to 41.
+<p>Annotated design review of the risks overview with content, accessibility, UI and interaction fixes</p>
+<strong>Review and refine.</strong> A pass over the shipped overview: count companies instead of revenue, accessible colours, sortable risk and shorter numbers.
+<p>Flow for adding a company: processing states and where users land with one or several companies</p>
+<strong>Map the edge cases.</strong> What happens while a new company is processed, and whether people land on the overview or straight on one company, depending on how many they add.
+<ul>
 <li><strong>Performance Monitoring &amp; Dashboards.</strong> Customizable analytics for benchmarking and strategic decisions across portfolios and sectors. Designed for both the sustainability manager tracking progress and the executive who needs a clear signal at a glance.</li>
 <li><strong>Materiality Analysis.</strong> Automated double materiality assessments with survey flows, scoring, and clear prioritization views. Turns what is typically a months-long consulting engagement into a repeatable internal process.</li> </ul>
 <h3>Case study: Scaling past the consulting team</h3>
