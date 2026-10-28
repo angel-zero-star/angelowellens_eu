@@ -35,7 +35,7 @@ try {
   }
 } catch (e) {}
 </script>
-<link rel="stylesheet" href="css/style.css?v=179" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/style.css?v=181" type="text/css" media="screen" />
 <link href="css/twentytwenty-no-compass.css?v=2" rel="stylesheet" type="text/css" />
 
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
@@ -44,7 +44,7 @@ try {
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js"></script>
 <script type="text/javascript" src="js/masonry-min.js"></script>
 <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
-<script type="text/javascript" src="js/angelo.js?v=20261027d"></script>	
+<script type="text/javascript" src="js/angelo.js?v=20261028d"></script>	
 <script type="text/javascript" src="js/jquery.shuffleLetters.js"></script>
 <script type="text/javascript" src="js/jquery.lazyloadxt.extra.min.js"></script>
 <script src="js/jquery.event.move.js"></script>
@@ -145,6 +145,7 @@ Web App SaaS · B2B ESG Sustainability Risk management
 <p>Accountability Effect. Atlas Metrics poster</p>
 <p>A man at a laptop, surrounded by ESG topic tags: Energy, Workforce, Financials, Emissions, Water, Waste</p>
 <p>ESG Data Management &amp; Reporting Combined, with emissions bars in tCO2e</p>
+<p>Contributed to scaling Atlas from zero, growing ARR 139% a year. Atlas was acquired by Novata in 2026 to expand its reach across global private markets.</p>
 <h5>Atlas at acquisition</h5>
 Banks
 200+
@@ -165,7 +166,6 @@ Saved per consultant, per week
 10–15 h
 Design System Components
 187
-<p>Scaled from zero, growing ARR 139% a year. Atlas was acquired by Novata in 2026 to expand its reach across global private markets.</p>
 <h3>Problem space</h3>
 <p>ESG reporting sits at the intersection of regulatory pressure, data fragmentation, and organizational complexity. Most companies deal with:</p>
 <ul>
@@ -198,9 +198,29 @@ Design System Components
 <p>Wireframe of GP, fund and portfolio company tables with Confirm, Resolve and Inform actions, statuses and notes on submitting</p>
 <strong>Wireframe.</strong> One table per level, with Confirm, Resolve and Inform on every row and a status that follows the flag until the GP submits.
 <ul>
-<li><strong>Logic Builder &amp; Custom Metrics.</strong> Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li>
+<li><strong>Logic Builder &amp; Custom Metrics.</strong> Letting teams define their own aggregation rules, critical for organizations with non-standard reporting structures. Formulas, weightings, and custom KPIs persist across reporting cycles without rebuilding from scratch.</li> </ul>
+<strong>The result.</strong> A formula editor that searches as you type. Inputs and recipes come up with their URN, units and where they are already used, drop in as chips, and the formula validates before you save. Expression view shows exactly what the parser gets.
+<p>Interview quotes from ESG analysts about writing formulas, and a table of user roles and their needs</p>
+<strong>Listen.</strong> Interviews with the ESG analysts who write the formulas: finding the right indicator was manual, recipes were hard to reuse, and nothing autocompleted or validated.
+<p>The old CMS metrics table with thousands of rows, annotated with sticky notes about raw SQL formulas and lookups in other tabs</p>
+<strong>What it was.</strong> Thousands of metrics in a generic CMS table, formulas typed as raw SQL, and lookups done in a spreadsheet next to it.
+<p>User flow: entry points into the formula editor, choosing to reuse or start a recipe, and the create metric steps from details to recipe</p>
+<strong>Map the flow.</strong> Four ways into the same formula field, reuse or start fresh, and where the editor sits inside creating a metric.
+<p>Formula editor states: search while typing with a details panel, the formula in plain text and in expression form, and the chip colour legend</p>
+<strong>Design the states.</strong> Search while typing with a details preview, and the same formula as readable chips or as the raw expression, with one colour per kind of entity.
+<ul>
 <li><strong>Multi-standard Reporting.</strong> One dataset, any framework. Designed to eliminate the recurring rebuild that compliance reporting usually requires. CSRD, GRI, SFDR, and custom templates all draw from the same source, reducing both effort and inconsistency risk.</li>
-<li><strong>Carbon Accounting.</strong> Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review.</li>
+<li><strong>Carbon Accounting.</strong> Operational and financed emissions tracking aligned to PCAF and GHG Protocol. Scope 1, 2, and 3 calculations with methodology transparency and audit-ready output that holds up under external review. A simulation engine on top lets teams model reduction pathways, testing what a change in suppliers, energy mix or portfolio would do to their footprint before committing to it.</li> </ul>
+<strong>The result.</strong> One module from footprint to plan. Break emissions down by scope and business unit, model a reduction measure and watch its pathway move against the 2030 target as you change the numbers, then report financed emissions under PCAF with the data quality behind every figure.
+<p>Flow from dashboard to setting up the org tree, collecting carbon data and seeing the report, with sticky notes on what users can and cannot do at each step</p>
+<strong>Map the module.</strong> Business units were new to carbon accounting, so each step got its rules first: what a user can and can’t do with the org tree, the data collection and the report.
+<p>The add measure modal with time horizon and simulated values, next to two iterations of the add measure popover</p>
+<strong>Design the measure.</strong> A measure picks a time horizon and changes the activity data per country, department or branch. The popover iterations settled how to choose between a ready-made and a custom measure.
+<p>Spec for reducing or increasing all values by a percentage, with a note on choosing which inputs the percentage applies to</p>
+<strong>Spec the shortcuts.</strong> Editing hundreds of values one by one doesn’t scale, so a measure can reduce or increase them all by a percentage, scoped to the inputs it should touch.
+<p>PCAF summary: financed emissions per asset class split by data-quality score, and a detailed summary table flagging missing inputs</p>
+<strong>Financed emissions.</strong> PCAF results per asset class, split by data-quality score so a bank sees how much of a number is estimated, with the summary table flagging missing or inconsistent inputs.
+<ul>
 <li><strong>Risk Engine.</strong> Real-time risk signal monitoring translated into portfolio-level visibility and early warnings. Configurable thresholds let teams surface what matters to them, whether regulatory, reputational, or operational, before it becomes a reporting problem.</li>
 <li><strong>Performance Monitoring &amp; Dashboards.</strong> Customizable analytics for benchmarking and strategic decisions across portfolios and sectors. Designed for both the sustainability manager tracking progress and the executive who needs a clear signal at a glance.</li>
 <li><strong>Materiality Analysis.</strong> Automated double materiality assessments with survey flows, scoring, and clear prioritization views. Turns what is typically a months-long consulting engagement into a repeatable internal process.</li> </ul>

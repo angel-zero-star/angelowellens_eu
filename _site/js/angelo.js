@@ -929,17 +929,21 @@ var _stackResize = {};
 function initProcessStack(root) {
   root = root || document.getElementById('content');
   if (!root) return;
-  var key = root.id;
-  if (_stackResize[key]) {
-    window.removeEventListener('resize', _stackResize[key]);
-    delete _stackResize[key];
-  }
-  var section = root.querySelector('.process-stack');
-  if (!section) return;
+  // a page can carry more than one carousel (Atlas has one per chapter)
+  Object.keys(_stackResize).forEach(function(k) {
+    if (k.split('#')[0] !== root.id) return;
+    window.removeEventListener('resize', _stackResize[k]);
+    delete _stackResize[k];
+  });
+  root.querySelectorAll('.process-stack').forEach(function(section, i) {
+    initOneStack(root, section, root.id + '#' + i);
+  });
+}
+function initOneStack(root, section, key) {
   var viewport = section.querySelector('.stack-viewport');
   var cards = Array.from(section.querySelectorAll('.stack-card'));
   var n = cards.length;
-  var onLanding = key === 'landing';
+  var onLanding = root.id === 'landing';
   var content = onLanding ? null : document.getElementById('content');
   var wrap = root.querySelector('#wrap_project, #landing_wrap');
   var current = -1;
@@ -1062,7 +1066,10 @@ function initProcessStack(root) {
   // the way to that card's aligned position — free-scrolling can stop
   // anywhere mid-card, so this is what makes it land flush instead of
   // resting wherever momentum happened to run out.
+  var dragging = false;
   function syncActive() {
+    // our own tween is moving it (a step just started): don't pull it back
+    if (dragging || scrollAnimFrame) return;
     var active = nearestCard();
     current = active;
     cards.forEach(function(c, k) { c.classList.toggle('active', k === active); });
@@ -1119,14 +1126,67 @@ function initProcessStack(root) {
     scrollT = setTimeout(syncActive, 80);
   }, { passive: true });
 
+  // One gesture = one card. Free scrolling plus snap-to-nearest meant a short
+  // swipe never got past halfway and snapped back, so horizontal input is
+  // taken over: the first few px of a gesture step one card that way, and the
+  // rest of it (trackpad momentum included) is swallowed until it goes quiet.
+  var gestureLock = false, gestureAcc = 0, gestureLast = 0, gestureAt = 0, gestureDir = 0, gestureT;
+  function step(dir) {
+    gestureAt = Date.now();
+    scrollToCard((current < 0 ? 0 : current) + dir);
+  }
   viewport.addEventListener('wheel', function(e) {
-    var horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
-    if (horizontal) return; // native horizontal scroll handles it
-    // vertical-dominant: hand it to the real scroller so this section never
-    // eats a normal scroll gesture, even in browsers that would redirect it
+    var dx = e.shiftKey && !e.deltaX ? e.deltaY : e.deltaX;
+    var horizontal = Math.abs(dx) > Math.abs(e.deltaY) || e.shiftKey;
     e.preventDefault();
-    if (content) content.scrollTop += e.deltaY;
-    else window.scrollBy(0, e.deltaY);
+    if (!horizontal) {
+      // vertical-dominant: hand it to the real scroller so this section never
+      // eats a normal scroll gesture, even in browsers that would redirect it
+      if (content) content.scrollTop += e.deltaY;
+      else window.scrollBy(0, e.deltaY);
+      return;
+    }
+    var a = Math.abs(dx), dir = dx > 0 ? 1 : -1;
+    // a fresh swipe while the last one's momentum is still trailing off:
+    // a sudden jump in speed, or a turn the other way
+    if (gestureLock && Date.now() - gestureAt > 220 &&
+        ((a > 8 && a > gestureLast * 1.5) || (dir !== gestureDir && a > 3))) gestureLock = false;
+    gestureLast = a;
+    clearTimeout(gestureT);
+    gestureT = setTimeout(function() { gestureLock = false; gestureAcc = 0; gestureLast = 0; }, 120);
+    if (gestureLock) return;
+    gestureAcc += dx;
+    if (Math.abs(gestureAcc) < 6) return;
+    gestureLock = true;
+    gestureDir = gestureAcc > 0 ? 1 : -1;
+    gestureAcc = 0;
+    step(gestureDir);
+  }, { passive: false });
+
+  // Touch: the card follows the finger, then a flick or a drag past 40px
+  // moves one card; anything less springs back. Vertical swipes stay native.
+  viewport.style.touchAction = 'pan-y';
+  var tx = 0, ty = 0, tLeft = 0, tTime = 0, tAxis = null;
+  viewport.addEventListener('touchstart', function(e) {
+    var t = e.touches[0];
+    tx = t.clientX; ty = t.clientY; tLeft = viewport.scrollLeft; tTime = Date.now(); tAxis = null;
+    if (scrollAnimFrame) { cancelAnimationFrame(scrollAnimFrame); scrollAnimFrame = null; }
+  }, { passive: true });
+  viewport.addEventListener('touchmove', function(e) {
+    var t = e.touches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+    if (!tAxis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) tAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if (tAxis !== 'x') return;
+    e.preventDefault();
+    dragging = true;
+    viewport.scrollLeft = tLeft - dx;
+  }, { passive: false });
+  viewport.addEventListener('touchend', function(e) {
+    if (tAxis !== 'x') return;
+    var dx = (e.changedTouches[0] || {}).clientX - tx;
+    var fast = Math.abs(dx) / Math.max(1, Date.now() - tTime) > 0.3;
+    dragging = false;
+    if (Math.abs(dx) > 40 || (fast && Math.abs(dx) > 12)) step(dx < 0 ? 1 : -1);
+    else scrollToCard(current);
   });
 
   _stackResize[key] = function() {
@@ -2088,15 +2148,15 @@ function runTilesHero(canvas) {
 
 // ── Video autoplay on scroll ──
 function initVideoObserver() {
-  var video = document.querySelector('video.project-video');
-  if (!video) return;
-  video.muted = true;
+  var videos = document.querySelectorAll('video.project-video');
+  if (!videos.length) return;
   var vo = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
-      if (entry.isIntersecting) { video.play(); } else { video.pause(); }
+      var v = entry.target;
+      if (entry.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function() {}); } else { v.pause(); }
     });
   }, { threshold: 0.3 });
-  vo.observe(video);
+  videos.forEach(function(v) { v.muted = true; vo.observe(v); });
 }
 
 jQuery(document).ready(function() {

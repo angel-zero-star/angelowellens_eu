@@ -20,6 +20,10 @@ T = {'claude': tile('claude','Claude','claude'), 'figma': FIGMA,
      'apple': tile('apple','App Store','dark'),
      'notion': tile('notion','Notion AI','light'),
      'chatgpt': tile('openai','ChatGPT','light'),
+     'mixpanel': tile('mixpanel','Mixpanel','mixpanel'),
+     'hotjar': tile('hotjar','Hotjar','hotjar'),
+     'xcode': tile('xcode','Xcode','xcode'),
+     'miro': tile('miro','Miro','miro'),
      'copilot': tile('githubcopilot','GitHub Copilot','dark'),
      # Nano Banana is Google's Gemini image model: Gemini spark in its gradient
      'gemini': ('<span class="ai-tile ai-tile-light" title="Nano Banana">'
@@ -43,21 +47,21 @@ T = {'claude': tile('claude','Claude','claude'), 'figma': FIGMA,
                 '<path d="M7.4 15.4V17.1" stroke="#1584b0"/>'
                 '</svg></span>')}
 steps = [
- (['claude','chatgpt','notion','fathom'], 'Research &amp; Define',
+ (['claude','chatgpt','notion','fathom','miro'], 'Research &amp; Define',
   'Market, audience and competitor insights, plus the rules and data behind a product, uncovered in minutes instead of days of digging. User interviews are recorded and summarised automatically, so I can focus on the conversation.',
-  'Claude or ChatGPT, Notion AI, Fathom'),
+  'Claude or ChatGPT, Notion AI, Fathom, Miro'),
  (['lovable','figma','claude'], 'Ideate &amp; Prototype',
   'Explore concepts and alternative directions in minutes, then turn the best ones into working prototypes to validate ideas early.',
   'Lovable, Figma Make, Claude'),
  (['claude','figma','gemini','comfy'], 'Design &amp; UX Copy',
   'Screens and UX copy with Claude Design and Figma\'s AI assistant, on a design system Claude reads directly through the Figma MCP. Imagery comes from Nano Banana, and motion is explored in ComfyUI.',
   'Claude Design, Figma MCP, Figma Assistant, Nano Banana, ComfyUI (motion)'),
- (['claude','copilot'], 'Build &amp; Ship',
+ (['claude','copilot','xcode'], 'Build &amp; Ship',
   'Turn designs into working web apps and native iOS and Android apps, live on the web, the App Store and Google Play, without waiting for engineering.',
-  'Claude Code, GitHub Copilot'),
- (['claude','chatgpt'], 'Measure &amp; Improve',
-  'Summarise feedback and reviews, spot what to fix next, and ship improvements in days rather than sprints.',
-  'Claude or ChatGPT'),
+  'Claude Code, GitHub Copilot, Xcode'),
+ (['claude','chatgpt','mixpanel','hotjar'], 'Measure &amp; Improve',
+  'Track and watch how people actually use the product, summarise feedback and reviews, spot what to fix next, and ship improvements in days rather than sprints.',
+  'Claude or ChatGPT, Mixpanel, Hotjar'),
 ]
 rows = '\n'.join(f'''      <div class="about-row">
         <h2>{h}</h2>
@@ -234,6 +238,14 @@ html = f'''<!DOCTYPE html>
 .ai-tile svg {{ width: 24px; height: 24px; display: block; }}
 .ai-tile-claude {{ background: #d97757; }}
 .ai-tile-claude svg {{ fill: #fff; }}
+.ai-tile-mixpanel {{ background: #7856ff; }}
+.ai-tile-mixpanel svg {{ fill: #fff; }}
+.ai-tile-hotjar {{ background: #ff3c00; }}
+.ai-tile-hotjar svg {{ fill: #fff; }}
+.ai-tile-xcode {{ background: #147efb; }}
+.ai-tile-xcode svg {{ fill: #fff; }}
+.ai-tile-miro {{ background: #ffd02f; }}
+.ai-tile-miro svg {{ fill: #050038; }}
 .ai-tile-dark {{ background: #000; }}
 .ai-tile-dark svg {{ fill: #fff; }}
 .ai-tile-light {{ background: #fff; border: 1px solid rgba(0,0,0,0.1); }}

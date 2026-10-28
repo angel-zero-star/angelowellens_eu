@@ -2217,3 +2217,19 @@ html.dark .project-section .value-prop p { color: #ececec; }
 .project-section .value-prop-list li strong { color: #191919; font-weight: 600; }
 html.dark .project-section .value-prop-list li { color: #c4c4c4; }
 html.dark .project-section .value-prop-list li strong { color: #ececec; }
+
+/* Breathing room above every section title. A margin (not padding) on the
+   first child collapses into the section's own spacing, so the gap above is
+   96px rather than 44px plus 96px. */
+.project-section > h3 { margin-top: 96px; }
+@media (max-width: 760px) {
+	.project-section > h3 { margin-top: 64px; }
+}
+
+/* Hanging bullets: the text lines up with the paragraphs and images, and the
+   dot sits in the margin. Phones keep the indent, since the 16px gutter
+   leaves no room for the dot. */
+.problem-list, .feature-list { padding-left: 0; }
+@media (max-width: 760px) {
+	.problem-list, .feature-list { padding-left: 20px; }
+}
