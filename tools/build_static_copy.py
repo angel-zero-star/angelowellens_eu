@@ -55,6 +55,10 @@ class Strip(HTMLParser):
             self.nocopy = [tag, 1]
             return
         if tag in SKIP:
+            # a demo video's aria-label says what it shows, like an img alt
+            label = (dict(attrs).get('aria-label') or '').strip()
+            if tag == 'video' and not self.skip and len(label.split()) >= 3:
+                self.out.append('<p>Video: %s</p>' % html.escape(label))
             self.skip += 1
             return
         if self.skip:
