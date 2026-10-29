@@ -2233,3 +2233,59 @@ html.dark .project-section .value-prop-list li strong { color: #ececec; }
 @media (max-width: 760px) {
 	.problem-list, .feature-list { padding-left: 20px; }
 }
+
+/* Lightbox gallery mode (openGalleryLightbox in angelo.js): a carousel's
+   images and videos browsed full screen. Underneath: the caption, and the
+   same dots pill and arrows as the carousel on the page. */
+.img-lightbox.img-lightbox-gallery { flex-direction: column; gap: 16px; padding: 40px 48px 28px; }
+.img-lightbox-gallery .lb-stage {
+	flex: 1 1 auto; min-height: 0; width: 100%;
+	display: flex; align-items: center; justify-content: center;
+	transition: opacity 0.12s ease;
+}
+.img-lightbox-gallery .lb-stage.lb-swap { opacity: 0; }
+.img-lightbox-gallery .lb-stage > img,
+.img-lightbox-gallery .lb-stage > video {
+	max-width: 100%; max-height: 100%; object-fit: contain;
+	border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	transform: scale(0.96); transition: transform 0.25s ease;
+}
+.img-lightbox-gallery.active .lb-stage > img,
+.img-lightbox-gallery.active .lb-stage > video { transform: scale(1); }
+.img-lightbox-gallery .lb-bar {
+	flex: none; width: 100%; max-width: 100%; cursor: default;
+	display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.img-lightbox-gallery .lb-caption {
+	flex: 0 1 760px; text-align: left;
+	font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.85);
+	background: rgba(12, 12, 14, 0.86); border-radius: 12px; padding: 12px 18px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.img-lightbox-gallery .lb-caption strong { color: #fff; }
+.img-lightbox-gallery .lb-controls { flex: none; display: flex; align-items: center; gap: 14px; }
+.img-lightbox-gallery .lb-dots {
+	display: flex; align-items: center; gap: 6px;
+	padding: 0 12px; height: 34px; border-radius: 999px; background: #f0f0f0;
+}
+.img-lightbox-gallery .lb-dot {
+	width: 6px; height: 6px; border-radius: 3px; background: #c2c2c2; cursor: pointer;
+	transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+.img-lightbox-gallery .lb-dot.active { width: 20px; background: #191919; }
+.img-lightbox-gallery .lb-arrows { display: flex; gap: 6px; }
+.img-lightbox-gallery .lb-arrow {
+	width: 34px; height: 34px; border-radius: 50%; border: 1px solid #191919;
+	background: #191919; color: #fff; cursor: pointer;
+	display: flex; align-items: center; justify-content: center;
+	transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.img-lightbox-gallery .lb-arrow:hover { background: #333; border-color: #333; }
+.img-lightbox-gallery .lb-arrow:disabled { background: #e2e2e2; border-color: #e2e2e2; color: #999; cursor: default; }
+.img-lightbox-gallery .lb-arrow svg { display: block; }
+@media (max-width: 760px) {
+	.img-lightbox.img-lightbox-gallery { padding: 48px 16px 20px; gap: 12px; }
+	.img-lightbox-gallery .lb-bar { flex-direction: column; align-items: stretch; gap: 12px; width: 100% !important; }
+	.img-lightbox-gallery .lb-caption { flex: none; font-size: 12.5px; padding: 10px 12px; }
+	.img-lightbox-gallery .lb-controls { justify-content: flex-end; }
+}

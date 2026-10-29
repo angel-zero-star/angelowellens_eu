@@ -1117,6 +1117,7 @@ function initOneStack(root, section, key) {
     animateScrollTo(targetLeft(k));
   }
 
+  section.addEventListener('stack:goto', function(e) { scrollToCard(e.detail); });
   if (prevBtn) prevBtn.addEventListener('click', function(e) { e.stopPropagation(); scrollToCard(current - 1); });
   if (nextBtn) nextBtn.addEventListener('click', function(e) { e.stopPropagation(); scrollToCard(current + 1); });
 
@@ -1417,6 +1418,8 @@ function showLightboxOverlay(overlay) {
 function openLightbox(src, alt) {
   var overlay = ensureLightboxOverlay();
   overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-gallery');
+  _gallery = null;
   overlay.classList.remove('img-lightbox-compare-mode');
   var img = document.createElement('img');
   img.src = src;
@@ -1432,6 +1435,8 @@ function openLightbox(src, alt) {
 function openVideoLightbox(src) {
   var overlay = ensureLightboxOverlay();
   overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-gallery');
+  _gallery = null;
   overlay.classList.remove('img-lightbox-compare-mode');
   var video = document.createElement('video');
   video.src = src;
@@ -1440,6 +1445,137 @@ function openVideoLightbox(src) {
   video.muted = true;
   video.playsInline = true;
   overlay.appendChild(video);
+  showLightboxOverlay(overlay);
+}
+
+// Gallery mode: an image or video that sits in a .process-stack carousel
+// opens with its siblings, so the whole carousel can be browsed full screen
+// (buttons, ← → keys, swipe). Each step also moves the carousel on the page
+// (the 'stack:goto' event, handled in initOneStack), so closing lands on
+// the card you were looking at.
+var _gallery = null;
+function stackItems(section) {
+  return Array.from(section.querySelectorAll('.stack-card')).map(function(card) {
+    var v = card.querySelector('video.project-video');
+    var img = card.querySelector('img');
+    var cap = card.querySelector('.stack-card-caption');
+    return {
+      type: v ? 'video' : 'img',
+      src: v ? (v.currentSrc || v.getAttribute('src')) : (img ? img.src : ''),
+      alt: v ? (v.getAttribute('aria-label') || '') : (img ? img.alt : ''),
+      caption: cap ? cap.innerHTML : ''
+    };
+  });
+}
+function openMediaFrom(el) {
+  var card = el.closest('.stack-card');
+  var section = card && card.closest('.process-stack');
+  if (section) {
+    var cards = Array.from(section.querySelectorAll('.stack-card'));
+    openGalleryLightbox(section, stackItems(section), cards.indexOf(card));
+    return;
+  }
+  if (el.tagName === 'VIDEO') {
+    var source = el.currentSrc || (el.querySelector('source') || {}).src;
+    if (source) openVideoLightbox(source);
+  } else {
+    openLightbox(el.src, el.alt);
+  }
+}
+function openGalleryLightbox(section, items, index) {
+  var overlay = ensureLightboxOverlay();
+  overlay.innerHTML = '';
+  overlay.classList.remove('img-lightbox-compare-mode');
+  overlay.classList.add('img-lightbox-gallery');
+  var stage = document.createElement('div');
+  stage.className = 'lb-stage';
+  var caption = document.createElement('div');
+  caption.className = 'lb-caption';
+  // same controls as the carousel on the page: a dots pill and two arrows
+  var bar = document.createElement('div');
+  bar.className = 'lb-bar';
+  var dots = document.createElement('div');
+  dots.className = 'lb-dots';
+  items.forEach(function(_, i) {
+    var d = document.createElement('span');
+    d.className = 'lb-dot';
+    d.addEventListener('click', function(e) { e.stopPropagation(); go(i); });
+    dots.appendChild(d);
+  });
+  function arrow(dir) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lb-arrow lb-' + (dir < 0 ? 'prev' : 'next');
+    b.setAttribute('aria-label', dir < 0 ? 'Previous' : 'Next');
+    b.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="' + (dir < 0 ? 'M10 12L6 8l4-4' : 'M6 4l4 4-4 4') +
+      '" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    b.addEventListener('click', function(e) { e.stopPropagation(); go(_gallery.index + dir); });
+    return b;
+  }
+  var prev = arrow(-1), next = arrow(1);
+  var controls = document.createElement('div');
+  controls.className = 'lb-controls';
+  var arrows = document.createElement('div');
+  arrows.className = 'lb-arrows';
+  arrows.appendChild(prev);
+  arrows.appendChild(next);
+  controls.appendChild(dots);
+  controls.appendChild(arrows);
+  // the caption bar is not a close target; the media and backdrop are
+  bar.addEventListener('click', function(e) { e.stopPropagation(); });
+  bar.appendChild(caption);
+  bar.appendChild(controls);
+  overlay.appendChild(stage);
+  overlay.appendChild(bar);
+
+  function render() {
+    var it = items[_gallery.index];
+    var el = document.createElement(it.type === 'video' ? 'video' : 'img');
+    el.src = it.src;
+    if (it.type === 'video') {
+      el.autoplay = true; el.loop = true; el.muted = true; el.playsInline = true;
+      el.setAttribute('aria-label', it.alt);
+    } else {
+      el.alt = it.alt;
+    }
+    stage.innerHTML = '';
+    stage.appendChild(el);
+    el.addEventListener(it.type === 'video' ? 'loadedmetadata' : 'load', fitBar);
+    caption.innerHTML = it.caption;
+    Array.prototype.forEach.call(dots.children, function(d, i) { d.classList.toggle('active', i === _gallery.index); });
+    prev.disabled = _gallery.index === 0;
+    next.disabled = _gallery.index === items.length - 1;
+  }
+  // the caption bar spans exactly the width of the image or video above it
+  function fitBar() {
+    var m = stage.firstChild;
+    if (m && m.offsetWidth) bar.style.width = m.offsetWidth + 'px';
+  }
+  window.addEventListener('resize', function() { if (_gallery) fitBar(); });
+  function go(i) {
+    i = Math.max(0, Math.min(items.length - 1, i));
+    if (i === _gallery.index) return;
+    _gallery.index = i;
+    stage.classList.add('lb-swap');
+    setTimeout(function() { render(); stage.classList.remove('lb-swap'); }, 120);
+    section.dispatchEvent(new CustomEvent('stack:goto', { detail: i }));
+  }
+
+  // swipe between items on touch screens
+  var sx = null, sy = null;
+  stage.addEventListener('touchstart', function(e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  stage.addEventListener('touchend', function(e) {
+    if (sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    sx = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      e.preventDefault();
+      go(_gallery.index + (dx < 0 ? 1 : -1));
+    }
+  });
+
+  _gallery = { index: index, go: go };
+  render();
   showLightboxOverlay(overlay);
 }
 
@@ -1499,6 +1635,7 @@ function closeLightbox() {
   var overlay = document.getElementById('img-lightbox');
   if (!overlay || !overlay.classList.contains('active')) return;
   overlay.classList.remove('active');
+  _gallery = null;
   // Belt-and-braces on top of pointer-events:none: fully take the full-
   // viewport overlay out of layout once the fade-out finishes, so there's
   // no way a stationary cursor can end up stuck over a dead hit-test area.
@@ -1508,6 +1645,7 @@ function closeLightbox() {
     if (overlay.classList.contains('active')) return;
     overlay.style.display = 'none';
     overlay.innerHTML = '';
+    overlay.classList.remove('img-lightbox-gallery');
   }, 260);
 }
 
@@ -1562,7 +1700,7 @@ function initCompareExpand() {
     img.parentNode.insertBefore(wrap, img);
     wrap.appendChild(img);
     wrap.appendChild(createExpandBtn(function() {
-      openLightbox(img.src, img.alt);
+      openMediaFrom(img);
     }));
   });
 
@@ -1576,10 +1714,7 @@ function initCompareExpand() {
     wrap.className = 'img-expand-wrap';
     video.parentNode.insertBefore(wrap, video);
     wrap.appendChild(video);
-    var openThisVideo = function() {
-      var source = video.currentSrc || (video.querySelector('source') || {}).src;
-      if (source) openVideoLightbox(source);
-    };
+    var openThisVideo = function() { openMediaFrom(video); };
     video.style.cursor = 'zoom-in';
     video.addEventListener('click', openThisVideo);
     wrap.appendChild(createExpandBtn(openThisVideo));
@@ -1725,6 +1860,15 @@ function initProfileMotion() {
 }
 
 document.addEventListener('keydown', function(e) {
+  if (_gallery && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+    var lb = document.getElementById('img-lightbox');
+    if (lb && lb.classList.contains('active')) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      _gallery.go(_gallery.index + (e.key === 'ArrowRight' ? 1 : -1));
+      return;
+    }
+  }
   if (e.key !== 'Escape') return;
   var overlay = document.getElementById('img-lightbox');
   if (overlay && overlay.classList.contains('active')) {
@@ -3775,7 +3919,7 @@ function folioDone(target) {
         e.preventDefault();
         e.stopImmediatePropagation();
         if (this.classList.contains('project-hero-img')) {
-          openLightbox(this.src, this.alt);
+          openMediaFrom(this);
         }
       });
       $("#content p").on("click", function(e) {
