@@ -16,8 +16,10 @@
       if(!options.no_overlay) {
         container.append("<div class='twentytwenty-overlay'></div>");
       }
-      var beforeImg = container.find("img:first");
-      var afterImg = container.find("img:last");
+      // either side can be a <video> (a looping screen recording) as well as an <img>
+      var media = container.find("img, video");
+      var beforeImg = media.first();
+      var afterImg = media.last();
       container.append("<div class='twentytwenty-handle'></div>");
       var slider = container.find(".twentytwenty-handle");
       slider.append("<span class='twentytwenty-" + beforeDirection + "-arrow'></span>");
@@ -43,14 +45,20 @@
         };
       };
 
+      // clip-path rather than clip: Safari ignores clip on a <video>, which
+      // then shows through on both sides of the handle
+      var cut = function(el, t, r, b, l) {
+        el.css({ clip: "auto", "clip-path": "inset(" + t + "px " + r + "px " + b + "px " + l + "px)", "-webkit-clip-path": "inset(" + t + "px " + r + "px " + b + "px " + l + "px)" });
+      };
       var adjustContainer = function(offset) {
+        var w = parseFloat(offset.w), h = parseFloat(offset.h), cw = parseFloat(offset.cw), ch = parseFloat(offset.ch);
       	if (sliderOrientation === 'vertical') {
-          beforeImg.css("clip", "rect(0,"+offset.w+","+offset.ch+",0)");
-          afterImg.css("clip", "rect("+offset.ch+","+offset.w+","+offset.h+",0)");
+          cut(beforeImg, 0, 0, h - ch, 0);
+          cut(afterImg, ch, 0, 0, 0);
       	}
       	else {
-          beforeImg.css("clip", "rect(0,"+offset.cw+","+offset.h+",0)");
-          afterImg.css("clip", "rect(0,"+offset.w+","+offset.h+","+offset.cw+")");
+          cut(beforeImg, 0, w - cw, 0, 0);
+          cut(afterImg, 0, 0, 0, cw);
     	}
         container.css("height", offset.h);
       };
@@ -101,10 +109,12 @@
         }
       });
 
-      container.find("img").on("mousedown", function(event) {
+      container.find("img, video").on("mousedown", function(event) {
         event.preventDefault();
       });
 
+      // a video only knows its height once its metadata is in
+      media.filter("video").on("loadedmetadata", function() { adjustSlider(sliderPct); });
       $(window).trigger("resize.twentytwenty");
     });
   };

@@ -1467,7 +1467,31 @@ function stackItems(section) {
     };
   });
 }
+// In the case study panel every image, recording and before/after slider
+// opens as one gallery, so the whole case study can be browsed full screen.
+function caseMediaEls(root) {
+  return Array.from(root.querySelectorAll('img.project-hero-img:not(.no-expand), video.project-video:not(.no-expand), .compare-item .twentytwenty-container'));
+}
+function caseMediaItem(el) {
+  var label = function(m) { return m.alt || m.getAttribute('aria-label') || ''; };
+  if (el.classList.contains('twentytwenty-container')) {
+    var media = Array.from(el.querySelectorAll('img, video'));
+    var cap = el.closest('.compare-item').querySelector('.compare-caption');
+    return { type: 'compare', srcs: media.map(function(m) { return m.currentSrc || m.src; }),
+             alt: media.length ? label(media[0]) : '', caption: cap ? cap.innerHTML : '' };
+  }
+  var next = (el.closest('.img-expand-wrap') || el).nextElementSibling;
+  var video = el.tagName === 'VIDEO';
+  return { type: video ? 'video' : 'img', src: video ? (el.currentSrc || el.getAttribute('src')) : el.src,
+           alt: label(el), caption: next && next.classList.contains('img-caption') ? next.innerHTML : '' };
+}
+function openCaseGallery(el) {
+  var els = caseMediaEls(el.closest('#case-panel'));
+  var i = els.indexOf(el.closest('.twentytwenty-container') || el);
+  openGalleryLightbox(null, els.map(caseMediaItem), Math.max(0, i));
+}
 function openMediaFrom(el) {
+  if (el.closest('#case-panel') && !el.closest('.stack-card')) { openCaseGallery(el); return; }
   var card = el.closest('.stack-card');
   var section = card && card.closest('.process-stack');
   if (section) {
@@ -1496,7 +1520,10 @@ function openGalleryLightbox(section, items, index) {
   bar.className = 'lb-bar';
   var dots = document.createElement('div');
   dots.className = 'lb-dots';
-  items.forEach(function(_, i) {
+  // a long case study gets a "3 / 21" count instead of a row of dots
+  var counted = items.length > 9;
+  if (counted) dots.classList.add('lb-count');
+  else items.forEach(function(_, i) {
     var d = document.createElement('span');
     d.className = 'lb-dot';
     d.addEventListener('click', function(e) { e.stopPropagation(); go(i); });
@@ -1530,35 +1557,44 @@ function openGalleryLightbox(section, items, index) {
 
   function render() {
     var it = items[_gallery.index];
-    var el = document.createElement(it.type === 'video' ? 'video' : 'img');
-    el.src = it.src;
-    if (it.type === 'video') {
-      el.autoplay = true; el.loop = true; el.muted = true; el.playsInline = true;
-      el.setAttribute('aria-label', it.alt);
-    } else {
-      el.alt = it.alt;
-    }
     stage.innerHTML = '';
-    stage.appendChild(el);
-    el.addEventListener(it.type === 'video' ? 'loadedmetadata' : 'load', fitBar);
+    if (it.type === 'compare') {
+      // the same drag comparison as on the page, at gallery size
+      var wrap = document.createElement('div');
+      wrap.className = 'compare-item img-lightbox-compare';
+      var box = document.createElement('div');
+      box.className = 'twentytwenty-container';
+      it.srcs.forEach(function(src) { box.appendChild(compareMediaEl(src, it.alt)); });
+      wrap.appendChild(box);
+      wrap.addEventListener('click', function(e) { e.stopPropagation(); });
+      stage.appendChild(wrap);
+      $(box).twentytwenty({ default_offset_pct: 0.5 });
+      $(box).find('img, video').on('load loadedmetadata', function() { $(window).trigger('resize'); });
+    } else {
+      var el = document.createElement(it.type === 'video' ? 'video' : 'img');
+      el.src = it.src;
+      if (it.type === 'video') {
+        el.autoplay = true; el.loop = true; el.muted = true; el.playsInline = true;
+        el.setAttribute('aria-label', it.alt);
+      } else {
+        el.alt = it.alt;
+      }
+      stage.appendChild(el);
+    }
     caption.innerHTML = it.caption;
-    Array.prototype.forEach.call(dots.children, function(d, i) { d.classList.toggle('active', i === _gallery.index); });
+    caption.style.display = it.caption ? '' : 'none';
+    if (counted) dots.textContent = (_gallery.index + 1) + ' / ' + items.length;
+    else Array.prototype.forEach.call(dots.children, function(d, i) { d.classList.toggle('active', i === _gallery.index); });
     prev.disabled = _gallery.index === 0;
     next.disabled = _gallery.index === items.length - 1;
   }
-  // the caption bar spans exactly the width of the image or video above it
-  function fitBar() {
-    var m = stage.firstChild;
-    if (m && m.offsetWidth) bar.style.width = m.offsetWidth + 'px';
-  }
-  window.addEventListener('resize', function() { if (_gallery) fitBar(); });
   function go(i) {
     i = Math.max(0, Math.min(items.length - 1, i));
     if (i === _gallery.index) return;
     _gallery.index = i;
     stage.classList.add('lb-swap');
     setTimeout(function() { render(); stage.classList.remove('lb-swap'); }, 120);
-    section.dispatchEvent(new CustomEvent('stack:goto', { detail: i }));
+    if (section) section.dispatchEvent(new CustomEvent('stack:goto', { detail: i }));
   }
 
   // swipe between items on touch screens
@@ -1602,6 +1638,19 @@ function openParallaxLightbox(section) {
 // Same lightbox, but drops in a live twentytwenty slider instead of a
 // static image — reuses .compare-item's existing styling (rounded corners,
 // arrow colors) since it's just that same markup pattern, full-screen.
+function compareMediaEl(src, alt) {
+  var video = /\.mp4(\?|$)/.test(src);
+  var el = document.createElement(video ? 'video' : 'img');
+  el.src = src;
+  if (video) {
+    el.muted = el.loop = el.autoplay = el.playsInline = true;
+    el.setAttribute('aria-label', alt || '');
+  } else {
+    el.alt = alt || '';
+  }
+  return el;
+}
+
 function openCompareLightbox(images, alt) {
   var overlay = ensureLightboxOverlay();
   overlay.innerHTML = '';
@@ -1611,12 +1660,7 @@ function openCompareLightbox(images, alt) {
   wrap.className = 'compare-item img-lightbox-compare';
   var container = document.createElement('div');
   container.className = 'twentytwenty-container';
-  images.forEach(function(src) {
-    var img = document.createElement('img');
-    img.src = src;
-    img.alt = alt || '';
-    container.appendChild(img);
-  });
+  images.forEach(function(src) { container.appendChild(compareMediaEl(src, alt)); });
   wrap.appendChild(container);
   // Only the handle needs to stop its click from bubbling (that's the drag
   // target — closing on every drag would defeat the point). Clicking the
@@ -1672,10 +1716,12 @@ function createExpandBtn(onClick) {
 
 // Shared by the expand button and the direct-click-on-slider handler below.
 function openCompareLightboxFromContainer(container) {
-  var imgs = Array.from(container.querySelectorAll('img'));
+  if (container.closest('#case-panel')) { openCaseGallery(container); return; }
+  var imgs = Array.from(container.querySelectorAll('img, video'));
   if (!imgs.length) return;
-  var alt = (imgs.find(function(i) { return /after/i.test(i.alt); }) || imgs[0]).alt.replace(/\s*—\s*(before|after)$/i, '');
-  openCompareLightbox(imgs.map(function(i) { return i.src; }), alt);
+  var label = function(i) { return i.alt || i.getAttribute('aria-label') || ''; };
+  var alt = label(imgs.find(function(i) { return /after/i.test(label(i)); }) || imgs[0]).replace(/\s*—\s*(before|after)$/i, '');
+  openCompareLightbox(imgs.map(function(i) { return i.currentSrc || i.src; }), alt);
 }
 
 function initCompareExpand() {
@@ -1900,12 +1946,24 @@ function openCasePanel(slug) {
             '<path class="sp-x" d="M29 22H15M20 17l-5 5 5 5" fill="none" stroke="#191919" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke 0.3s ease;"/>' +
           '</svg>' +
         '</button>' +
+        '<button type="button" class="case-panel-full" aria-label="Full screen" aria-pressed="false">' +
+          '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path class="cpf-open" d="M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path class="cpf-close" d="M2 6h4V2M14 6h-4V2M2 10h4v4M14 10h-4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</button>' +
         '<div class="case-panel-scroll"><div class="case-panel-inner"></div></div>' +
       '</aside>');
     panel = document.getElementById('case-panel');
     document.getElementById('case-panel-overlay').addEventListener('click', closeCasePanel);
     var back = panel.querySelector('.case-panel-back');
     back.addEventListener('click', closeCasePanel);
+    // full screen: the panel takes the whole window, the text column stays readable
+    var full = panel.querySelector('.case-panel-full');
+    full.addEventListener('click', function() {
+      var on = panel.classList.toggle('is-full');
+      full.setAttribute('aria-pressed', on ? 'true' : 'false');
+      full.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+      setTimeout(function() { $(window).trigger('resize'); }, 420);
+    });
     // progress arc and fill, as initScrollProgress does for the ×
     var arc = back.querySelector('.sp-arc'), bg = back.querySelector('.sp-bg'), arrow = back.querySelector('.sp-x');
     var circ = 2 * Math.PI * 21, complete = false, hover = false;
@@ -1937,7 +1995,7 @@ function openCasePanel(slug) {
         return;
       }
       var img = e.target.closest('img.project-hero-img');
-      if (img) openLightbox(img.src, img.alt);
+      if (img) openCaseGallery(img);
     });
   }
   var inner = panel.querySelector('.case-panel-inner');
@@ -1963,6 +2021,11 @@ function openCasePanel(slug) {
     // arrives, not just the first: on a cold cache the later ones collapsed to 0 tall
     $sliders.find('img').each(function() {
       if (!this.complete) $(this).one('load', function() { $(window).trigger('resize'); });
+    });
+    $sliders.find('video').each(function() {
+      if (this.readyState < 1) $(this).one('loadedmetadata', function() { $(window).trigger('resize'); });
+      var play = this.play();
+      if (play && play.catch) play.catch(function() {});
     });
     $sliders.twentytwenty({ default_offset_pct: 0.2 });
     initCompareExpand();
@@ -2961,6 +3024,91 @@ function initDsBento(root) {
           if (props[key]) props[key](c.dataset.p, v);
         };
         c.addEventListener(c.type === 'text' ? 'input' : 'change', fire);
+      });
+    });
+    // ── spacing guides: a button beside each gear outlines the component and
+    // labels its padding and the gaps between its children, to show the
+    // spacing sits on the 2, 4, 8, 12, 16… scale ──
+    var GUIDE_SVG = '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="8" y="8" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"/></svg>';
+    qa('[data-gear]').forEach(function(g) {
+      var tile = g.parentNode, layer = null, raf = 0;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dsb-gear dsb-guide';
+      b.setAttribute('aria-label', 'Spacing guides');
+      b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = GUIDE_SVG;
+      tile.insertBefore(b, g);
+
+      function draw() {
+        raf = 0;
+        if (layer) layer.remove();
+        layer = document.createElement('div');
+        layer.className = 'dsb-guides';
+        layer.setAttribute('aria-hidden', 'true');
+        var tr = tile.getBoundingClientRect(), s = tr.width / tile.offsetWidth, n = 0;
+        function rect(el) {
+          var r = el.getBoundingClientRect();
+          return { x: (r.left - tr.left) / s - tile.clientLeft, y: (r.top - tr.top) / s - tile.clientTop, w: r.width / s, h: r.height / s };
+        }
+        function add(cls, x, y, w, h) {
+          var d = document.createElement('div');
+          d.className = cls;
+          d.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + h + 'px';
+          layer.appendChild(d);
+        }
+        function label(v, x, y) {
+          var d = document.createElement('span');
+          d.className = 'dsb-gd-n';
+          d.textContent = Math.round(v);
+          d.style.cssText = 'left:' + x + 'px;top:' + y + 'px';
+          layer.appendChild(d);
+        }
+        function walk(el, depth) {
+          if (n > 80 || !el.getClientRects().length) return;
+          var r = rect(el), cs = getComputedStyle(el);
+          if (r.w < 12 || r.h < 12 || cs.visibility === 'hidden' || cs.opacity === '0') return;
+          n++;
+          add('dsb-gd-box', r.x, r.y, r.w, r.h);
+          var pt = parseFloat(cs.paddingTop), pr = parseFloat(cs.paddingRight), pb = parseFloat(cs.paddingBottom), pl = parseFloat(cs.paddingLeft);
+          if (pt) { add('dsb-gd-pad', r.x, r.y, r.w, pt); if (pt >= 4) label(pt, r.x + r.w / 2, r.y + pt / 2); }
+          if (pb) { add('dsb-gd-pad', r.x, r.y + r.h - pb, r.w, pb); if (pb >= 4) label(pb, r.x + r.w / 2, r.y + r.h - pb / 2); }
+          if (pl) { add('dsb-gd-pad', r.x, r.y + pt, pl, r.h - pt - pb); if (pl >= 4) label(pl, r.x + pl / 2, r.y + r.h / 2); }
+          if (pr) { add('dsb-gd-pad', r.x + r.w - pr, r.y + pt, pr, r.h - pt - pb); if (pr >= 4) label(pr, r.x + r.w - pr / 2, r.y + r.h / 2); }
+          var kids = [].filter.call(el.children, function(c) { return c.getClientRects().length && getComputedStyle(c).position !== 'absolute'; });
+          if (/flex|grid/.test(cs.display)) {
+            for (var i = 1; i < kids.length; i++) {
+              var a = rect(kids[i - 1]), c = rect(kids[i]), top, h, left, w;
+              if (c.x >= a.x + a.w - 1) {
+                left = a.x + a.w; w = c.x - left; top = Math.max(a.y, c.y); h = Math.min(a.y + a.h, c.y + c.h) - top;
+              } else if (c.y >= a.y + a.h - 1) {
+                top = a.y + a.h; h = c.y - top; left = Math.max(a.x, c.x); w = Math.min(a.x + a.w, c.x + c.w) - left;
+              } else continue;
+              var v = c.x >= a.x + a.w - 1 ? w : h;
+              // a big gap that isn't the set gap is free space (space-between,
+              // a spacer), not a spacing value
+              if (Math.min(w, h) < 1.5 || Math.max(w, h) < 4 || (v > 40 && Math.abs(v - (parseFloat(c.x >= a.x + a.w - 1 ? cs.columnGap : cs.rowGap) || 0)) > 1)) continue;
+              add('dsb-gd-gap', left, top, w, h);
+              label(v, left + w / 2, top + h / 2);
+            }
+          }
+          if (depth < 3) kids.forEach(function(c) { walk(c, depth + 1); });
+        }
+        [].forEach.call(tile.children, function(el) {
+          if (!el.matches('.dsb-tile-l, .dsb-gear, [data-pp], .dsb-guides')) walk(el, 0);
+        });
+        tile.appendChild(layer);
+      }
+      function redraw() { if (layer && !raf) raf = requestAnimationFrame(draw); }
+      b.addEventListener('click', function() {
+        var on = !layer;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) draw(); else { layer.remove(); layer = null; }
+      });
+      // components change as they're used: redraw once things settle
+      ['click', 'input', 'change', 'transitionend'].forEach(function(t) {
+        tile.addEventListener(t, function(e) { if (e.target !== b) setTimeout(redraw, t === 'click' ? 350 : 0); });
       });
     });
     box.addEventListener('click', function(e) {

@@ -579,6 +579,16 @@ html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
         <li><strong>Align offline and online.</strong> Workshops, consulting and documents are part of the real workflow. Design the platform to absorb them rather than pretend they don't exist.</li>
       </ul>
 
+      <h4 class="case-study-subhead">Navigation</h4>
+      <p>Part of what made the app feel confusing was the menu itself. Every new feature landed in the main navigation, so the list kept growing: CSRD, EU Taxonomy, GRI, Invest Europe, KfW and SFDR each as their own item, with cross-module action items lost in the scroll. The reporting year sat in a top bar styled like the navigation, took 73px of space and worked differently across modules. Switching organisation meant leaving the screen you were on.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/nav_problems.png?v=2" alt="The old sidebar annotated with its issues: a top bar styled like the navigation, org switching on another screen, a growing flat list of standards, and action items lost in scrolling" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">The old navigation, annotated with what wasn't working</p>
+      <p>I split it in two, based on how people actually work. The default view is about the data itself: analysing it, exploring insights, working across years. None of that depends on a reporting year, so it's year-independent. The workspace is year-dependent. It's where the reporting happens, and we treated it like working in a tax year: you pick a year, and everything inside it, from tasks to each framework's steps, belongs to that year. Organisation and year became two dropdowns at the top, so switching either is one click from anywhere.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/nav_default_workspace.png?v=3" alt="Two sidebars side by side: the default view with Home, Org Tree, Data library, Analytics, Insights, Simulations, Reports and Microsite; and the 2025 workspace with Tasks and each framework's pages grouped under Carbon accounting, CSRD and SFDR" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Two modes: year-independent for working with data (left), year-dependent for reporting (right)</p>
+      <p>A reporting year became something you start, continue or close, rather than a filter you had to remember to set.</p>
+      <img class="project-hero-img" src="projects/atlas/assets/nav_reporting_years.png" alt="Four reporting year cards: 2022 closed, 2023 and 2024 active with a Continue button, 2025 not started with a Start button" style="width:100%; height:auto; display:block; margin: 24px 0 8px; outline: 1px solid #d0d0d0;" />
+      <p class="img-caption">Each reporting year with its status: closed, active or not started</p>
 
       <h4 class="case-study-subhead">A home page built around what to do next</h4>
       <p>The entry point already existed. It was a Reporting Summary: completion dial, disclosure counts, progress bars, task counts by state. It reported status accurately and answered the wrong question. A user could see 57% complete and a lot of progress bars and still not know what to do that morning.</p>
@@ -594,14 +604,14 @@ html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
         </ul>
         <p class="value-prop-goal">&rarr; Self-service: guide customers through complex flows. Solves stop-and-go work: pick up a task where you left it, with the whole process in view.</p>
       </div>
-      <p>I replaced it with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
+      <p>Home now opens on the reporting years, so you choose the year you're working in first. Inside it, I replaced the summary with a What's next list that names the tasks waiting on this user, with a due date, an urgency, and a button that opens the work. The aggregate view moved below as per-framework progress, where it answers "how are we doing" instead of "now what".</p>
 
       <div class="compare-item">
         <div class="twentytwenty-container">
-          <img src="projects/atlas/assets/compare_home_after.png" alt="Home, after" />
-          <img src="projects/atlas/assets/compare_home_before.png" alt="Home, before" />
+          <video src="projects/atlas/assets/compare_home_after.mp4?v=1" poster="projects/atlas/assets/compare_home_after_poster.jpg?v=1" width="1920" height="1154" autoplay muted loop playsinline preload="auto" aria-label="Home, after: choosing the 2025 reporting year opens its workspace, with a What&rsquo;s next list"></video>
+          <img src="projects/atlas/assets/compare_home_before.png?v=6" alt="Home, before" />
         </div>
-        <p class="compare-caption">Home, replacing the Reporting Summary with a What's next list</p>
+        <p class="compare-caption">Home, from picking a reporting year to a What's next list for that year</p>
       </div>
 
       <h4 class="case-study-subhead">Data collection</h4>
@@ -629,7 +639,7 @@ html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
       <div class="compare-item">
         <div class="twentytwenty-container">
           <img src="projects/atlas/assets/compare_datacollection_after.png" alt="Data collection, after" />
-          <img src="projects/atlas/assets/compare_datacollection_before.png" alt="Data collection, before" />
+          <img src="projects/atlas/assets/compare_datacollection_before.png?v=4" alt="Data collection, before" />
         </div>
         <p class="compare-caption">Data collection, one continuous flow instead of a field at a time</p>
       </div>
@@ -651,7 +661,7 @@ html.dark .case-brief-tags span { background: #2a2a2a; color: #ececec; }
       <div class="compare-item">
         <div class="twentytwenty-container">
           <img src="projects/atlas/assets/compare_sfdr_after.png" alt="SFDR, after" />
-          <img src="projects/atlas/assets/compare_sfdr_before.png" alt="SFDR, before" />
+          <img src="projects/atlas/assets/compare_sfdr_before.png?v=4" alt="SFDR, before" />
         </div>
         <p class="compare-caption">SFDR, restructured into its own step-by-step journey</p>
       </div>

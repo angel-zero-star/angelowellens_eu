@@ -2253,7 +2253,8 @@ html.dark .project-section .value-prop-list li strong { color: #ececec; }
 .img-lightbox-gallery.active .lb-stage > img,
 .img-lightbox-gallery.active .lb-stage > video { transform: scale(1); }
 .img-lightbox-gallery .lb-bar {
-	flex: none; width: 100%; max-width: 100%; cursor: default;
+	/* one fixed width, so the count and arrows stay put from item to item */
+	flex: none; width: min(100%, 1300px); cursor: default;
 	display: flex; align-items: center; justify-content: space-between; gap: 24px;
 }
 .img-lightbox-gallery .lb-caption {
@@ -2288,4 +2289,35 @@ html.dark .project-section .value-prop-list li strong { color: #ececec; }
 	.img-lightbox-gallery .lb-bar { flex-direction: column; align-items: stretch; gap: 12px; width: 100% !important; }
 	.img-lightbox-gallery .lb-caption { flex: none; font-size: 12.5px; padding: 10px 12px; }
 	.img-lightbox-gallery .lb-controls { justify-content: flex-end; }
+}
+
+/* Closed, only the dot column opens the rail: the full-width rows sit under
+   the invisible card, so hovering where the menu will be did it too. Once
+   open, the rows take the pointer so you can move across to a label. */
+#section-toc, #section-toc button { pointer-events: none; }
+#section-toc .st-tick { pointer-events: auto; align-self: stretch; align-items: center; }
+#section-toc:hover button, #section-toc:focus-within button { pointer-events: auto; }
+
+/* A compare slider side can be a looping screen recording. Sized like the
+   images (twentytwenty stacks both absolutely); the bezel corners are baked
+   in square, so round them to the frame's own radius. */
+.twentytwenty-container video {
+	position: absolute;
+	top: 0;
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	border-radius: 1.01% / 1.69%;
+}
+
+/* Case study gallery (openCaseGallery): a before/after slider is one of the
+   items, so it sizes to fit the screen like the images do; a long case study
+   shows a count instead of dots. */
+.img-lightbox-gallery .lb-stage > .img-lightbox-compare {
+	max-width: min(92vw, 1300px, calc((100vh - 170px) * 1.66));
+}
+.img-lightbox-gallery .lb-dots.lb-count {
+	font: 600 13px/1 'Inter', sans-serif; color: #191919;
+	font-variant-numeric: tabular-nums; padding: 0 14px;
 }
