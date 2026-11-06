@@ -3042,6 +3042,7 @@ function initDsBento(root) {
 
       function draw() {
         raf = 0;
+        if (!b.classList.contains('is-on')) return;
         if (layer) layer.remove();
         layer = document.createElement('div');
         layer.className = 'dsb-guides';
@@ -3100,11 +3101,21 @@ function initDsBento(root) {
         tile.appendChild(layer);
       }
       function redraw() { if (layer && !raf) raf = requestAnimationFrame(draw); }
+      // the autoplay demo changes the tile without clicks: follow it while on
+      var isLayer = function(n) { return n && n.nodeType === 1 && (n.classList.contains('dsb-guides') || n.closest('.dsb-guides')); };
+      var mo = window.MutationObserver && new MutationObserver(function(ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var m = ms[i];
+          if (isLayer(m.target) || [].some.call(m.addedNodes, isLayer) || [].some.call(m.removedNodes, isLayer)) continue;
+          return redraw();
+        }
+      });
       b.addEventListener('click', function() {
         var on = !layer;
         b.classList.toggle('is-on', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        if (on) draw(); else { layer.remove(); layer = null; }
+        if (on) { draw(); if (mo) mo.observe(tile, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'style'] }); }
+        else { if (mo) mo.disconnect(); if (raf) { cancelAnimationFrame(raf); raf = 0; } layer.remove(); layer = null; }
       });
       // components change as they're used: redraw once things settle
       ['click', 'input', 'change', 'transitionend'].forEach(function(t) {
@@ -3899,8 +3910,10 @@ function initDsBento(root) {
         if (!t || !R) return;
         t.addEventListener('pointerenter', function() { R.over = true; stopTile(k); });
         t.addEventListener('pointerleave', function() { R.over = false; startTile(k, 1200); });
-        t.addEventListener('pointerdown', function() { R.used = true; stopTile(k); });
-        t.addEventListener('focusin', function(e) { if (e.target !== t) { R.used = true; stopTile(k); } });
+        // the spacing-guides toggle only overlays the tile, it doesn't use it,
+        // so the demo picks up again once the pointer leaves
+        t.addEventListener('pointerdown', function(e) { if (e.target.closest('.dsb-guide')) return; R.used = true; stopTile(k); });
+        t.addEventListener('focusin', function(e) { if (e.target !== t && !e.target.closest('.dsb-guide')) { R.used = true; stopTile(k); } });
       });
       if (window.IntersectionObserver) {
         var vio = new IntersectionObserver(function(es) {
