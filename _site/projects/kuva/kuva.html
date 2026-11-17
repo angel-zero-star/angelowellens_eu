@@ -436,7 +436,6 @@ p {
 .kuva-flows:not(.is-paused) .kuva-flows-list button[aria-pressed="true"]:hover .kuva-flows-pause,
 .kuva-flows:not(.is-paused) .kuva-flows-list button[aria-pressed="true"]:focus-visible .kuva-flows-pause { opacity: 1; transform: none; }
 .kuva-flows.is-paused .kuva-flows-list button[aria-pressed="true"] .kuva-flows-go { opacity: 1; transform: none; }
-.kuva-flows-screen { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
 	.kuva-flows-list button, .kuva-flows-list b, .kuva-flows-list span, .kuva-flows-go, .kuva-flows-pause { transition: opacity 160ms ease, border-color 160ms ease; transform: none !important; }
 }
@@ -478,9 +477,6 @@ p {
 	background: none; opacity: 0; transition: opacity 260ms ease;
 }
 .kuva-flows-screen video.is-on { opacity: 1; }
-.kuva-flows-play { position: absolute; inset: 0; display: none; place-items: center; background: none; border: 0; cursor: pointer; }
-.kuva-flows-play svg { width: 72px; height: 72px; }
-.kuva-flows.is-paused .kuva-flows-play { display: grid; }
 
 /* dark mode: the flow cards follow the site's dark tokens; the phone stays white clay */
 html.dark .kuva-flows { color: #ececec; }
@@ -628,9 +624,6 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 			<div class="kuva-flows-screen">
 				<video muted playsinline preload="none" disablepictureinpicture disableremoteplayback poster="projects/kuva/assets/flows/wallet.jpg?v=2"></video>
 				<video muted playsinline preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true"></video>
-				<button type="button" class="kuva-flows-play" aria-label="Play">
-					<svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="35" fill="rgba(31,45,110,.55)"/><path d="M30 24v24l19-12z" fill="#fff"/></svg>
-				</button>
 			</div>
 		</div>
 	</section>

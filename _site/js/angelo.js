@@ -2701,7 +2701,6 @@ function initKuvaFlows() {
   var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var base = 'projects/kuva/assets/flows/', ver = '?v=2';
   var on = vids[0], want = null, visible = false, started = false, held = still;
-  var playBtn = root.querySelector('.kuva-flows-play');
 
   // a click in #content closes the project; this section is for clicking
   root.addEventListener('click', function(e) { e.stopPropagation(); });
@@ -2710,7 +2709,6 @@ function initKuvaFlows() {
   function setHeld(h) {
     held = h;
     root.classList.toggle('is-paused', h);
-    playBtn.setAttribute('aria-label', h ? 'Play' : 'Pause');
     buttons.forEach(function(b) {
       b.setAttribute('title', b.getAttribute('aria-pressed') === 'true' ? (h ? 'Play' : 'Pause') : '');
     });
@@ -2771,9 +2769,6 @@ function initKuvaFlows() {
       show(buttons[(i + 1) % buttons.length].dataset.clip);
     });
   });
-  // the play button covers the screen while paused; a click anywhere on the screen toggles
-  screen.addEventListener('click', toggle);
-
   // scrub: drag along the playing card's progress line; arrow keys step 2s on the focused card
   var scrubbed = false;
   function seekTo(t) {
