@@ -2700,21 +2700,38 @@ function initKuvaFlows() {
   var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-clip]'));
   var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var base = 'projects/kuva/assets/flows/', ver = '?v=2';
-  var on = vids[0], want = null, visible = false, started = false;
+  var on = vids[0], want = null, visible = false, started = false, held = still;
+  var playBtn = root.querySelector('.kuva-flows-play');
 
   // a click in #content closes the project; this section is for clicking
   root.addEventListener('click', function(e) { e.stopPropagation(); });
 
+  // held = paused by the viewer (or reduced motion); scrolling back into view doesn't override it
+  function setHeld(h) {
+    held = h;
+    root.classList.toggle('is-paused', h);
+    playBtn.setAttribute('aria-label', h ? 'Play' : 'Pause');
+    buttons.forEach(function(b) {
+      b.setAttribute('title', b.getAttribute('aria-pressed') === 'true' ? (h ? 'Play' : 'Pause') : '');
+    });
+  }
+
   function play(v) {
-    if (still || !visible) return;
+    if (held || !visible) return;
     var p = v.play();
-    if (p && p.catch) p.catch(function() { screen.classList.add('is-paused'); });
+    if (p && p.catch) p.catch(function() { setHeld(true); });
+  }
+
+  function toggle() {
+    if (held) { setHeld(false); if (!started) show(buttons[0].dataset.clip); else play(on); }
+    else { setHeld(true); on.pause(); }
   }
 
   function show(id) {
     want = id;
     var btn = buttons.filter(function(b) { return b.dataset.clip === id; })[0];
     buttons.forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
+    setHeld(held);
     var next = started ? (on === vids[0] ? vids[1] : vids[0]) : on;
     next.poster = base + id + '.jpg' + ver;
     next.setAttribute('aria-label', 'Recording of the ' + btn.querySelector('b').textContent + ' flow');
@@ -2737,7 +2754,12 @@ function initKuvaFlows() {
   }
 
   buttons.forEach(function(b) {
-    b.addEventListener('click', function() { if (b.dataset.clip !== want) show(b.dataset.clip); });
+    b.addEventListener('click', function() {
+      if (scrubbed) { scrubbed = false; return; }   // the click that ends a drag on the line
+      if (b.dataset.clip === want) { toggle(); return; }
+      if (held && !still) held = false;   // picking another flow means "play this one"
+      show(b.dataset.clip);
+    });
   });
 
   // when a flow finishes, play the next one (back to the first after the last)
@@ -2749,10 +2771,46 @@ function initKuvaFlows() {
       show(buttons[(i + 1) % buttons.length].dataset.clip);
     });
   });
-  root.querySelector('.kuva-flows-play').addEventListener('click', function() {
-    screen.classList.remove('is-paused');
-    var p = on.play();
-    if (p && p.catch) p.catch(function() {});
+  // the play button covers the screen while paused; a click anywhere on the screen toggles
+  screen.addEventListener('click', toggle);
+
+  // scrub: drag along the playing card's progress line; arrow keys step 2s on the focused card
+  var scrubbed = false;
+  function seekTo(t) {
+    if (!on.duration) return;
+    on.currentTime = Math.max(0, Math.min(on.duration - 0.05, t));   // stop short of 'ended'
+  }
+  buttons.forEach(function(b) {
+    var line = b.querySelector('.loop'), resume = false, dragging = false;
+    function at(e) {
+      var r = line.getBoundingClientRect();
+      seekTo((e.clientX - r.left) / r.width * on.duration);
+    }
+    line.addEventListener('pointerdown', function(e) {
+      if (b.dataset.clip !== want || !on.duration) return;
+      e.preventDefault();
+      dragging = true; scrubbed = true;
+      resume = !on.paused;
+      on.pause();
+      line.setPointerCapture(e.pointerId);
+      root.classList.add('is-scrubbing');
+      at(e);
+    });
+    line.addEventListener('pointermove', function(e) { if (dragging) at(e); });
+    function end() {
+      if (!dragging) return;
+      dragging = false;
+      root.classList.remove('is-scrubbing');
+      if (resume) play(on);
+      setTimeout(function() { scrubbed = false; }, 0);   // only swallow this gesture's click
+    }
+    line.addEventListener('pointerup', end);
+    line.addEventListener('pointercancel', end);
+    b.addEventListener('keydown', function(e) {
+      if (b.dataset.clip !== want || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      e.preventDefault();
+      seekTo(on.currentTime + (e.key === 'ArrowRight' ? 2 : -2));
+    });
   });
 
   // the playing flow's progress line fills as its loop plays
@@ -2764,7 +2822,7 @@ function initKuvaFlows() {
   })();
 
   vids[0].classList.add('is-on');
-  if (still) screen.classList.add('is-paused');
+  setHeld(held);
 
   // load the first clip when the section comes near, and play only while it's on screen
   var io = new IntersectionObserver(function(entries) {

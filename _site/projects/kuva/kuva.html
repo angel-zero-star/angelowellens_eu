@@ -431,13 +431,25 @@ p {
 }
 .kuva-flows-list button:not([aria-pressed="true"]):hover .kuva-flows-go,
 .kuva-flows-list button:not([aria-pressed="true"]):focus-visible .kuva-flows-go { opacity: 1; transform: none; }
+/* the playing card pauses and resumes its flow: a pause icon on hover, a play icon while paused */
+.kuva-flows-pause { position: absolute; right: 20px; top: 50%; width: 18px; height: 18px; margin-top: -9px; fill: #1F55D6; opacity: 0; transform: scale(0.85); transition: opacity 200ms ease, transform 240ms cubic-bezier(0.32, 0.72, 0, 1); }
+.kuva-flows:not(.is-paused) .kuva-flows-list button[aria-pressed="true"]:hover .kuva-flows-pause,
+.kuva-flows:not(.is-paused) .kuva-flows-list button[aria-pressed="true"]:focus-visible .kuva-flows-pause { opacity: 1; transform: none; }
+.kuva-flows.is-paused .kuva-flows-list button[aria-pressed="true"] .kuva-flows-go { opacity: 1; transform: none; }
+.kuva-flows-screen { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
-	.kuva-flows-list button, .kuva-flows-list b, .kuva-flows-list span, .kuva-flows-go { transition: opacity 160ms ease, border-color 160ms ease; transform: none !important; }
+	.kuva-flows-list button, .kuva-flows-list b, .kuva-flows-list span, .kuva-flows-go, .kuva-flows-pause { transition: opacity 160ms ease, border-color 160ms ease; transform: none !important; }
 }
 /* progress line along the bottom of the playing flow */
 .kuva-flows-list .loop { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #E6EDFC; }
 .kuva-flows-list .loop i { position: absolute; inset: 0; background: #1F55D6; transform-origin: 0 50%; transform: scaleX(0); }
 .kuva-flows-list button:not([aria-pressed="true"]) .loop { display: none; }
+/* the playing card's line is a scrubber: a taller invisible hit area, and it thickens on hover or drag */
+.kuva-flows-list .loop i { transition: none; }
+.kuva-flows-list button[aria-pressed="true"] .loop { cursor: ew-resize; touch-action: none; transition: height 160ms ease; }
+.kuva-flows-list button[aria-pressed="true"] .loop::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; }
+.kuva-flows-list button[aria-pressed="true"] .loop:hover,
+.kuva-flows.is-scrubbing .kuva-flows-list .loop { height: 6px; }
 
 /* white clay phone: a matte body lit from the top left, a rounded edge that turns away
    into shade on the bottom right, and a soft shadow on the ground in two layers */
@@ -468,7 +480,7 @@ p {
 .kuva-flows-screen video.is-on { opacity: 1; }
 .kuva-flows-play { position: absolute; inset: 0; display: none; place-items: center; background: none; border: 0; cursor: pointer; }
 .kuva-flows-play svg { width: 72px; height: 72px; }
-.kuva-flows-screen.is-paused .kuva-flows-play { display: grid; }
+.kuva-flows.is-paused .kuva-flows-play { display: grid; }
 
 /* dark mode: the flow cards follow the site's dark tokens; the phone stays white clay */
 html.dark .kuva-flows { color: #ececec; }
@@ -478,7 +490,7 @@ html.dark .kuva-flows-list button:hover { border-color: rgba(255, 255, 255, 0.28
 html.dark .kuva-flows-list button[aria-pressed="true"] { border-color: #4D7CFF; }
 html.dark .kuva-flows-list b { color: #ececec; }
 html.dark .kuva-flows-list span { color: #9a9a9a; }
-html.dark .kuva-flows-go { fill: #7FA2FF; }
+html.dark .kuva-flows-go, html.dark .kuva-flows-pause { fill: #7FA2FF; }
 html.dark .kuva-flows-list .loop { background: rgba(255, 255, 255, 0.08); }
 html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 
@@ -605,11 +617,11 @@ html.dark .kuva-flows-list .loop i { background: #4D7CFF; }
 		<div class="kuva-flows-pick">
 			<p class="kuva-flows-label">Watch a flow</p>
 			<div class="kuva-flows-list" role="group" aria-label="Flows">
-				<button type="button" data-clip="wallet" aria-pressed="true"><b>Wallet</b><span>Log in, balance, allocation, assets</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
-				<button type="button" data-clip="pay" aria-pressed="false"><b>Pay a shop</b><span>Amount, scan, check, passcode</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
-				<button type="button" data-clip="getpaid" aria-pressed="false"><b>Get paid</b><span>Type the amount, show your QR code</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
-				<button type="button" data-clip="convert" aria-pressed="false"><b>Convert USDT to KUVA</b><span>Amount, check, passcode, settlement</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
-				<button type="button" data-clip="bitcoin" aria-pressed="false"><b>Markets</b><span>Coin prices, Bitcoin over a day, month, year</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="wallet" aria-pressed="true"><b>Wallet</b><span>Log in, balance, allocation, assets</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="kuva-flows-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="pay" aria-pressed="false"><b>Pay a shop</b><span>Amount, scan, check, passcode</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="kuva-flows-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="getpaid" aria-pressed="false"><b>Get paid</b><span>Type the amount, show your QR code</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="kuva-flows-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="convert" aria-pressed="false"><b>Convert USDT to KUVA</b><span>Amount, check, passcode, settlement</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="kuva-flows-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg><i class="loop"><i></i></i></button>
+				<button type="button" data-clip="bitcoin" aria-pressed="false"><b>Markets</b><span>Coin prices, Bitcoin over a day, month, year</span><svg class="kuva-flows-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="kuva-flows-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg><i class="loop"><i></i></i></button>
 			</div>
 		</div>
 		<div class="kuva-flows-phone">
